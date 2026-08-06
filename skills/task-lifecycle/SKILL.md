@@ -1,6 +1,6 @@
 ---
 name: task-lifecycle
-description: Move tasks between status directories (new/prioritized/wip/blocked/done) with full frontmatter sync, "Done when" reconciliation, reverse blocked-by sweep, overtaken-by-events check before starting a stale task, and collision-safe task numbering. Use whenever creating, starting, blocking, unblocking, or completing a task in a repository's `tasks/` directory.
+description: Move tasks between status directories (new/prioritized/wip/blocked/done) with full frontmatter sync, "Done when" reconciliation, reverse blocked-by sweep, claim validation before starting a task you did not write, and collision-safe task numbering. Use whenever creating, starting, blocking, unblocking, or completing a task in a repository's `tasks/` directory.
 allowed-tools: Bash, Read, Edit
 ---
 
@@ -36,7 +36,7 @@ All transitions are: (a) update frontmatter in place, (b) `git mv` the file, (c)
 - `git mv tasks/new/X.md tasks/prioritized/X.md`
 
 ### `prioritized → wip` (or `new → wip`, `blocked → wip`)
-- **First run the overtaken-by-events check** (next section) — a task that has sat a while may already be answered.
+- **First validate the task's claims** (see below) — unless you wrote it yourself, in which case there is nothing to re-check.
 - Set `status: wip`
 - Bump `updated:`
 - `git mv` to `tasks/wip/`
