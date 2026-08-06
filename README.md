@@ -92,6 +92,12 @@ python3 scripts/check-portability.py --list   # the vocabulary and why each term
 False positives are the point. If a term is genuinely needed, the argument for it should be made
 out loud rather than assumed.
 
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). The short version: clone this repo into your skills
+directory and it loads in place, so your working tree is what runs — no install, no cache, no
+version bump while you iterate. Releasing is the separate loop, and it does need a bump.
+
 ## Provenance
 
 Extracted from building [the kist](https://thekist.app) — a home-inventory app whose repo has run

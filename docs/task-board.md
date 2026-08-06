@@ -11,13 +11,14 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**3 tasks** — 1 new · 0 prioritized · 0 wip · 0 blocked · 2 done.
+**4 tasks** — 2 new · 0 prioritized · 0 wip · 0 blocked · 2 done.
 
 WIP limit: within 3 per human owner.
 
-| new (1) | prioritized (0) | wip (0) | blocked (0) |
+| new (2) | prioritized (0) | wip (0) | blocked (0) |
 |---|---|---|---|
 | **[002](../tasks/new/002-decide-notice-copyright-holder.md)** Decide whether NOTICE should carry a legal name<br><sub>justmaniv · 2026-08-06</sub> | _nothing triaged_ | _nothing pulled_ | _nothing waiting_ |
+| **[004](../tasks/new/004-author-eval-suite-for-the-skill.md)** Nothing tests whether the skill is followed, only that it…<br><sub>justmaniv · 2026-08-06</sub> |  |  |  |
 
 ## Blocked-by graph
 
