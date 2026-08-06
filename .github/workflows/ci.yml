@@ -39,6 +39,11 @@ jobs:
         # The two constraints above are only worth stating if something checks them.
         run: python3 scripts/check-workflows.py
 
+      - name: release gate
+        # A pinned version that does not move ships nothing: `plugin update` reports
+        # "already at the latest version" and the fix never reaches an installed copy.
+        run: python3 scripts/check-release.py
+
       - name: plugin + marketplace manifests validate
         # Installability is the product. A malformed manifest means /plugin install
         # fails for everyone, and nothing else in this pipeline would notice.
