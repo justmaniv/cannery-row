@@ -42,7 +42,19 @@ SCANNED = [
     "skills/task-lifecycle/SKILL.md",
     "tasks/README.md",
     "scripts/generate-task-board.py",
+    # The board is scanned as well as its generator, and that is not redundancy. The first
+    # version of this list held only the generator, and a dead relative link plus a foreign CI
+    # gate number sailed through — they lived in an emitted string, so nothing in the source
+    # read as stack-coupled. What reaches a user is the output. Scan the output.
+    "docs/task-board.md",
 ]
+
+# Links a downstream repository cannot resolve. Distinct from FORBIDDEN because these are not
+# vocabulary — a term can be argued for, a 404 cannot. Any relative markdown link emitted into
+# a generated artifact has to resolve in the repo it lands in, and only same-directory or
+# tasks/ links do.
+LINK_RE = re.compile(r"\[[^\]]*\]\((?!https?://|#)([^)]+)\)")
+PORTABLE_LINK_PREFIXES = ("../tasks/", "tasks/", "./")
 
 # term -> (why it is not portable, what to write instead)
 FORBIDDEN = {
@@ -95,6 +107,7 @@ def scan(repo_root: Path) -> tuple[list[str], list[str]]:
         if not path.exists():
             errors.append(f"scanned file is missing: {rel}")
             continue
+        is_generated = rel.startswith("docs/")
         for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
             for term, pattern in PATTERNS.items():
                 match = pattern.search(line)
@@ -103,6 +116,16 @@ def scan(repo_root: Path) -> tuple[list[str], list[str]]:
                 why, instead = FORBIDDEN[term]
                 findings.append(
                     f"{rel}:{lineno}: {match.group(0)!r} — {why}; write {instead}\n"
+                    f"    {line.strip()}"
+                )
+            if not is_generated:
+                continue
+            for target in LINK_RE.findall(line):
+                if target.startswith(PORTABLE_LINK_PREFIXES):
+                    continue
+                findings.append(
+                    f"{rel}:{lineno}: relative link {target!r} — a generated artifact must not "
+                    f"link outside the repo it is generated into; this 404s downstream\n"
                     f"    {line.strip()}"
                 )
     return findings, errors
