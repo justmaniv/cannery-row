@@ -33,6 +33,56 @@ mkdir -p tasks/{new,prioritized,wip,blocked,done}
 Ask Claude to create a task and it will use the skill. Copy `tasks/README.md` from this repo into
 yours if you want the conventions written down for humans too.
 
+## What it's for
+
+Agent-driven, spec-driven development. The task file **is** the spec, and it is a handoff between
+sessions that share no context.
+
+1. **One session writes the task.** Not a to-do line — a spec. Why this work exists, what is
+   verifiably true in the code *today*, the design fork with its trade-offs and a recommendation,
+   and a "Done when" list somebody else can check without asking you what you meant.
+2. **Time passes.** Days. Other people's merges. The session that wrote it is gone; its context
+   window ended and took every unwritten assumption with it.
+3. **A different session picks it up, validates it, then executes it.** Validation first: does the
+   spec describe reality? The skill puts this in front of you and gives you the commands; it can't
+   make you run them. Nothing enforces it, and nothing can. Avoiding context rot is the operator's
+   job — the tool's job is to make sure the question gets asked.
+
+Beat 3 is the one people skip, and it is the one that makes the other two safe.
+
+**A worked example, from this project's own use.** A session wrote a well-formed task: scope
+boundaries against two neighbouring pieces of work, a three-option design fork with effort
+estimates and a recommendation, thresholds sourced to their owning documents. Its premise was that
+a database table had never been populated. The session that picked it up checked before starting
+and found seven migrations already seeding that table — the convention the task said had never
+happened had worked for a year. The original grep had searched the wrong directory.
+
+Nothing was wrong with the task as *writing*. It was wrong as a *claim*, and every automated check
+in the world would have passed it. Caught in about four minutes, before a line of code was written,
+because validating the spec is beat 3 and not an optional courtesy.
+
+That is the loop this exists to support. Files in the repo are what make it possible: the handoff
+has to carry everything, because there is nobody left to ask. A conversation log can't be pulled up
+in a new session. A shared list can't hold a page of reasoning per item. Notes kept outside the
+repository drift away from the code they describe. A file next to the code, in the same commit
+history, does not.
+
+### The spec is the main shape, not the only one
+
+Specs are what a task file is *best* at. They are not all it is used for. Four shapes seen in real
+use — the list is open, and the point of writing it down is that you will find others:
+
+| Shape | What the file is | Why a file and not something else |
+|---|---|---|
+| **Spec / handoff** | The loop above. Written to be executed later by someone with none of your context. | It has to survive the session that wrote it. |
+| **Blocking gate** | A task whose only job is to hold other work until a human rules — an architecture decision to sign off, a design to approve. It carries *no* execution by design. | The dependency is visible on the board instead of living in someone's head, and `blocked/` is an honest answer to "why hasn't this moved?" |
+| **Post-mortem / decision record** | Written *after* the work, to record what broke and why the fix is shaped the way it is. Spec-driven in reverse. | It lands next to the commit that caused it, and `git log` on one file reads as a narrative. |
+| **The plan itself** | No single file — the `blocked-by:` graph *between* them. Sequencing is the edges, not the nodes. | A plan expressed as edges stays correct when one task changes; a plan written as a document goes stale on the first surprise. |
+
+A blocking gate is worth calling out because it is the least obvious. A task that deliberately does
+no work, exists only to stop other work, and closes when a person says "fine" sounds like overhead —
+until you have three sessions running and no other way to express "not until they've looked at it."
+
 ## Why this instead of the alternatives
 
 The ecosystem's nearest neighbours are good, and they solve different problems:
@@ -65,7 +115,7 @@ what the skill is for.
 
 | | |
 |---|---|
-| `skills/task-lifecycle/SKILL.md` | The operational procedure — transitions, frontmatter invariants, the reverse `blocked-by` sweep, collision-safe numbering across worktrees, and a staleness check before starting an old task. This is the substance. |
+| `skills/task-lifecycle/SKILL.md` | The operational procedure — transitions, frontmatter invariants, the reverse `blocked-by` sweep, collision-safe numbering across worktrees, and a claim-validation step before starting a task you didn't write. This is the substance. |
 | `tasks/README.md` | The human-readable conventions. Copy it into your repo. |
 | `scripts/generate-task-board.py` | Generates `docs/task-board.md` — lanes in flow order, the blocker graph as Mermaid, a WIP-limit check. Pure projection; the files stay the source of truth. `--check` for CI. |
 | `scripts/check-portability.py` | Fails if any shipped file names a language, vendor, or planning cadence. See below. |
