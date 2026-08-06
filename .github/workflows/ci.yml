@@ -1,0 +1,47 @@
+name: CI
+
+# `pull_request`, never `pull_request_target`. This repo runs on GitHub-hosted
+# runners only and holds no secrets, so a fork PR gets an unprivileged sandbox
+# with nothing worth stealing. `pull_request_target` would hand a fork's code a
+# token against this repo — the one change here that could actually cause harm.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: tests + gates
+    # GitHub-hosted, standard size, always. Never a self-hosted label: on a public
+    # repo that lets any fork PR execute arbitrary code on the runner host. Never a
+    # larger runner either — those bill regardless of repository visibility.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: portability gate
+        run: python3 scripts/check-portability.py
+
+      - name: board generator unit tests
+        run: python3 scripts/generate_task_board_test.py
+
+      - name: board is fresh
+        run: python3 scripts/generate-task-board.py --check
+
+      - name: workflow safety gate
+        # The two constraints above are only worth stating if something checks them.
+        run: python3 scripts/check-workflows.py
+
+      - name: plugin + marketplace manifests validate
+        # Installability is the product. A malformed manifest means /plugin install
+        # fails for everyone, and nothing else in this pipeline would notice.
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude plugin validate . --strict

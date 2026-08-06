@@ -1,0 +1,91 @@
+# Tasks
+
+Lightweight directory-based task tracking. Each task is a single markdown file; its location IS its status.
+
+```
+tasks/
+├── new/          # captured, not yet triaged
+├── prioritized/  # triaged and ordered; pull from the top
+├── wip/          # actively in progress (keep this small)
+├── blocked/      # waiting on something — note the blocker in the file
+└── done/         # completed; archive here for history
+```
+
+## Conventions
+
+- **Filename:** `NNN-short-kebab-slug.md` — the three-digit prefix orders the queue within a directory. Numbering restarts per project; the numbers carry no meaning beyond ordering, so yielding one is free.
+- **Move, don't copy.** Status changes are `git mv` — git history preserves the journey. A task's whole life is `git log --follow` on one file, not a line that changed in a big shared file.
+- **One task per file.** If a task spawns sub-tasks, link them; don't nest.
+- **`prioritized/` ordering:** put at the top whatever unblocks the most other work, then whatever reduces the most risk, then the smallest useful batch. Order is expressed by position in the directory listing (hence the numeric prefix), not by a priority field — there is nothing to keep in sync.
+- **WIP limit: 3 in `wip/` per human owner** — roughly one per concurrent session. Pull from the top of `prioritized/`. A task that stalls moves to `blocked/` *before* you pull the next one; that move is what keeps the limit honest rather than decorative.
+- **Frontmatter is required** for status tracking.
+
+## Frontmatter
+
+```yaml
+---
+created: YYYY-MM-DD       # set on creation, never changed
+updated: YYYY-MM-DD       # bumped on every status change or material edit
+completed: YYYY-MM-DD     # set when moved to done/; empty otherwise
+status: new               # must match the directory: new | prioritized | wip | blocked | done
+owner: your-name
+blocked-by: ""            # optional; the blocking task's path, or a prose condition
+links:                    # optional
+  - relative/path/to/related-doc.md
+---
+```
+
+`blocked-by:` takes either a task path (`tasks/wip/012-thing.md`) or a plain-language condition
+("waiting on the vendor contract"). Both are first-class — a task gated on something outside the
+repo is still blocked, and rendering it as unblocked is a lie. For several blockers, use a YAML
+block sequence.
+
+Add your own fields if your project needs them. The board generator ignores what it doesn't know,
+so extra frontmatter costs nothing — but if you want it *rendered*, add it to the generator
+deliberately rather than hoping.
+
+## Status hygiene
+
+`status` and the file's directory must always agree. When moving a task:
+
+- **Starting:** if the task has sat for more than one planning cycle, first check it hasn't been overtaken — `git log --oneline --all --grep="\bNNN\b"` (ignore hits where NNN is only a PR number) and `grep -rn "task NNN" --exclude-dir=tasks .`. Read any hit before starting: a task's work can ship under a *different* task number while its file sits untouched. Then `git mv` to `wip/`, set `status: wip`, bump `updated`.
+- **Completing:** resolve every `- [ ]` in the "Done when" checklist (`- [x]` if met, `- ~~strikethrough~~ (reason)` if deliberately skipped), set `status: done`, set `completed`, bump `updated`, `git mv` to `done/`.
+- **Blocking:** `git mv` to `blocked/`, set `status: blocked`, bump `updated`, fill `blocked-by`.
+
+Do this in the same commit as the work. Treat status moves and frontmatter updates as part of the
+acceptance criteria, not as bookkeeping to catch up on later.
+
+**On completion, sweep dependents.** Tasks reference each other by path in `blocked-by`, so a move
+invalidates other files. When a task lands in `done/`, find what referenced it
+(`grep -rl "blocked-by:" tasks/ | xargs grep -l <slug>`), rewrite the now-stale path to the new
+`done/` location, and re-triage any task whose only remaining blocker just closed. Skipping this
+leaves tasks sitting in `blocked/` behind something that finished weeks ago.
+
+> The operational procedure for Claude Code is in the `task-lifecycle` skill this repo ships.
+> This README is the human-readable summary; the skill governs the operations.
+
+## Seeing the whole board
+
+```bash
+python3 scripts/generate-task-board.py            # writes docs/task-board.md
+python3 scripts/generate-task-board.py --check    # exits non-zero if the board is stale
+```
+
+`docs/task-board.md` is a generated view of this directory — every lane in flow order,
+`prioritized/` in pull order, the `blocked-by:` graph as a Mermaid diagram, a WIP-limit check, and
+`done/` collapsed to a count plus the most recent entries.
+
+It is a **pure projection** — the files here stay the source of truth, and the board owns no state.
+If it needs a field, add the field to the frontmatter above first. Regenerate and commit it in the
+same commit as any lane move, and run `--check` in CI so a stale board can't merge.
+
+## Why one file per task
+
+Two properties fall out of the layout, and they are the whole reason to prefer it over a single
+shared list:
+
+- **Parallel sessions don't collide.** Two agents working two tasks touch two files. A shared list
+  is a merge conflict waiting for the second writer — which is a real incident, not a hypothetical,
+  in the codebase this was extracted from.
+- **Loading one task costs one task.** An agent pulling a task reads that file, not the whole board.
+  The context saved is the difference between a page and the entire queue.

@@ -1,0 +1,273 @@
+---
+name: task-lifecycle
+description: Move tasks between status directories (new/prioritized/wip/blocked/done) with full frontmatter sync, "Done when" reconciliation, reverse blocked-by sweep, overtaken-by-events check before starting a stale task, and collision-safe task numbering. Use whenever creating, starting, blocking, unblocking, or completing a task in a repository's `tasks/` directory.
+allowed-tools: Bash, Read, Edit
+---
+
+## Premise
+
+`tasks/<status>/NNN-slug.md` IS the task tracker. The directory the file lives in is its status. Frontmatter must agree with the directory. Other tasks reference this one by path in their `blocked-by:` field, so a move has cross-task consequences.
+
+This skill is the source of truth for the lifecycle procedure. Project `tasks/README.md` files document layout and frontmatter for humans; this skill governs the *operations*.
+
+---
+
+## Invariants (always true after this skill runs)
+
+1. `status:` frontmatter value === directory the file is in.
+2. `updated:` is today's date on every transition or material edit.
+3. `created:` is set at file creation and **never** changes.
+4. `completed:` is set if and only if the file is in `done/`.
+5. Every `- [ ]` in the "Done when" checklist is resolved (`- [x]` or `- ~~strikethrough~~ (reason)`) before a task moves to `done/`.
+6. No task in `blocked/` references a `blocked-by:` path that points to a `done/` task — those references are either cleared, or the task is moved out of `blocked/`.
+7. **The campsite is clean** before any task is reported `done` to the human — see the Clean-campsite gate in the `wip → done` procedure. "Done" is never claimed over a littered workspace.
+
+If you can't satisfy an invariant, stop and surface the conflict — don't move the file.
+
+---
+
+## Transitions
+
+All transitions are: (a) update frontmatter in place, (b) `git mv` the file, (c) for `→ done`, run the reverse-dependency sweep. Do this in the same turn as the work that triggered the transition. Don't ask "should I move it?" as a separate question.
+
+### `new → prioritized`
+- Set `status: prioritized`
+- Bump `updated:` to today
+- `git mv tasks/new/X.md tasks/prioritized/X.md`
+
+### `prioritized → wip` (or `new → wip`, `blocked → wip`)
+- **First run the overtaken-by-events check** (next section) — a task that has sat a while may already be answered.
+- Set `status: wip`
+- Bump `updated:`
+- `git mv` to `tasks/wip/`
+
+### `* → blocked`
+- Set `status: blocked`
+- Bump `updated:`
+- Fill `blocked-by:` with the blocking task's path (e.g. `tasks/wip/010-create-prd.md`). Multi-line YAML block scalar is fine for multiple blockers.
+- `git mv` to `tasks/blocked/`
+
+### `wip → done` (full procedure)
+
+1. **Reconcile "Done when" checklist.** Every `- [ ]` must become either:
+   - `- [x]` (or `- ✅`) — criterion actually met
+   - `- ~~strikethrough~~ (reason)` — deliberately skipped, reason stated
+   
+   Never pre-fill `- ✅` on something that wasn't accomplished. ✅ means done; pre-filling erodes the signal.
+2. Set `status: done`
+3. Set `completed:` to today
+4. Bump `updated:` to today
+5. `git mv` to `tasks/done/`
+6. **Run reverse-dependency sweep** (next section).
+7. **Clean the campsite** (next section) — the last thing before you report `done` to the human.
+
+---
+
+## Clean-campsite gate (before claiming `done`)
+
+**"Done" is not "the change merged" — it is "the change merged *and* the workspace is as clean
+as you found it."** Never come back to the human claiming a task is done while temporary
+scaffolding you created is still lying around. This is a required completion step, not a
+courtesy: leftover worktrees, merged branches, and orphaned background jobs are the litter
+the *next* session (or the human) trips over. Every task carries an implicit clean-campsite
+acceptance criterion — you do not need to restate it per file, but you must satisfy it every
+time (invariant 7).
+
+Walk this checklist and act on each — don't just eyeball it:
+
+```bash
+git worktree list          # any temp worktree you added for this task → remove it
+git branch -vv             # merged/`: gone` local branches you created → delete (-d, or -D for squash-merges)
+git status -sb             # working tree clean, on a known branch (usually main), no stray files
+jobs                       # background polls/servers you started → stop them
+```
+
+- **Temp worktrees:** reset the branch to `origin/main` first if it holds merged work (avoids a
+  "discard permanently?" prompt), then `git worktree remove`. Never leave a task's worktree behind.
+- **Local branches:** delete the ones *you* created that are now merged or whose remote is `gone`.
+  **Leave** branches with an open PR or active sibling task — say which you left and why.
+- **Remote branches / anything outward-facing:** do not delete without asking — surface it instead.
+- **Background jobs:** stop any poll/watch/server you spawned for the task.
+- **Scratchpad temp files** are session-scoped and auto-cleaned — no action needed; never put task
+  deliverables there.
+
+Then, in the done report, state the campsite is clean and note anything deliberately left standing.
+
+---
+
+## Before starting: check the task hasn't been overtaken
+
+**A task file is a claim about the past. Before acting on it, confirm the claim is still true.**
+Work converges under whatever task the author happened to be in — so a task's own work can ship
+under a *different* number while its file sits untouched. Read the code before you read the task.
+
+Run this whenever pulling a task that has sat for more than one planning cycle (skip it for a task
+written this week — the check is for staleness, not ceremony), for task number `NNN`:
+
+```bash
+git log --oneline --all --grep="\bNNN\b"     # discard hits where NNN is only a PR number, (#NNN)
+grep -rn "task NNN" --include='*.rs' --include='*.md' --exclude-dir=tasks .
+```
+
+Read any hit before proceeding. Note the second command excludes `tasks/` deliberately: hits
+*inside* `tasks/` are just cross-references, and the naive `| grep -v '^./tasks/'` filter silently
+matches nothing, because paths come back without the `./` prefix.
+
+Then act on what you find:
+
+- **Work already shipped →** the task is done, not startable. Close it per `wip → done` with the
+  evidence (the commit and the file that implements it), and spawn a follow-up for any real
+  remainder rather than folding the remainder into the closure.
+- **Partially shipped →** rewrite the task to the *actual* remaining scope before starting, so the
+  "Done when" list describes work that still exists.
+- **Nothing found →** proceed. The check cost two greps.
+
+**Why this matters most for decision tasks and spikes.** Their chosen option characteristically
+ships inside the very piece of work that needed it. A decision task picked up cold reads as an
+instruction to *go implement option A* — so the failure mode is not a stale board entry, it is
+rebuilding something that already has callers. Real case: a coverage-standard decision task sat in
+`new/` for ten days while the harness it recommended was built and merged the very next day under a
+different task number — the implementing file named the decision task in its own module doc. It was
+caught only because the pickup happened to read the code first. That is luck, not procedure.
+
+If you also run a periodic grooming sweep, this is its per-pickup complement: grooming bounds
+staleness to at most one cycle; this catches it at zero latency, at the moment it would cost work.
+
+---
+
+## Before creating: check for prior coverage
+
+**Before drafting a new task, search for existing coverage of its topic.** A new task
+that duplicates or *contradicts* an existing task, ADR, README, or runbook is worse than
+no task: two artifacts answering the same question differently silently diverge, and a
+blind draft can merge to `main` before anyone notices the conflict. This is a real failure
+mode, not a hypothetical — it has happened (a runner-cache task drafted and merged before
+finding an existing task + README already governed that ground, with a *different* stance).
+
+The check is cheap and mandatory. Before writing the file:
+
+```bash
+# TOPIC = a couple of distinctive keywords for the task (e.g. "runner cache", "otp signup")
+grep -ril "TOPIC" tasks/ docs/decisions/ docs/working-agreement/ 2>/dev/null
+grep -ril "TOPIC" -- '*README*' 'ci/**' 2>/dev/null   # topic's runbook/README home, if any
+```
+
+Then act on the hits:
+
+- **Prior coverage exists →** extend or reopen against it (add a task that *references* the
+  governing doc/ADR, or reopen the owning task) rather than creating a parallel artifact.
+  If the existing coverage is a decision you'd be changing, that's an ADR/supersession
+  conversation, not a fresh task.
+- **A governing doc exists but is stale/wrong →** fix it in place; don't route around it
+  with a contradicting new task.
+- **Nothing found →** proceed to numbering below.
+
+Fold anything you *do* find into the new task's `links:` frontmatter so the next person
+inherits the trail. When in doubt, widen the keywords — a false "nothing found" is the
+expensive outcome.
+
+---
+
+## Assigning the next task number (on creation)
+
+Task numbers must be unique across the **entire repo — every branch and every
+worktree** — not just the tree you happen to be sitting in. Numbering off a plain
+`ls tasks/` in the current worktree is the **#1 collision source**: two parallel
+branches each read the same stale max, both grab the same "next" number, and they
+clash at merge. This is not hypothetical — it happens whenever work is split across
+worktrees (which is the norm now that `main` is PR-protected).
+
+**Always compute the next number with this scan** — it covers committed task files
+on every local + remote ref, *plus* working-tree files (including staged/untracked
+new ones) in every worktree:
+
+```bash
+# If other machines/sessions push task branches, fetch first so their numbers count:
+#   git fetch --all -q
+next=$( {
+  git for-each-ref --format='%(refname)' refs/heads refs/remotes 2>/dev/null \
+    | while read -r ref; do git ls-tree -r --name-only "$ref" -- tasks/ 2>/dev/null; done
+  git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2}' \
+    | while read -r wt; do find "$wt/tasks" -type f -name '*.md' 2>/dev/null; done
+} | sed -E 's#.*/##' | grep -oE '^[0-9]{3}' | sort -n | tail -1 )
+printf 'next task number: %03d\n' $(( 10#${next:-0} + 1 ))
+```
+
+- Run it from anywhere in the repo — it scans **all** worktrees and refs, not the cwd.
+- `git ls-tree` reads each ref's committed tree; the `find` over `git worktree list`
+  paths catches numbers created-but-not-yet-committed in a sibling worktree.
+- Creating several tasks at once? Increment locally from that base; don't re-scan between them.
+- Collide anyway (a branch got pushed after you scanned)? The loser **renumbers via
+  `git mv` before merge** — task numbers carry no meaning, so yielding a number is free.
+- Never reach into another session's worktree to renumber *its* task; renumber *yours*.
+
+---
+
+## Commit + push (closes every transition)
+
+Every status move and every new task file is committed and pushed in the same session the change happens. Provenance — *why* this task moved, *why* this task exists — lives in conversation context until it's in git history. If the session ends before the commit, that reasoning is lost.
+
+The atomic unit is *"what would I want to revert in one move."*
+
+- **Status moves** (one or two files): commit + push immediately after the lifecycle ops land. Use the `commit-push` skill.
+- **Singleton task creation** (a one-off task drafted with its own rationale, e.g. a single new spec): commit + push immediately, like a move.
+- **Bulk creation** (generating many cross-referencing task files at once): commit per **coherent batch** — one commit per group whose members reference each other and don't independently revert. Push when the batch is internally consistent (every internal cross-reference resolves). Per-file commits in this case are ceremony without provenance benefit and drown the signal at bisect time.
+
+`git mv` is preferred for moves *of tracked files*. If the file is untracked (just created this session), a plain `mv` + commit is equivalent — the commit captures the destination path.
+
+---
+
+## Reverse-dependency sweep (on `→ done` only)
+
+When a task closes, other tasks may have been waiting on it. Find them and update.
+
+```bash
+# Replace NNN with the closing task's number prefix, or use the slug
+grep -rl "blocked-by:" tasks/ | xargs grep -l "NNN-slug"
+```
+
+For each hit:
+
+1. **Update the path.** The reference probably points to the old location (e.g. `tasks/wip/NNN-slug.md`). Rewrite it to the new path (`tasks/done/NNN-slug.md`) — references shouldn't go stale.
+2. **Check if this was the last blocker.** Read the dependent's `blocked-by:` field. If this task was the only entry, the dependent is no longer blocked.
+3. **Surface, don't auto-move.** List the now-unblocked tasks back to the user with a recommendation:
+   > Task 005 was blocked only by 016 (just closed). Recommend moving to `prioritized/`. Confirm?
+   
+   The user decides whether the dependent goes to `prioritized/`, `wip/`, or stays put. Auto-moving risks promoting work the user hasn't re-triaged.
+
+---
+
+## When `blocked-by:` paths drift
+
+Task paths change every time the blocker transitions. Two ways to handle:
+
+- **At sweep time** (preferred): when sweeping for `→ done`, also rewrite stale paths in any matched task.
+- **Defensively**: if you notice a `blocked-by:` pointing to a path that doesn't exist, find the file by slug and rewrite.
+
+Don't leave stale paths — they break the dependency graph silently.
+
+---
+
+## Phase-tipping tasks
+
+Some projects keep a document that tracks *what phase the project is in* — requirements locked, architecture decided, first end-to-end slice in production, launch criterion met. If yours does, it is the doc most likely to go quietly stale, because nothing fails when it does.
+
+**On every `→ done` transition, explicitly evaluate whether this closure moves the project across a phase boundary.** Do this every time, as part of the same completion step — not as a separate judgment call you might skip. Most task closures are routine and the answer is no; a phase doc tracks boundaries, not throughput. But the check itself is not optional, because a missed phase tip compounds silently until someone notices the doc is wrong.
+
+If the answer is yes:
+
+- Update the phase doc — status, any "you are here" marker, any summary table.
+- **Check for a companion rendered visual** (SVG, diagram, image) alongside it. If one exists, regenerate it in the same pass, not as an optional afterthought. A stale visual next to a freshly-updated source doc is worse than no visual at all: it silently contradicts the doc it summarizes, and nobody re-checks a rendered image against its source once it exists.
+
+If you discover the phase doc (or its visual) is *already* stale from a tip that happened in a prior session — even though the task you're closing right now isn't itself the trigger — fix it now rather than deferring further. Staleness compounds; the moment you notice is the cheapest moment to fix it.
+
+If your project has no such document, this section is a no-op. Don't invent one to satisfy it.
+
+---
+
+## What this skill does NOT do
+
+- **Doesn't decide what to work on.** Prioritization is a judgment call; this skill executes transitions.
+- **Doesn't write task content.** "Done when" updates reflect work the user/Claude already did.
+- **Doesn't auto-promote unblocked tasks.** It surfaces them; the user triages.
+- **Doesn't write the commit message.** It mandates the commit + push (see above) but defers message authorship to the `commit-push` skill.

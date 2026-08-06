@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "cannery-row",
+  "description": "Directory-based task tracking for repositories worked by coding agents.",
+  "owner": {
+    "name": "justmaniv",
+    "url": "https://github.com/justmaniv"
+  },
+  "plugins": [
+    {
+      "name": "cannery-row",
+      "source": "./",
+      "description": "Task state as files, where the location is the status. Ships the task-lifecycle skill and a generated board view.",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "homepage": "https://github.com/justmaniv/cannery-row",
+      "author": {
+        "name": "justmaniv",
+        "url": "https://github.com/justmaniv"
+      },
+      "category": "workflow",
+      "tags": ["tasks", "workflow", "git"]
+    }
+  ]
+}
