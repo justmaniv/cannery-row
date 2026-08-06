@@ -21,22 +21,58 @@ A directory under a skills directory that contains `.claude-plugin/plugin.json` 
 place**, as `<name>@skills-dir`, with no marketplace and no install step. That is the whole trick:
 clone the repo *into* your skills directory and your working tree is what runs.
 
+Use a **git worktree**, not a clone, so switching which branch you are testing is one command:
+
 ```bash
-git clone https://github.com/justmaniv/cannery-row ~/.claude/skills/cannery-row
-claude plugin disable cannery-row@cannery-row    # see the warning below
-# restart your session — it now loads as cannery-row@skills-dir, from your checkout
+git worktree add ~/.claude/skills/cannery-row-dev <your-branch>
+claude plugin uninstall cannery-row@cannery-row   # required — see below
+# restart your session
+claude plugin list                                 # cannery-row@skills-dir · Status: ✔ loaded
 ```
 
-Edit, restart the session, and the change is live. No version bump, no cache, no install.
+Edit, restart the session, and the change is live. No version bump, no cache, no install. To test a
+different branch, `git -C ~/.claude/skills/cannery-row-dev checkout <other-branch>` and restart.
 
-> ⚠️ **Disable the installed copy while developing.** Otherwise the marketplace install and the
-> skills-dir checkout are both active and you have two copies of the same skill in one session —
-> the exact duplication this project exists to argue against, reintroduced in your own environment.
-> The symptom is subtle: you cannot tell which copy answered.
+> ⚠️ **Uninstall the marketplace copy — disabling it is not enough.** An installed plugin holds its
+> name whether or not it is enabled, and the installed copy wins. `claude plugin disable` leaves the
+> skills-dir copy silently unloaded, and `plugin list` says so explicitly:
+>
+> ```
+> cannery-row-dev@skills-dir: ✘ Not loaded — the name "cannery-row" is already taken by an
+> installed plugin (cannery-row@cannery-row), which takes precedence.
+> ```
+>
+> Read that line before trusting a test result. If you skip it, you are editing one copy and running
+> another — the failure this whole page exists to prevent, wearing a different hat. (An earlier
+> revision of this page recommended `disable`. It does not work; verified.)
 
-Re-enable it when you are done (`claude plugin enable cannery-row@cannery-row`), or keep working
-from `skills-dir` permanently if you are a maintainer — that is a legitimate steady state, it just
-has to be a choice rather than an accident.
+Restore the installed copy when you are done:
+
+```bash
+git worktree remove ~/.claude/skills/cannery-row-dev   # run this from your main tree, not from inside it
+claude plugin marketplace update cannery-row
+claude plugin install cannery-row@cannery-row
+```
+
+Working permanently from `skills-dir` is a legitimate steady state for a maintainer — it just has to
+be a choice rather than an accident.
+
+### Installing from a branch through the real marketplace path
+
+The loop above bypasses the marketplace entirely, which is the point for fast iteration — but it
+also means the install machinery goes untested. When you need to exercise that path (a manifest
+change, a `source` change, anything about how the plugin is *fetched*), a marketplace source accepts
+a `ref`:
+
+- **Local worktree as a marketplace** — `claude plugin marketplace add ~/.claude/skills/cannery-row-dev`
+  installs from whatever branch that worktree has checked out, through the real fetch path.
+  ⚠️ The marketplace `name` is `cannery-row` either way, and adding a second marketplace with the
+  same name **replaces** the first — so you will need to re-add the GitHub one afterwards.
+- **A published branch** — marketplace sources support `ref` (branch or tag), and plugin sources
+  support `ref` and `sha`. There is no CLI flag for it, so it goes in `extraKnownMarketplaces` in
+  settings rather than on the `marketplace add` command line.
+
+For ordinary skill edits, neither is worth the ceremony. Use the worktree loop.
 
 ## Testing before you commit
 
