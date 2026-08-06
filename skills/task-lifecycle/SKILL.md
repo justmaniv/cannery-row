@@ -107,14 +107,32 @@ Then, in the done report, state the campsite is clean and note anything delibera
 
 ---
 
-## Before starting: check the task hasn't been overtaken
+## Before starting: validate the task's claims
 
-**A task file is a claim about the past. Before acting on it, confirm the claim is still true.**
-Work converges under whatever task the author happened to be in — so a task's own work can ship
-under a *different* number while its file sits untouched. Read the code before you read the task.
+**A task file is a claim about the past. Before acting on it, confirm the claim is true.** Note
+what that does *not* say: not "still true." A task can be false the day it was written.
 
-Run this whenever pulling a task that has sat for more than one planning cycle (skip it for a task
-written this week — the check is for staleness, not ceremony), for task number `NNN`:
+**The trigger is authorship, not age.** Validate the load-bearing claims of any task you did not
+write yourself, however fresh it is. A task you wrote in this session needs nothing — you already
+read the code. Everything else does, because two different failures land in the same place:
+
+- **Overtaken.** Work converges under whatever task its author happened to be in, so a task's own
+  work can ship under a *different* number while its file sits untouched. Age makes this likelier.
+- **Wrong when written.** The author searched the wrong directory, read a stale document, or
+  assumed a convention had lapsed. Age has nothing to do with it, and nobody reviewed the file
+  before it landed.
+
+The second is the more likely failure for a task written to be handed off, and the more expensive:
+a stale task wastes a pickup, a false premise sends you building the wrong thing with a
+well-argued spec telling you it's right. Real case: a task claimed a table had never been seeded
+and specified work to seed it. Seven migrations were already doing exactly that — the author's grep
+had searched one directory while the writes lived in another. Four minutes of checking; the task
+was one day old, and every "is it stale?" heuristic would have waved it through.
+
+Read the code before you trust the task. Start with the claims the work depends on — the ones where
+being wrong changes what you build, not every sentence.
+
+Then, for task number `NNN`, check whether the work already shipped elsewhere:
 
 ```bash
 git log --oneline --all --grep="\bNNN\b"     # discard hits where NNN is only a PR number, (#NNN)
@@ -132,7 +150,11 @@ Then act on what you find:
   remainder rather than folding the remainder into the closure.
 - **Partially shipped →** rewrite the task to the *actual* remaining scope before starting, so the
   "Done when" list describes work that still exists.
-- **Nothing found →** proceed. The check cost two greps.
+- **A load-bearing claim is false →** rewrite the task against what the code actually says, *then*
+  start. Say what was wrong and how you found it; the next reader needs to know the file was
+  corrected rather than drafted that way. If the correction changes the shape of the work rather
+  than its details, hand it back instead of quietly redesigning it under the old number.
+- **Nothing found →** proceed. The check cost two greps and a few minutes of reading.
 
 **Why this matters most for decision tasks and spikes.** Their chosen option characteristically
 ships inside the very piece of work that needed it. A decision task picked up cold reads as an
