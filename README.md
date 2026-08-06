@@ -33,6 +33,39 @@ mkdir -p tasks/{new,prioritized,wip,blocked,done}
 Ask Claude to create a task and it will use the skill. Copy `tasks/README.md` from this repo into
 yours if you want the conventions written down for humans too.
 
+## What it's for
+
+Agent-driven, spec-driven development. The task file **is** the spec, and it is a handoff between
+sessions that share no context.
+
+1. **One session writes the task.** Not a to-do line — a spec. Why this work exists, what is
+   verifiably true in the code *today*, the design fork with its trade-offs and a recommendation,
+   and a "Done when" list somebody else can check without asking you what you meant.
+2. **Time passes.** Days. Other people's merges. The session that wrote it is gone; its context
+   window ended and took every unwritten assumption with it.
+3. **A different session picks it up, validates it, then executes it.** Validation first: does the
+   spec still describe reality? The skill makes this a required step rather than a nice idea,
+   because a task file is a claim about the past.
+
+Beat 3 is the one people skip, and it is the one that makes the other two safe.
+
+**A worked example, from this project's own use.** A session wrote a well-formed task: scope
+boundaries against two neighbouring pieces of work, a three-option design fork with effort
+estimates and a recommendation, thresholds sourced to their owning documents. Its premise was that
+a database table had never been populated. The session that picked it up checked before starting
+and found seven migrations already seeding that table — the convention the task said had never
+happened had worked for a year. The original grep had searched the wrong directory.
+
+Nothing was wrong with the task as *writing*. It was wrong as a *claim*, and every automated check
+in the world would have passed it. Caught in about four minutes, before a line of code was written,
+because validating the spec is beat 3 and not an optional courtesy.
+
+That is the loop this exists to support. Files in the repo are what make it possible: the handoff
+has to carry everything, because there is nobody left to ask. A conversation log can't be pulled up
+in a new session. A shared list can't hold a page of reasoning per item. Notes kept outside the
+repository drift away from the code they describe. A file next to the code, in the same commit
+history, does not.
+
 ## Why this instead of the alternatives
 
 The ecosystem's nearest neighbours are good, and they solve different problems:
