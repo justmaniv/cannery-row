@@ -84,6 +84,18 @@ jobs                       # background polls/servers you started → stop them
 
 - **Temp worktrees:** reset the branch to `origin/main` first if it holds merged work (avoids a
   "discard permanently?" prompt), then `git worktree remove`. Never leave a task's worktree behind.
+
+  ⚠️ **Run the removal from outside the tree you are removing.** `git worktree remove` deletes the
+  directory, so if your shell is sitting in it, the cwd is pulled out from under you mid-command and
+  everything chained after it dies with `fatal: Unable to read current working directory` — including
+  the rest of this checklist. The failure looks like a git problem and is not one. `cd` to the main
+  tree first:
+
+  ```bash
+  cd /path/to/main-tree && git worktree remove ../<temp-tree>
+  ```
+
+  Then finish the checklist from there. This is the single most-reported stumble in this section.
 - **Local branches:** delete the ones *you* created that are now merged or whose remote is `gone`.
   **Leave** branches with an open PR or active sibling task — say which you left and why.
 - **Remote branches / anything outward-facing:** do not delete without asking — surface it instead.
@@ -214,6 +226,27 @@ The atomic unit is *"what would I want to revert in one move."*
 - **Bulk creation** (generating many cross-referencing task files at once): commit per **coherent batch** — one commit per group whose members reference each other and don't independently revert. Push when the batch is internally consistent (every internal cross-reference resolves). Per-file commits in this case are ceremony without provenance benefit and drown the signal at bisect time.
 
 `git mv` is preferred for moves *of tracked files*. If the file is untracked (just created this session), a plain `mv` + commit is equivalent — the commit captures the destination path.
+
+### Regenerate any projection of `tasks/` in the same commit
+
+**Before committing, ask what else is derived from this directory, and regenerate it.** A
+directory-as-tracker attracts generated views — a board, an index, a status roll-up, a diagram —
+and every one of them goes stale the instant a task file is added, moved, or has its frontmatter
+edited. Adding a task and committing only that file is a half-move.
+
+```bash
+git grep -l "tasks/" -- '*.py' '*.sh' '*.js' ':!tasks/'   # what reads the tracker?
+ls docs/*board* docs/*task* 2>/dev/null                    # what looks like its output?
+```
+
+Regenerate what you find and stage it **in the same commit as the move**, so the tracker and its
+view can never disagree at any commit. Splitting them means every bisect between the two lands on
+an inconsistent tree.
+
+This is not optional politeness where a project gates it in CI — a stale projection is a red build
+someone else inherits. But run the check even where nothing gates it: the generated view is usually
+what a human actually reads, so a stale one is worse than none. If the project has no projection,
+this is a no-op — don't invent one.
 
 ---
 
