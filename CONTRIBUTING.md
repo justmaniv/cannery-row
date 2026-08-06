@@ -46,6 +46,12 @@ different branch, `git -C ~/.claude/skills/cannery-row-dev checkout <other-branc
 > another — the failure this whole page exists to prevent, wearing a different hat. (An earlier
 > revision of this page recommended `disable`. It does not work; verified.)
 
+**Uninstalling is cheap — do it without ceremony.** It removes a cache directory, not your work. The
+canonical copy is this public repository, restoring it is the two commands below, and if a test
+build turns out to be bad you are one `plugin install` away from the released one. Nothing here is
+worth protecting with a workaround; reach for `uninstall` first rather than trying to run both
+copies at once.
+
 Restore the installed copy when you are done:
 
 ```bash
