@@ -11,26 +11,26 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**6 tasks** — 2 new · 0 prioritized · 0 wip · 0 blocked · 4 done.
+**6 tasks** — 1 new · 0 prioritized · 0 wip · 0 blocked · 5 done.
 
 WIP limit: within 3 per human owner.
 
-| new (2) | prioritized (0) | wip (0) | blocked (0) |
+| new (1) | prioritized (0) | wip (0) | blocked (0) |
 |---|---|---|---|
-| **[002](../tasks/new/002-decide-notice-copyright-holder.md)** Decide whether NOTICE should carry a legal name<br><sub>justmaniv · 2026-08-06</sub> | _nothing triaged_ | _nothing pulled_ | _nothing waiting_ |
-| **[004](../tasks/new/004-author-eval-suite-for-the-skill.md)** Nothing tests whether the skill is followed, only that it…<br><sub>justmaniv · 2026-08-06</sub> |  |  |  |
+| **[004](../tasks/new/004-author-eval-suite-for-the-skill.md)** Nothing tests whether the skill is followed, only that it…<br><sub>justmaniv · 2026-08-06</sub> | _nothing triaged_ | _nothing pulled_ | _nothing waiting_ |
 
 ## Blocked-by graph
 
 _No open dependencies._
 
-## done (4)
+## done (5)
 
-Collapsed — the 4 most recently completed of 4. The full pile is `tasks/done/`; git history is its journey.
+Collapsed — the 5 most recently completed of 5. The full pile is `tasks/done/`; git history is its journey.
 
 | # | Task | Completed |
 |---|---|---|
 | [006](../tasks/done/006-disable-was-wrong-uninstall-is-required.md) | CONTRIBUTING told you to disable the installed copy; disabling does not work | 2026-08-06 |
 | [005](../tasks/done/005-worktree-removal-trap-and-no-regeneration-step.md) | Two defects found by a session using the skill for real work | 2026-08-06 |
 | [003](../tasks/done/003-pinned-version-silently-withheld-the-fix.md) | A pinned version withheld the fix, and reported success while doing it | 2026-08-06 |
+| [002](../tasks/done/002-decide-notice-copyright-holder.md) | Decide whether NOTICE should carry a legal name | 2026-08-06 |
 | [001](../tasks/done/001-generated-board-leaked-upstream-links.md) | The generated board carried two links back to the repo it came from | 2026-08-06 |
