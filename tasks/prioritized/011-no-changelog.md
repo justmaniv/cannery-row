@@ -2,9 +2,9 @@
 created: 2026-08-07
 updated: 2026-08-07
 completed: ""
-status: blocked
+status: prioritized
 owner: justmaniv
-blocked-by: tasks/done/010-releases-have-no-tags.md
+blocked-by: ""            # cleared 2026-08-07 — 010 closed; see "What this was blocked on"
 links:
   - CONTRIBUTING.md
   - tasks/done/010-releases-have-no-tags.md
@@ -26,14 +26,18 @@ a change to it changes behavior in someone's repository without changing a line 
 "Why did it start rewriting `blocked-by:` instead of clearing it?" has an answer, and that answer
 should not require `git log`.
 
-## Blocked on
+## What this was blocked on — cleared 2026-08-07
 
-**[[010-releases-have-no-tags]]** — a changelog's entries anchor to released versions, and right
-now no version corresponds to anything you can check out. Writing the entries first means writing
-`## 0.4.2` next to a version that cannot be located, which is the stale-pointer problem this
-project keeps arguing against. Tag first, then the changelog has something to point at.
+**[[010-releases-have-no-tags]]** — a changelog's entries anchor to released versions, and at the
+time no version corresponded to anything you could check out. Writing the entries first would have
+meant writing `## 0.4.2` next to a version that cannot be located, which is the stale-pointer
+problem this project keeps arguing against. Tag first, then the changelog has something to point at.
 
-## Scope when it unblocks
+**Resolved.** `cannery-row--v0.3.0` through `v0.4.3` are tagged and pushed, each at the commit that
+bumped the manifest. Every entry this task needs to write now has a locatable anchor, and
+`git log cannery-row--v0.4.1..cannery-row--v0.4.2` produces the source material for it.
+
+## Scope
 
 Small deliberately — `Keep a Changelog` format, one entry per released version, backfilled from the
 commits that bumped `plugin.json`. There are **five** tagged (`0.3.0`, `0.4.0`, `0.4.1`, `0.4.2`,
