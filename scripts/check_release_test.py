@@ -46,11 +46,18 @@ def fake_git(changed=None, old_version=None, base="deadbeef"):
     return _git
 
 
+DEFAULT_CHANGELOG = "## [{version}] - 2026-08-07\n\n- Something shipped.\n"
+
+
 @contextlib.contextmanager
-def manifests(plugin_version="0.4.0", marketplace_version=None, entry_name=NAME, git=None):
+def manifests(plugin_version="0.4.0", marketplace_version=None, entry_name=NAME, git=None,
+              changelog=DEFAULT_CHANGELOG):
+    """`changelog=None` models the file being absent; otherwise `{version}` interpolates the
+    plugin version, so a case that is not about the changelog is satisfied by default."""
     with tempfile.TemporaryDirectory() as root:
         plugin = pathlib.Path(root) / "plugin.json"
         marketplace = pathlib.Path(root) / "marketplace.json"
+        changes = pathlib.Path(root) / "CHANGELOG.md"
         plugin.write_text(json.dumps({"name": NAME, "version": plugin_version}), encoding="utf-8")
         marketplace.write_text(
             json.dumps({"plugins": [{
@@ -59,13 +66,15 @@ def manifests(plugin_version="0.4.0", marketplace_version=None, entry_name=NAME,
             }]}),
             encoding="utf-8",
         )
-        saved = (gate.PLUGIN, gate.MARKETPLACE, gate.git)
-        gate.PLUGIN, gate.MARKETPLACE = plugin, marketplace
+        if changelog is not None:
+            changes.write_text(changelog.format(version=plugin_version), encoding="utf-8")
+        saved = (gate.PLUGIN, gate.MARKETPLACE, gate.CHANGELOG, gate.git)
+        gate.PLUGIN, gate.MARKETPLACE, gate.CHANGELOG = plugin, marketplace, changes
         gate.git = git if git is not None else fake_git(base=None)
         try:
             yield
         finally:
-            gate.PLUGIN, gate.MARKETPLACE, gate.git = saved
+            gate.PLUGIN, gate.MARKETPLACE, gate.CHANGELOG, gate.git = saved
 
 
 def run():
@@ -159,6 +168,73 @@ class VersionMovedWhenShippedContentDid(unittest.TestCase):
     def test_unreadable_baseline_manifest_does_not_crash(self):
         git = fake_git(changed=["skills/x.md"], old_version=None)
         with manifests(plugin_version="0.4.0", git=git):
+            self.assertEqual(run()[0], 0)
+
+
+class ChangelogEntryAccompaniesABump(unittest.TestCase):
+    """A version that moves changes what an installed copy runs. Without an entry, the only
+    record of what changed is a commit message, findable only by someone who already knows the
+    repository exists — which is the position every adopter starts from."""
+
+    def test_bump_without_an_entry_fails(self):
+        git = fake_git(changed=["skills/task-lifecycle/SKILL.md"], old_version="0.3.0")
+        with manifests(plugin_version="0.4.0", git=git,
+                       changelog="## [0.3.0] - 2026-08-01\n\n- Older.\n"):
+            code, _, err = run()
+        self.assertEqual(code, 1)
+        self.assertIn("CHANGELOG.md", err)
+        self.assertIn("0.4.0", err)
+
+    def test_bump_with_an_entry_passes(self):
+        git = fake_git(changed=["skills/task-lifecycle/SKILL.md"], old_version="0.3.0")
+        with manifests(plugin_version="0.4.0", git=git):
+            self.assertEqual(run()[0], 0)
+
+    def test_heading_without_brackets_is_accepted(self):
+        # Keep a Changelog brackets the version; a plain `## 0.4.0` is the same statement.
+        git = fake_git(changed=["skills/x.md"], old_version="0.3.0")
+        with manifests(plugin_version="0.4.0", git=git, changelog="## 0.4.0\n\n- Shipped.\n"):
+            self.assertEqual(run()[0], 0)
+
+    def test_a_longer_version_does_not_satisfy_a_shorter_one(self):
+        # `0.4.1` is a substring of `0.4.10`; a substring match would pass on the wrong release.
+        git = fake_git(changed=["skills/x.md"], old_version="0.4.0")
+        with manifests(plugin_version="0.4.1", git=git, changelog="## [0.4.10] - 2026-09-01\n"):
+            code, _, err = run()
+        self.assertEqual(code, 1)
+        self.assertIn("0.4.1", err)
+
+    def test_a_version_named_only_in_prose_does_not_count(self):
+        # The entry has to be a heading the reader can navigate to, not a mention.
+        git = fake_git(changed=["skills/x.md"], old_version="0.3.0")
+        with manifests(plugin_version="0.4.0", git=git,
+                       changelog="## [0.3.0] - 2026-08-01\n\n- Groundwork for 0.4.0.\n"):
+            self.assertEqual(run()[0], 1)
+
+    def test_missing_changelog_file_fails(self):
+        git = fake_git(changed=["skills/x.md"], old_version="0.3.0")
+        with manifests(plugin_version="0.4.0", git=git, changelog=None):
+            code, _, err = run()
+        self.assertEqual(code, 1)
+        self.assertIn("CHANGELOG.md", err)
+
+    def test_an_unbumped_shipped_change_is_not_also_asked_for_an_entry(self):
+        # The bump failure already fires here. Reporting both would blame the author for not
+        # writing an entry against a version that has not moved yet.
+        git = fake_git(changed=["skills/x.md"], old_version="0.4.0")
+        with manifests(plugin_version="0.4.0", git=git, changelog=None):
+            code, _, err = run()
+        self.assertEqual(code, 1)
+        self.assertIn("1 release problem(s)", err)
+
+    def test_documentation_only_change_needs_no_entry(self):
+        git = fake_git(changed=["README.md"], old_version="0.4.0")
+        with manifests(plugin_version="0.4.0", git=git, changelog=None):
+            self.assertEqual(run()[0], 0)
+
+    def test_no_baseline_skips_the_entry_check(self):
+        git = fake_git(changed=["skills/x.md"], old_version="0.3.0", base=None)
+        with manifests(plugin_version="0.4.0", git=git, changelog=None):
             self.assertEqual(run()[0], 0)
 
 
