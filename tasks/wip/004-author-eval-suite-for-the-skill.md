@@ -1,8 +1,8 @@
 ---
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-08-07
 completed: ""
-status: new
+status: wip
 owner: justmaniv
 blocked-by: ""
 links:
@@ -46,6 +46,34 @@ Pick the transitions where getting it wrong is silent — a wrong answer that st
 Eval runs cost model calls, and `--runs` defaults to 3 per case. Decide whether this gates every PR
 or runs on a schedule before wiring it into CI; a suite that is too expensive to run is a suite
 that gets disabled.
+
+## Validated on pickup — 2026-08-07
+
+The gap is real and unchanged: `evals/` does not exist, `ci.yml` runs five form checks and no
+behavioral one. But one premise needs correcting before the "gates PRs or runs on a schedule"
+decision can be made, and it was not knowable when this was written:
+
+⚠️ **`claude plugin eval` is early-access gated.** On CLI 2.1.220 it prints
+`` `plugin eval` is currently in early access `` and exits 0 — a *silent* no-op, which is the
+worst possible failure shape for a CI step. The gate is
+`tengu_walnut_spire || env.CLAUDE_CODE_WALNUT_SPIRE` (read out of the binary); exporting
+`CLAUDE_CODE_WALNUT_SPIRE=1` enables it locally and is how this suite was authored.
+
+That is decisive for the third checklist item, not a footnote. A GitHub-hosted CI job would need
+that flag **and** working Claude credentials — and this repo is specified to hold zero secrets
+(`tasks/done/…`/ADR 0038: "no secret should exist in that repo at all", because a public repo with
+no secrets and no self-hosted runner has no attack surface worth exploiting). Adding an API key to
+gate evals would trade the strongest security property this repo has for a check that anyone can
+run locally in a minute. See the decision recorded below.
+
+Two mechanics worth knowing that shape the design:
+
+- **Grader cost is not uniform.** `regex`, `tool_used`, `tool_order`, `file_exists` are free —
+  they read the trace and the sandbox filesystem. Only `llm` and `baseline` call a judge model.
+- **`regex` can target a file:** `target: {source: file, path: …}` reads a file out of the
+  post-run sandbox. So *state* assertions — the frontmatter is synced, the dependent's path was
+  rewritten, the checklist box is resolved — are free and deterministic. That is what makes a
+  behavioral suite cheap enough to matter.
 
 ## Done when
 
