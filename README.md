@@ -1,6 +1,13 @@
 # Cannery Row
 
-**Task state that lives in your repo, as files, where the location is the status.**
+**Your agent's work survives the session that wrote it.**
+
+One session writes a task as a spec. Days pass; that context window ends and takes every unwritten
+assumption with it. A *different* session picks the task up, checks the spec still describes
+reality, and executes it — because the handoff is a file in your repo, not a conversation nobody
+can reopen.
+
+Task state as files, where the location is the status:
 
 ```
 tasks/
@@ -12,8 +19,8 @@ tasks/
 ```
 
 Moving a task to `wip/` is `git mv`. That's the whole idea. Everything else here — a skill that
-governs the moves, a generated board, a portability gate — exists to make that one idea hold up
-under real use.
+governs the moves, a generated board, gates that fail loudly — exists to make that one idea hold
+up under real use.
 
 A Claude Code plugin. Nothing to run, nothing to host, no database.
 
@@ -33,20 +40,59 @@ mkdir -p tasks/{new,prioritized,wip,blocked,done}
 Ask Claude to create a task and it will use the skill. Copy `tasks/README.md` from this repo into
 yours if you want the conventions written down for humans too.
 
+## What a task looks like
+
+One file — `tasks/new/007-short-kebab-slug.md`. The directory is the status, so there is no
+`status` to change by hand and no `title:` field to disagree with the heading.
+
+```markdown
+---
+created: 2026-08-07
+updated: 2026-08-07
+completed:
+status: new
+owner: your-name
+blocked-by: ""
+---
+
+# The generated board carried two links back to the repo it came from
+
+## What's wrong
+
+What is verifiably true in the code *today* — paths, commands someone else can re-run without
+asking you what you meant. Free-form; use whatever headings carry the handoff.
+
+## Done when
+
+- [ ] The board regenerates with no links to the upstream repo
+- [ ] A test fails if they come back
+```
+
+**`## Done when` is the acceptance criteria, and it is the load-bearing part.** It is the only
+thing a later session is held to, and completing a task is *defined* as resolving every box —
+`- [x]` if met, `- ~~struck through~~ (reason)` if deliberately skipped. Write criteria a
+different person can evaluate: *"works properly"* isn't one, *"the gate exits non-zero on a task
+missing its H1"* is.
+
+The H1 and the checklist are **required in every lane**, and the board generator fails loudly
+without them — naming the file and the fix, writing no board. Both used to be silent: a missing
+H1 rendered a blank card and exited 0, and a missing checklist made the completion gate vacuous,
+since "resolve every `- [ ]`" is trivially satisfied when there are none. A tracker that accepts a
+task with no acceptance criteria isn't enforcing the one thing it exists to enforce.
+
 ## What it's for
 
-Agent-driven, spec-driven development. The task file **is** the spec, and it is a handoff between
-sessions that share no context.
+Agent-driven, spec-driven development. The task file **is** the spec, and only one of the three
+beats is about writing it:
 
-1. **One session writes the task.** Not a to-do line — a spec. Why this work exists, what is
-   verifiably true in the code *today*, the design fork with its trade-offs and a recommendation,
-   and a "Done when" list somebody else can check without asking you what you meant.
-2. **Time passes.** Days. Other people's merges. The session that wrote it is gone; its context
-   window ended and took every unwritten assumption with it.
+1. **One session writes the task as a spec** — why the work exists, what is verifiably true in the
+   code *today*, the design fork with its trade-offs and a recommendation, and criteria somebody
+   else can check without asking what you meant.
+2. **Time passes.** Days, and other people's merges.
 3. **A different session picks it up, validates it, then executes it.** Validation first: does the
-   spec describe reality? The skill puts this in front of you and gives you the commands; it can't
-   make you run them. Nothing enforces it, and nothing can. Avoiding context rot is the operator's
-   job — the tool's job is to make sure the question gets asked.
+   spec still describe reality? The skill puts this in front of you and gives you the commands; it
+   can't make you run them. Nothing enforces it, and nothing can. Avoiding context rot is the
+   operator's job — the tool's job is to make sure the question gets asked.
 
 Beat 3 is the one people skip, and it is the one that makes the other two safe.
 
@@ -117,7 +163,7 @@ what the skill is for.
 |---|---|
 | `skills/task-lifecycle/SKILL.md` | The operational procedure — transitions, frontmatter invariants, the reverse `blocked-by` sweep, collision-safe numbering across worktrees, and a claim-validation step before starting a task you didn't write. This is the substance. |
 | `tasks/README.md` | The human-readable conventions. Copy it into your repo. |
-| `scripts/generate-task-board.py` | Generates `docs/task-board.md` — lanes in flow order, the blocker graph as Mermaid, a WIP-limit check. Pure projection; the files stay the source of truth. `--check` for CI. |
+| `scripts/generate-task-board.py` | Generates `docs/task-board.md` — lanes in flow order, the blocker graph as Mermaid, a WIP-limit check. Pure projection; the files stay the source of truth. `--check` for CI. Also the structural gate: it refuses to build a board from a task missing its H1 or its `## Done when`. |
 | `scripts/check-portability.py` | Fails if any shipped file names a language, vendor, or planning cadence. See below. |
 
 Deliberately **not** shipped: sprint-ceremony templates from the upstream project. They were written

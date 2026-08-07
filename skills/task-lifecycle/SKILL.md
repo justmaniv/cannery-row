@@ -21,6 +21,7 @@ This skill is the source of truth for the lifecycle procedure. Project `tasks/RE
 5. Every `- [ ]` in the "Done when" checklist is resolved (`- [x]` or `- ~~strikethrough~~ (reason)`) before a task moves to `done/`.
 6. No task in `blocked/` references a `blocked-by:` path that points to a `done/` task — those references are either cleared, or the task is moved out of `blocked/`.
 7. **The campsite is clean** before any task is reported `done` to the human — see the Clean-campsite gate in the `wip → done` procedure. "Done" is never claimed over a littered workspace.
+8. **Every task file carries an H1 title and a `## Done when` checklist with at least one criterion** — in every lane, from the moment it is created. See "The shape of a task file" below.
 
 If you can't satisfy an invariant, stop and surface the conflict — don't move the file.
 
@@ -199,6 +200,49 @@ Then act on the hits:
 Fold anything you *do* find into the new task's `links:` frontmatter so the next person
 inherits the trail. When in doubt, widen the keywords — a false "nothing found" is the
 expensive outcome.
+
+---
+
+## The shape of a task file (on creation)
+
+Frontmatter is not the whole contract. Two things in the **body** are required, in every lane,
+from creation — not added later when the task is closed:
+
+```markdown
+---
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+completed:
+status: new
+owner: name
+blocked-by: ""
+---
+
+# What outcome this task produces
+
+## <whatever carries the handoff>
+
+Context, the verifiable state of the code today, the fork you considered and what you recommend.
+
+## Done when
+
+- [ ] A criterion someone else can check without asking what you meant
+- [ ] Another one
+```
+
+- **The H1 is the title of record.** Any projection of `tasks/` reads it for the card headline;
+  without it the card renders blank and nothing reports the omission.
+- **`## Done when` is the acceptance criteria.** It is the only part of the file a later session
+  is held to, and the `wip → done` transition is *defined* as reconciling it (invariant 5). A task
+  with no criteria — or with the heading and nothing under it — closes on nobody's authority but
+  the closer's, because "resolve every `- [ ]`" is trivially true when there are none.
+
+Write criteria a different person can evaluate. "Works properly" is not a criterion; "the gate
+fails with a non-zero exit on a task missing its H1" is. If you cannot state one, the task is not
+yet understood well enough to hand off — that is information, not a formality to skip.
+
+Everything between the H1 and `## Done when` is free-form. Use whatever headings carry the
+handoff.
 
 ---
 
