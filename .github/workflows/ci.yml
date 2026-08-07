@@ -29,8 +29,14 @@ jobs:
       - name: portability gate
         run: python3 scripts/check-portability.py
 
-      - name: board generator unit tests
-        run: python3 scripts/generate_task_board_test.py
+      - name: unit tests + coverage floor
+        # Every gate in this pipeline enforces something. Until now none of them was tested,
+        # so a carelessly edited regex would pass CI — CI *runs* the gates, it does not test
+        # them. The floor is a build-breaker at 85% branch coverage; settings in .coveragerc.
+        run: |
+          pip install coverage
+          coverage run -m unittest discover -s scripts -p '*_test.py'
+          coverage report
 
       - name: board is fresh
         run: python3 scripts/generate-task-board.py --check
