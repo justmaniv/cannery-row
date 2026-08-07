@@ -4,10 +4,10 @@ updated: 2026-08-07
 completed: ""
 status: blocked
 owner: justmaniv
-blocked-by: tasks/prioritized/010-releases-have-no-tags.md
+blocked-by: tasks/done/010-releases-have-no-tags.md
 links:
   - CONTRIBUTING.md
-  - tasks/prioritized/010-releases-have-no-tags.md
+  - tasks/done/010-releases-have-no-tags.md
 ---
 
 # An adopter who updates cannot find out what changed
@@ -36,8 +36,10 @@ project keeps arguing against. Tag first, then the changelog has something to po
 ## Scope when it unblocks
 
 Small deliberately — `Keep a Changelog` format, one entry per released version, backfilled from the
-commits that bumped `plugin.json`. There are four of them, and the history is short enough to write
-honestly rather than reconstruct.
+commits that bumped `plugin.json`. There are **five** tagged (`0.3.0`, `0.4.0`, `0.4.1`, `0.4.2`,
+`0.4.3` — this said four, inheriting the undercount that 010 was corrected for), and the history is
+short enough to write honestly rather than reconstruct. Each tag points at its bump commit, so
+`git log cannery-row--v0.4.1..cannery-row--v0.4.2` is the source material for an entry.
 
 The entry that matters most is `0.4.3`, because it changed a documented invariant. Write that one
 first and let it set the bar for how much detail an entry carries.
