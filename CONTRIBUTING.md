@@ -188,7 +188,19 @@ behavior. Full reasoning in `tasks/done/004-author-eval-suite-for-the-skill.md`.
    until someone reads both files. `check-release.py` fails the build on either mistake.
    README-only and docs-only changes are exempt and need no bump.
 3. Merge.
-4. Consumers pick it up with:
+4. **Tag the release**, from an up-to-date `main` with a clean working tree:
+
+   ```bash
+   git checkout main && git pull
+   claude plugin tag --dry-run               # prints the tag and the commit it would land on
+   claude plugin tag --push -m "cannery-row %s"
+   ```
+
+   This creates `cannery-row--v<version>` **at `HEAD`** — so tag straight after merging the bump,
+   before a docs-only commit lands on top of it. The command refuses if `plugin.json` and the
+   marketplace entry disagree, or if the tree is dirty; it is the same invariant `check-release.py`
+   guards, re-checked at the moment it becomes permanent.
+5. Consumers pick it up with:
 
    ```bash
    claude plugin marketplace update cannery-row
@@ -198,6 +210,37 @@ behavior. Full reasoning in `tasks/done/004-author-eval-suite-for-the-skill.md`.
 
    Both commands are needed. `plugin update` alone consults a marketplace cache that may still be
    pointing at the previous commit.
+
+### Why the tag is worth the step
+
+Without it, "which commit is `0.4.2`?" is answerable only by bisecting `plugin.json` by hand. That
+costs nothing while the author is the only user, and costs a lot the first time someone else says
+*it broke after I updated* — because the first question back is *what changed between those two
+versions*, and no one can produce the diff.
+
+`0.3.0` onward are tagged at the commit that **bumped the manifest**, not at the tip of `main` while
+that version was current. So `git log cannery-row--v0.4.2..cannery-row--v0.4.3` is exactly what
+shipped in that release, with no docs-only commits mixed in. Tagging immediately after the merge
+keeps the two definitions identical, since `HEAD` is then the bump commit. `0.1.0`, `0.1.1` and
+`0.2.0` predate the pull-request loop and were left untagged deliberately — nobody is diffing them.
+
+### Why tagging is manual rather than CI
+
+A workflow tagging every push to `main` could not be forgotten. It would need
+`permissions: contents: write`, and every workflow here grants `contents: read`. A read-only token,
+no secrets at all, and GitHub-hosted runners only are the entire security posture of this repo —
+the property that makes a fork's pull request uninteresting to abuse. Widening write access
+permanently to save one command per release is a bad trade at this size.
+
+The counter-argument is real and worth writing down: *remember to run it* is precisely the failure
+this project has already had once. The pinned-version incident
+(`tasks/done/003-pinned-version-silently-withheld-the-fix.md`) happened because a release step lived
+only in someone's head, and the fix was to make CI fail on it.
+
+So the escalation, if a release does go untagged, is **not** CI-with-write. It is a **read-only
+gate** that fails the build when a version that already shipped has no tag — which keeps the token
+read-only and still converts the memory problem into a build-breaker. Reach for that the first time
+this is forgotten, not before.
 
 ## What ships, and what does not
 
