@@ -1,8 +1,8 @@
 ---
 created: 2026-08-07
 updated: 2026-08-07
-completed:
-status: wip
+completed: 2026-08-07
+status: done
 owner: justmaniv
 blocked-by: ""
 links:
@@ -68,13 +68,35 @@ failure, every lane, not a warning and not restricted to `done/`.
 
 ## Done when
 
-- [ ] Generator fails hard — missing H1, missing `## Done when`, or an empty one — in both write
-      and `--check` mode, naming every offending file and what to do about it
-- [ ] Tests cover all three violations plus the passing case, written before the implementation
-- [ ] All six existing task files pass the new gate unchanged
-- [ ] `tasks/README.md` documents the body contract alongside the frontmatter contract
-- [ ] `SKILL.md` carries the requirement as an invariant, so tasks are created right rather than
-      only caught afterwards
-- [ ] Root README opens with the benefit and shows a complete task file
-- [ ] Portability gate stays green across all new prose
-- [ ] Version bumped in both manifests — shipped content changes
+- [x] Generator fails hard — missing H1, missing `## Done when`, or an empty one — in both write
+      and `--check` mode, naming every offending file and what to do about it. Three distinct
+      diagnostics, because they are three different mistakes; each names the path and the fix.
+      Validation runs **before** rendering, so a broken task produces no board at all rather than
+      a board with a warning printed next to it.
+- [x] Tests cover all three violations plus the passing case, written before the implementation —
+      19 new tests over three seams (`parse_done_when`, `structural_problems`, `main`), committed
+      RED before any production code, 70/70 green after. The `main` tests assert the gate stops
+      the *artifact*, not just that it prints: exit 1 **and** no file written.
+- [x] All six existing task files pass the new gate unchanged — seven, counting this one. Zero
+      edits needed to any of them, which is the evidence the contract was already the convention
+      and only the enforcement was missing.
+- [x] `tasks/README.md` documents the body contract alongside the frontmatter contract
+- [x] `SKILL.md` carries the requirement as an invariant, so tasks are created right rather than
+      only caught afterwards — invariant 8 plus a "shape of a task file" section with a worked
+      example
+- [x] Root README opens with the benefit and shows a complete task file
+- [x] Portability gate stays green across all new prose
+- [x] Version bumped in both manifests — 0.3.0 → 0.4.0
+
+## Scope note
+
+The ruling tightened the fix mid-task, and the wider version is what shipped. The proposal was a
+*warning* on a missing H1 and a `done/`-only audit for missing criteria. The maintainer's ruling
+was that a task **always** needs both — hard failure, every lane. That is the stronger position
+and it cost nothing: every existing task already complied, so the gate landed with no migration.
+
+One thing was added beyond both the proposal and the ruling: a `## Done when` heading with **no
+criteria under it** fails too. It is the same hole wearing a hat — the completion gate resolves
+every unchecked box, and zero boxes is trivially resolved whether the heading is absent or empty.
+Enforcing presence but not content would have left the defect reachable by anyone who wrote the
+heading and meant to fill it in later.
