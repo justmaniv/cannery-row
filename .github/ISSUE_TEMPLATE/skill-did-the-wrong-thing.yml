@@ -1,0 +1,75 @@
+name: The skill did the wrong thing
+description: Claude followed the skill and still produced a wrong result
+title: "[behavior] "
+labels: [behavior]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        These are the reports worth the most, because the automated gates here cannot catch them.
+        CI proves the skill is well-*formed* — portable, manifest-valid, board-correct. Only the
+        eval suite (`evals/`) checks that it is *followed*, and it covers two transitions out of
+        many.
+
+        A confirmed case here usually becomes a new eval case, which is how it stays fixed.
+
+  - type: dropdown
+    id: transition
+    attributes:
+      label: Which transition
+      options:
+        - Creating a task (shape, or the number it picked)
+        - new → prioritized
+        - → wip (including the claim-validation step)
+        - → blocked
+        - → done ("Done when" reconciliation)
+        - → done (the reverse `blocked-by:` sweep)
+        - Regenerating a projection of tasks/
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-you-asked
+    attributes:
+      label: What you asked for
+      description: Your prompt, as close to verbatim as you have it. How it was phrased usually matters.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What the files looked like afterwards
+      description: |
+        The state it left behind — `git status`, `git diff`, or the task file itself. This is what
+        the eval suite grades, so it is what a fix would be written against.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should have happened
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: "`claude --version` and `claude plugin list | grep -A2 cannery-row`"
+      placeholder: "CLI 2.1.220, plugin 0.4.3"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: invariant
+    attributes:
+      label: Did it break a stated invariant?
+      description: The numbered list at the top of `SKILL.md`. Fine to leave blank if you haven't read it — that itself is a useful signal.
+      options:
+        - label: Yes, and I can say which one
+        - label: I don't know, it just came out wrong
