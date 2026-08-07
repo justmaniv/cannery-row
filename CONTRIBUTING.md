@@ -80,18 +80,62 @@ a `ref`:
 
 For ordinary skill edits, neither is worth the ceremony. Use the worktree loop.
 
-## Testing before you commit
+## How changes are tested
 
-**Structure** is covered by CI, and all four gates run locally in about a second:
+**Test-first for new behavior.** A change to `scripts/` starts with a failing test, in its own
+commit, before the production code that satisfies it. Two commits, in order:
+
+- **RED** — adds or changes a test that fails. No production code path is touched.
+- **GREEN** — changes production code until it passes. No new assertions.
+
+A single commit carrying both the behavior and the test that proves it is the shape to avoid: it
+cannot show that the test would have failed, which is the only thing that distinguishes a test from
+a description of what the code happens to do.
+
+> ⚠️ **This is a branch-level convention, and `main` cannot be audited for it.** Pull requests here
+> are squash-merged, so a RED commit and its GREEN partner arrive on `main` as one commit
+> containing both. Nothing downstream can verify the order. The discipline is real on the branch
+> and invisible after the merge — which is worth knowing before anyone tries to enforce it with a
+> script.
+
+**Backfilling tests onto code that already exists is not test-first, and should not be described
+as though it were.** Writing a "failing" test against an implementation you are looking at proves
+nothing about design. Say what it is — characterization tests — and keep the RED/GREEN ceremony
+for the cases where a test genuinely came first. If backfilling turns up a real defect, *that* gets
+the RED/GREEN treatment.
+
+**Tests assert behavior, never coverage.** A test that executes code without asserting its result
+is not a test; it is a hole with a green check over it. Coverage counts only when the assertion
+would fail if the code broke.
+
+### Running everything locally
+
+All the gates, in about a second:
 
 ```bash
 python3 scripts/check-portability.py          # no stack or methodology vocabulary in shipped files
 python3 scripts/check-workflows.py            # GitHub-hosted runners only, no pull_request_target
 python3 scripts/check-release.py              # manifests agree; version moved if shipped content did
-python3 scripts/generate_task_board_test.py   # 51 unit tests
 python3 scripts/generate-task-board.py --check
 claude plugin validate . --strict             # manifests load; a broken one breaks install for everyone
 ```
+
+And the unit tests with the coverage floor CI enforces — `pip install coverage` first:
+
+```bash
+coverage run -m unittest discover -s scripts -p '*_test.py'
+coverage report        # branch coverage; exits non-zero under 85%
+```
+
+**The floor is a build-breaker at 85% branch coverage**, configured in `.coveragerc`. Test files
+are omitted so the number describes production code; nothing else is excluded. Branch rather than
+line coverage because these scripts are mostly conditionals, and line coverage would call an `if`
+covered without ever taking the arm that decides whether a build fails.
+
+Every gate here enforces something, and until 2026-08-07 none of them was tested — CI *ran* the
+gates but never checked they still worked, so a carelessly edited regex would have passed silently.
+`check-workflows.py` was the one that mattered: it is all that stands between this public repo and
+a fork's pull request executing on a self-hosted runner.
 
 **Behavior** — whether the skill actually makes Claude do the right thing — is not covered yet.
 `claude plugin eval` runs scored cases against a plugin with a no-plugin baseline arm, so it can
