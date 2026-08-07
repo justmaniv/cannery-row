@@ -187,8 +187,17 @@ behavior. Full reasoning in `tasks/done/004-author-eval-suite-for-the-skill.md`.
    They must match — `plugin.json` wins at load time, so a stale marketplace entry is invisible
    until someone reads both files. `check-release.py` fails the build on either mistake.
    README-only and docs-only changes are exempt and need no bump.
-3. Merge.
-4. **Tag the release**, from an up-to-date `main` with a clean working tree:
+3. **Write the `CHANGELOG.md` entry for that version, in the same pull request.** A heading
+   `## [<version>] — <date>`, then what an installed copy now does differently. `check-release.py`
+   fails the build if the version moved and no such heading exists — it is the same gate as the
+   bump, applied to the record of *what* the bump contains.
+
+   Write it for someone who updated and noticed a change in behavior, because that is who reads
+   it. The `0.4.3` entry sets the bar: it quotes the old wording of the invariant, states the new
+   one, and says what you would have seen Claude doing under the old text. Entries are written at
+   bump time and never before, which is why the file has no `Unreleased` section.
+4. Merge.
+5. **Tag the release**, from an up-to-date `main` with a clean working tree:
 
    ```bash
    git checkout main && git pull
@@ -200,7 +209,7 @@ behavior. Full reasoning in `tasks/done/004-author-eval-suite-for-the-skill.md`.
    before a docs-only commit lands on top of it. The command refuses if `plugin.json` and the
    marketplace entry disagree, or if the tree is dirty; it is the same invariant `check-release.py`
    guards, re-checked at the moment it becomes permanent.
-5. Consumers pick it up with:
+6. Consumers pick it up with:
 
    ```bash
    claude plugin marketplace update cannery-row
@@ -241,6 +250,32 @@ So the escalation, if a release does go untagged, is **not** CI-with-write. It i
 gate** that fails the build when a version that already shipped has no tag — which keeps the token
 read-only and still converts the memory problem into a build-breaker. Reach for that the first time
 this is forgotten, not before.
+
+### Why the changelog entry *is* gated, when the tag is not
+
+These look like the same call and are not, so it is worth writing down which way each went and on
+what grounds.
+
+The changelog entry is **in the diff**. `check-release.py` already loads the version and already
+computes the shipped-file list against the merge base, so asking it one more question costs about
+ten lines and no new permission. The tag is created *after* the merge, on a commit CI has already
+finished with — catching a missing one needs a different trigger and a token that can write. Same
+shape of mistake, materially different price.
+
+The objection is real: a gate that can be satisfied by typing a line of prose *will* be satisfied
+by typing a line of prose, and no script can tell a useful entry from a shrug. But that is an
+argument about what the gate can measure, not about whether to have one. The version-bump check
+next to it has exactly the same limit — nothing stops you bumping to a number that means nothing —
+and it is still the check that would have caught the incident this repository is named after. What
+a presence check buys is the difference between *forgot entirely*, which is silent until an adopter
+asks what changed, and *wrote something thin*, which is sitting in the diff where a reviewer can
+push back on it.
+
+The "wait for the first failure" reasoning above is not being overridden here; it does not apply.
+It exists because the tagging gate has a standing cost — permanent write access on a repository
+whose whole security posture is that it holds nothing worth taking. This one has no such cost, and
+the failure it prevents is the one that just happened: the changelog did not exist, for five
+releases, because nothing ever asked for it.
 
 ## What ships, and what does not
 
