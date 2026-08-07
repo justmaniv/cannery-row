@@ -76,9 +76,11 @@ Write criteria a different person can evaluate. *"Works properly"* is not a crit
 exits non-zero on a task missing its H1"* is. If you can't state one yet, the task isn't understood
 well enough to hand off — that's a useful signal, not a formality to skip.
 
-`generate-task-board.py` refuses to build a board when any task is missing either element, naming
-every offending file and what to do about it. Both were silent failures before it did: a missing
-H1 rendered a blank card and exited 0, and a missing checklist made the completion gate vacuous.
+If you have `generate-task-board.py` (see below — it is fetched separately), it **refuses to build
+a board** when any task is missing either element, naming every offending file and what to do about
+it. Both were silent failures before it did: a missing H1 rendered a blank card and exited 0, and a
+missing checklist made the completion gate vacuous. Without the script these stay conventions;
+running it in CI is what makes them enforced.
 
 ## Status hygiene
 
@@ -101,6 +103,14 @@ leaves tasks sitting in `blocked/` behind something that finished weeks ago.
 > This README is the human-readable summary; the skill governs the operations.
 
 ## Seeing the whole board
+
+The generator is not installed with the skill and is not in this repository by default — fetch it
+once, then it is yours to keep and edit:
+
+```bash
+mkdir -p scripts && curl -o scripts/generate-task-board.py \
+  https://raw.githubusercontent.com/justmaniv/cannery-row/main/scripts/generate-task-board.py
+```
 
 ```bash
 python3 scripts/generate-task-board.py            # writes docs/task-board.md
