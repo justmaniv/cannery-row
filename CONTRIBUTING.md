@@ -137,14 +137,48 @@ gates but never checked they still worked, so a carelessly edited regex would ha
 `check-workflows.py` was the one that mattered: it is all that stands between this public repo and
 a fork's pull request executing on a self-hosted runner.
 
-**Behavior** — whether the skill actually makes Claude do the right thing — is not covered yet.
-`claude plugin eval` runs scored cases against a plugin with a no-plugin baseline arm, so it can
-measure whether the skill changed the outcome rather than just whether it loaded. Authoring that
-suite is `tasks/new/004-author-eval-suite-for-the-skill.md`; until it exists, behavior is verified
-by using the skill on this repo's own `tasks/` and reading what happened.
+Every check above proves the skill is *well-formed and portable*. None of them proves it is
+*followed* — that is what `evals/` is for.
 
-That gap is worth naming plainly: every automated check here proves the skill is *well-formed and
-portable*. None of them proves it is *followed*.
+### Behavior — `evals/`, and when to run it
+
+**Run the eval suite before merging any change to `skills/`.** It is the only thing in this
+repository that measures whether the skill changes what Claude *does*, and it is not in CI (see
+below), so nothing will run it for you.
+
+```bash
+CLAUDE_CODE_WALNUT_SPIRE=1 claude plugin eval . \
+  --ablation with-without --scaffold \
+  --allow-tools Bash Read Edit Write Glob Grep Skill
+```
+
+About twelve minutes and $4.50 for the full suite (2 cases × 2 arms × 3 runs). `--case <glob>
+--runs 1` while iterating. The plugin arm scores 1.00 on every run today, so the default
+`--threshold 1.0` is a real gate and not a flake generator.
+**`claude plugin eval` is early access — without `CLAUDE_CODE_WALNUT_SPIRE=1` it prints a notice
+and exits 0**, so a missing flag looks exactly like a clean run.
+
+Each case scaffolds a throwaway repo, gives the agent a realistic instruction, and grades the state
+it leaves behind. `--ablation with-without` runs the same case with the plugin disabled, so the
+score *difference* attributes the outcome to the skill rather than to the model being competent
+anyway — and that delta, not the score, is the result. `evals/README.md` covers the design rules,
+the grader-cost model, and two grader-semantics traps that produce assertions which pass while
+proving nothing.
+
+This is not a formality. Writing the first two cases immediately turned up a contradiction in the
+skill: invariant 6 said a closed blocker's reference could be "cleared", while the sweep procedure
+said to rewrite it to the new path. Claude followed the invariant, deleted the reference, and left
+a task in `blocked/` with an empty `blocked-by:` — blocked by nothing, which no future sweep would
+ever surface. Both halves were shipped text that read fine in isolation, and no amount of
+proofreading was going to catch it — the case failed, the sandbox showed why, and the fix took it
+to a clean score.
+
+**Why it is not in CI.** A CI job would need the early-access flag *and* working Claude
+credentials. This repo holds no secrets, and that is its strongest security property — a public
+repo with no secrets and no self-hosted runner has essentially no attack surface worth exploiting.
+Adding an API key so a fork's pull request can trigger paid model calls trades that away for a
+check any contributor can run locally in four minutes. The workflow gates the form; you gate the
+behavior. Full reasoning in `tasks/done/004-author-eval-suite-for-the-skill.md`.
 
 ## Release loop
 

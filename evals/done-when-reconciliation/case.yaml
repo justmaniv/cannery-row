@@ -1,0 +1,165 @@
+schema_version: "1.1"
+name: done-when-reconciliation
+description: >
+  What a correct close looks like, with checklist reconciliation at its centre. Two of
+  three criteria came true and the third was dropped; ticking all three closes the task,
+  reads as work, and quietly destroys the only signal the checklist carries — a green box
+  is supposed to mean the thing happened.
+
+  Measured Δ +0.115, and not from where it was expected. The strikethrough graders pass
+  in *both* arms: judging that a dropped criterion should be struck rather than ticked is
+  ordinary good judgment, not something the skill teaches. The generated board was added
+  to this case on the theory that a projection nobody mentions would discriminate — it
+  does not either; the baseline finds `scripts/board.py` and runs it. What the skill
+  actually supplies here is completeness: the baseline leaves a `- [ ]` box unresolved
+  and never commits the move, 3 runs out of 3.
+
+tags: [transition, done, checklist]
+
+context:
+  scaffold_script: scaffold.sh
+
+execution:
+  # The prompt states plainly which criterion was dropped and why. Nothing here hints at
+  # strikethrough — that is the skill's contribution, and the whole measurement.
+  prompt: |
+    The export endpoint is live. The zip streams correctly and I diffed the output
+    against the reference fixture — byte-identical.
+
+    We're not doing the CSV variant. Rey cut it as out of scope for this release.
+
+    Close task 023.
+  max_turns: 30
+  timeout_seconds: 420
+  allowed_tools: [Bash, Read, Edit, Write, Glob, Grep, Skill]
+
+runs: 3
+
+graders:
+  # `file_exists` grades the created-files diff, not the filesystem — right for a move's
+  # destination, wrong for anything else. See evals/README.md.
+  - type: file_exists
+    name: landed-in-done
+    path: tasks/done/023-export-endpoint.md
+    weight: 2
+
+  - type: tool_used
+    name: moved-with-git-mv
+    tool: Bash
+    input_match: git mv
+    min: 1
+    weight: 1
+
+  - type: regex
+    name: status-synced
+    target: {source: file, path: tasks/done/023-export-endpoint.md}
+    pattern: '^status: done$'
+    flags: m
+    weight: 1
+
+  - type: regex
+    name: completed-date-set
+    target: {source: file, path: tasks/done/023-export-endpoint.md}
+    pattern: '^completed: \d{4}-\d{2}-\d{2}$'
+    flags: m
+    weight: 1
+
+  - type: regex
+    name: nothing-left-unresolved
+    target: {source: file, path: tasks/done/023-export-endpoint.md}
+    pattern: '- \[ \]'
+    match: not_contains
+    weight: 1
+
+  # ---- the two that actually happened ---------------------------------------------
+  - type: regex
+    name: streaming-criterion-checked
+    target: {source: file, path: tasks/done/023-export-endpoint.md}
+    pattern: '- (\[x\]|✅)[^\n]*streams'
+    flags: i
+    weight: 1
+
+  - type: regex
+    name: fixture-criterion-checked
+    target: {source: file, path: tasks/done/023-export-endpoint.md}
+    pattern: '- (\[x\]|✅)[^\n]*byte-for-byte'
+    flags: i
+    weight: 1
+
+  # ---- THE ONE THAT MATTERS -------------------------------------------------------
+  # A ticked CSV box is the failure this case exists to catch: the task closes, the
+  # board goes green, and the record now says something shipped that never did.
+  - type: regex
+    name: dropped-criterion-not-claimed-met
+    target: {source: file, path: tasks/done/023-export-endpoint.md}
+    pattern: '- (\[x\]|✅)[^\n]*CSV'
+    flags: i
+    match: not_contains
+    weight: 5
+
+  - type: regex
+    name: dropped-criterion-struck-through
+    target: {source: file, path: tasks/done/023-export-endpoint.md}
+    pattern: '~~[^\n]*CSV[^\n]*~~'
+    flags: i
+    weight: 3
+
+  - type: llm
+    name: strike-carries-a-reason
+    focus: {source: file, path: tasks/done/023-export-endpoint.md}
+    criteria: |
+      In the "Done when" checklist, the CSV-variant criterion is struck through AND the
+      same line (or text immediately attached to it) says why it was skipped — that it
+      was cut, dropped, descoped, or ruled out of scope for this release.
+
+      PASS if a reader who never saw the conversation could tell the CSV variant was
+      deliberately abandoned rather than forgotten or completed.
+
+      FAIL if the line is struck with no reason given, if it is marked complete, if it
+      is left as an open `- [ ]` box, or if it was deleted from the checklist entirely.
+    weight: 3
+
+  # ---- the projection nobody mentioned --------------------------------------------
+  # `docs/task-board.md` is generated from tasks/ and is committed stale the moment 023
+  # moves. Nothing in the prompt mentions it; the repo has to be *looked at*.
+  #
+  # These two were added expecting them to carry the delta. They do not — the baseline
+  # passes them 3/3, because a capable model exploring the repo finds `scripts/board.py`
+  # and works out what it is for. Kept anyway: they assert something the skill requires
+  # and a regression would show up here. Recorded as a wrong prediction rather than
+  # quietly dropped, because "I expected this to discriminate and it didn't" is the
+  # measurement working.
+  - type: regex
+    name: board-shows-the-task-as-done
+    target: {source: file, path: docs/task-board.md}
+    pattern: '## done\n- 023-export-endpoint'
+    weight: 3
+
+  - type: regex
+    name: board-no-longer-shows-it-in-wip
+    target: {source: file, path: docs/task-board.md}
+    pattern: '## wip\n- 023-export-endpoint'
+    match: not_contains
+    weight: 2
+
+  # The move and its regenerated projection belong in one commit, so no commit in the
+  # history ever shows the tracker and its view disagreeing.
+  - type: tool_used
+    name: committed-the-move
+    tool: Bash
+    input_match: git commit
+    min: 1
+    weight: 2
+
+  - type: tool_used
+    name: invoked-the-skill
+    tool: Skill
+    input_match: task-lifecycle
+    min: 1
+    arm: with-only
+    weight: 1
+
+expected_outcome: >
+  023 lands in done/ with frontmatter synced, the two met criteria ticked, and the CSV
+  criterion struck through with the reason it was cut — never ticked, never silently
+  deleted. The generated board is regenerated and committed alongside the move.

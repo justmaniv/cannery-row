@@ -19,7 +19,7 @@ This skill is the source of truth for the lifecycle procedure. Project `tasks/RE
 3. `created:` is set at file creation and **never** changes.
 4. `completed:` is set if and only if the file is in `done/`.
 5. Every `- [ ]` in the "Done when" checklist is resolved (`- [x]` or `- ~~strikethrough~~ (reason)`) before a task moves to `done/`.
-6. No task in `blocked/` references a `blocked-by:` path that points to a `done/` task — those references are either cleared, or the task is moved out of `blocked/`.
+6. No task sits in `blocked/` with every one of its blockers closed. A `blocked-by:` entry whose task has moved is **rewritten to the new path**, never deleted — the entry is the audit trail, and `status: blocked` over an empty `blocked-by:` is a task blocked by nothing. When the last blocker closes, surface the task for re-triage (see the sweep); it does not sit there.
 7. **The campsite is clean** before any task is reported `done` to the human — see the Clean-campsite gate in the `wip → done` procedure. "Done" is never claimed over a littered workspace.
 8. **Every task file carries an H1 title and a `## Done when` checklist with at least one criterion** — in every lane, from the moment it is created. See "The shape of a task file" below.
 
@@ -327,8 +327,8 @@ grep -rl "blocked-by:" tasks/ | xargs grep -l "NNN-slug"
 
 For each hit:
 
-1. **Update the path.** The reference probably points to the old location (e.g. `tasks/wip/NNN-slug.md`). Rewrite it to the new path (`tasks/done/NNN-slug.md`) — references shouldn't go stale.
-2. **Check if this was the last blocker.** Read the dependent's `blocked-by:` field. If this task was the only entry, the dependent is no longer blocked.
+1. **Update the path — don't delete the entry.** The reference probably points to the old location (e.g. `tasks/wip/NNN-slug.md`). Rewrite it to the new path (`tasks/done/NNN-slug.md`). Deleting the line instead is the tempting shortcut and it is wrong twice over: it destroys the record of *what* this task was waiting on, and it leaves a task in `blocked/` whose `blocked-by:` is empty — blocked by nothing, which nothing will ever surface. Rewrite; never clear.
+2. **Check if this was the last blocker.** Read the dependent's `blocked-by:` field. If every entry now points into `done/`, the dependent is no longer blocked and must not be left sitting in `blocked/` (invariant 6) — surface it per step 3.
 3. **Surface, don't auto-move.** List the now-unblocked tasks back to the user with a recommendation:
    > Task 005 was blocked only by 016 (just closed). Recommend moving to `prioritized/`. Confirm?
    
