@@ -183,6 +183,7 @@ what the skill is for.
 | `tasks/README.md` | The human-readable conventions. Copy it into your repo. |
 | `scripts/generate-task-board.py` | Generates `docs/task-board.md` — lanes in flow order, the blocker graph as Mermaid, a WIP-limit check. Pure projection; the files stay the source of truth. `--check` for CI. Also the structural gate: it refuses to build a board from a task missing its H1 or its `## Done when`. |
 | `scripts/check-portability.py` | Fails if any shipped file names a language, vendor, or planning cadence. See below. |
+| `evals/` | Scored behavioral cases. Everything else here checks the skill is well-*formed*; these check it is *followed*. See below. |
 
 Deliberately **not** shipped: sprint-ceremony templates from the upstream project. They were written
 against a specific planning methodology and its generators, and porting them would smuggle that
@@ -205,6 +206,40 @@ python3 scripts/check-portability.py --list   # the vocabulary and why each term
 
 False positives are the point. If a term is genuinely needed, the argument for it should be made
 out loud rather than assumed.
+
+## Does the skill actually change anything?
+
+Fair question to ask of any prompt-shaped artifact, and `evals/` answers it with a number rather
+than a claim. Each case scaffolds a throwaway repo mid-flight, gives Claude a realistic instruction
+— *"Rate limiting is in. Wrap up task 012."* — and grades the state it leaves behind. Then it runs
+the same case again with the plugin switched off.
+
+That second arm is the whole point. Most of what a good skill asks for, a capable model does anyway,
+and a suite that does not control for it is measuring the model.
+
+| Case | Without the skill | With it |
+|------|------------------|---------|
+| Close a task whose dependents are waiting on it | **0.50** | **1.00** |
+| Close a task whose criteria didn't all come true | **0.88** | **1.00** |
+
+The gap is where the skill lives. Nobody infers *"go rewrite the `blocked-by:` paths in other
+files"* from "wrap up task 012" — so in all three baseline runs the dependents were left pointing
+at a path that no longer exists, which is exactly the silent rot the sweep exists to prevent. The
+second case scores much closer, because striking a dropped criterion instead of ticking it is
+ordinary good judgment and needs no teaching; what the baseline actually missed there was smaller
+and duller — it left a criterion unresolved and never committed the move.
+
+Writing the first two cases immediately found a contradiction in the skill — invariant 6 said a
+closed blocker's reference could be *cleared*, the sweep procedure said *rewrite it* — and Claude
+followed the wrong half, leaving a task in `blocked/` with an empty `blocked-by:`. Blocked by
+nothing, and nothing would ever surface it again. That is the argument for evals in one paragraph:
+both halves were shipped text, both read fine, and no amount of proofreading was going to catch it.
+
+Running the suite costs about $5 and twelve minutes, needs Claude credentials, and so is deliberately
+**not** in CI — this repo holds no secrets, which is the best security property a public repo can
+have, and it is not worth trading for a check any contributor can run locally.
+[`CONTRIBUTING.md`](CONTRIBUTING.md) has the command; [`evals/README.md`](evals/README.md) has the
+design rules.
 
 ## Contributing
 

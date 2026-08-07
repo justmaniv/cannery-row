@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 .coverage
 htmlcov/
+
+# `claude plugin eval` writes aggregate-result.json here by default. Run output, not
+# source — the recorded numbers live in the task and in evals/README.md.
+evals/results/

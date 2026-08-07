@@ -50,6 +50,13 @@ jobs:
         # "already at the latest version" and the fix never reaches an installed copy.
         run: python3 scripts/check-release.py
 
+      - name: eval suite is well-formed
+        # The behavioral suite itself cannot run here — it needs an early-access flag and
+        # Claude credentials, and this repo's best security property is holding no secrets
+        # (evals/README.md). What CI can do for free is make sure a contributor who pays
+        # for a run is not paying to discover a renamed scaffold.
+        run: python3 scripts/check-evals.py
+
       - name: plugin + marketplace manifests validate
         # Installability is the product. A malformed manifest means /plugin install
         # fails for everyone, and nothing else in this pipeline would notice.

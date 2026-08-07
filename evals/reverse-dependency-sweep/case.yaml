@@ -1,0 +1,139 @@
+schema_version: "1.1"
+name: reverse-dependency-sweep
+description: >
+  Closing a task invalidates every `blocked-by:` path pointing at it. Nothing fails when
+  the sweep is skipped — the dependents just sit in `blocked/` behind finished work, and
+  the graph rots silently. This is the transition where being wrong looks most like being
+  right, which is why it is the first case.
+
+tags: [transition, sweep, done]
+
+context:
+  scaffold_script: scaffold.sh
+
+execution:
+  # Underspecified on purpose. "Wrap it up" is what a human actually says; naming the
+  # steps would hand the procedure to the baseline arm and collapse the delta to zero.
+  prompt: |
+    Rate limiting is in — the middleware enforces the per-account ceiling and returns 429
+    with Retry-After. I verified both against a staging build this morning.
+
+    Wrap up task 012.
+  max_turns: 30
+  timeout_seconds: 420
+  allowed_tools: [Bash, Read, Edit, Write, Glob, Grep, Skill]
+
+runs: 3
+
+graders:
+  # ---- the move itself ------------------------------------------------------------
+  # `file_exists` grades the created-files diff, not the filesystem: it answers "was
+  # this path created during the run". That is exactly right for the destination of a
+  # move, and useless for anything else. See evals/README.md.
+  - type: file_exists
+    name: landed-in-done
+    path: tasks/done/012-add-rate-limiting.md
+    weight: 2
+
+  # A move, not a copy. `git mv` is the only free way to distinguish them — there is no
+  # grader that reads "this path is gone from disk".
+  - type: tool_used
+    name: moved-with-git-mv
+    tool: Bash
+    input_match: git mv
+    min: 1
+    weight: 1
+
+  # ---- frontmatter agrees with the directory (invariants 1 and 4) -----------------
+  - type: regex
+    name: status-synced
+    target: {source: file, path: tasks/done/012-add-rate-limiting.md}
+    pattern: '^status: done$'
+    flags: m
+    weight: 1
+
+  - type: regex
+    name: completed-date-set
+    target: {source: file, path: tasks/done/012-add-rate-limiting.md}
+    pattern: '^completed: \d{4}-\d{2}-\d{2}$'
+    flags: m
+    weight: 1
+
+  # ---- checklist reconciled (invariant 5) -----------------------------------------
+  - type: regex
+    name: no-unresolved-criteria
+    target: {source: file, path: tasks/done/012-add-rate-limiting.md}
+    pattern: '- \[ \]'
+    match: not_contains
+    weight: 1
+
+  # ---- THE ONE THAT MATTERS -------------------------------------------------------
+  # 007 has a second, still-open blocker, so it must stay in `blocked/` and the only
+  # correct action is rewriting the stale path. A file that never moves makes this a
+  # clean read on the sweep alone.
+  - type: regex
+    name: dependent-path-rewritten
+    target: {source: file, path: tasks/blocked/007-document-the-limits.md}
+    pattern: 'tasks/done/012-add-rate-limiting\.md'
+    weight: 4
+
+  - type: regex
+    name: dependent-has-no-stale-path
+    target: {source: file, path: tasks/blocked/007-document-the-limits.md}
+    pattern: 'tasks/wip/012-add-rate-limiting\.md'
+    match: not_contains
+    weight: 2
+
+  # ---- surface, don't auto-promote ------------------------------------------------
+  # 012 was 015's only blocker. The skill says say so and let the human triage; moving
+  # it promotes work nobody re-triaged. A file-target regex reads the real filesystem
+  # and the read throws if the path is gone, so this one grader asserts both that 015
+  # stayed put and that its reference was rewritten rather than deleted.
+  # One grader carries three assertions, which is why it is weighted like this: the read
+  # throws if 015 was moved, the match fails if the path was left stale, and the path
+  # cannot be present at all if the entry was *cleared* — the shortcut that looks like
+  # tidying and leaves `status: blocked` over an empty `blocked-by:` (invariant 6).
+  #
+  # An earlier draft split the third assertion into its own `not_contains` grader on
+  # `blocked-by:\s*(""|''|\n)`. That pattern backtracks: against a perfectly correct
+  # block-sequence rewrite it matches the newline and fails the case. Verified directly,
+  # never observed in a run — a latent false-fail in a suite that costs $5 to run is
+  # worth deleting rather than documenting. Merging it here is weight-neutral.
+  - type: regex
+    name: unblocked-task-stayed-put-and-was-rewritten
+    target: {source: file, path: tasks/blocked/015-load-test-the-limiter.md}
+    pattern: 'tasks/done/012-add-rate-limiting\.md'
+    weight: 5
+
+  - type: llm
+    name: surfaced-the-unblocked-task
+    focus: last_message
+    criteria: |
+      The response tells the user that task 015 (the load test) is no longer blocked,
+      because the task it was waiting on just closed.
+
+      PASS if it names 015 — or the load-test task — as now unblocked or ready to
+      re-triage, whether or not it recommends a specific lane.
+
+      FAIL if 015 is never mentioned, if it is described as still blocked, or if the
+      response claims to have moved it somewhere itself.
+
+      Ignore anything said about task 007; that one is still blocked and is not what
+      this grader is about.
+    weight: 3
+
+  # ---- did the skill actually fire? -----------------------------------------------
+  # Only meaningful in the plugin arm — the baseline has no skill to invoke, and
+  # scoring it there would depress the baseline for the wrong reason.
+  - type: tool_used
+    name: invoked-the-skill
+    tool: Skill
+    input_match: task-lifecycle
+    min: 1
+    arm: with-only
+    weight: 1
+
+expected_outcome: >
+  012 moves to done/ with its frontmatter and checklist reconciled; 007's blocked-by path
+  is rewritten to the done/ location while 007 itself stays put; 015 is reported to the
+  user as newly unblocked rather than moved.
