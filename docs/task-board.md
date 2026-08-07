@@ -11,24 +11,25 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**8 tasks** — 1 new · 0 prioritized · 1 wip · 0 blocked · 6 done.
+**8 tasks** — 1 new · 0 prioritized · 0 wip · 0 blocked · 7 done.
 
 WIP limit: within 3 per human owner.
 
-| new (1) | prioritized (0) | wip (1) | blocked (0) |
+| new (1) | prioritized (0) | wip (0) | blocked (0) |
 |---|---|---|---|
-| **[004](../tasks/new/004-author-eval-suite-for-the-skill.md)** Nothing tests whether the skill is followed, only that it…<br><sub>justmaniv · 2026-08-06</sub> | _nothing triaged_ | **[008](../tasks/wip/008-the-gates-are-untested-and-coverage-is-ungated.md)** The gates that enforce everything are themselves untested,…<br><sub>justmaniv · 2026-08-07</sub> | _nothing waiting_ |
+| **[004](../tasks/new/004-author-eval-suite-for-the-skill.md)** Nothing tests whether the skill is followed, only that it…<br><sub>justmaniv · 2026-08-06</sub> | _nothing triaged_ | _nothing pulled_ | _nothing waiting_ |
 
 ## Blocked-by graph
 
 _No open dependencies._
 
-## done (6)
+## done (7)
 
-Collapsed — the 6 most recently completed of 6. The full pile is `tasks/done/`; git history is its journey.
+Collapsed — the 7 most recently completed of 7. The full pile is `tasks/done/`; git history is its journey.
 
 | # | Task | Completed |
 |---|---|---|
+| [008](../tasks/done/008-the-gates-are-untested-and-coverage-is-ungated.md) | The gates that enforce everything are themselves untested, and nothing floors coverage | 2026-08-07 |
 | [007](../tasks/done/007-task-body-contract-is-undocumented-and-unenforced.md) | A task file's body has a contract, and nothing states it or checks it | 2026-08-07 |
 | [006](../tasks/done/006-disable-was-wrong-uninstall-is-required.md) | CONTRIBUTING told you to disable the installed copy; disabling does not work | 2026-08-06 |
 | [005](../tasks/done/005-worktree-removal-trap-and-no-regeneration-step.md) | Two defects found by a session using the skill for real work | 2026-08-06 |

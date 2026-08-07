@@ -1,8 +1,8 @@
 ---
 created: 2026-08-07
 updated: 2026-08-07
-completed:
-status: wip
+completed: 2026-08-07
+status: done
 owner: justmaniv
 blocked-by: ""
 links:
@@ -59,20 +59,38 @@ If a test finds a real defect, *that* one gets the RED/GREEN treatment for real.
 
 ## Done when
 
-- [ ] `check-portability.py` has unit tests over `scan()` — clean tree, a forbidden term with its
-      file and line, case-insensitivity, word-boundary behavior, a missing scanned file, and the
-      generated-artifact link rule
-- [ ] `check-workflows.py` has unit tests over `check_file()` — a clean workflow, a `self-hosted`
-      label, a non-standard runner, both `pull_request_target` spellings, and the property that a
-      mention inside a comment is ignored
-- [ ] `check-release.py` has unit tests over `main()` with `git` stubbed — manifests agreeing,
-      manifests disagreeing, a missing marketplace entry, shipped content changed without a bump,
-      and a documentation-only change correctly exempt
-- [ ] CI measures branch coverage across every test file and **fails under 85%**, test files
-      themselves excluded from the measurement so the number describes production code
-- [ ] `CONTRIBUTING.md` states the testing discipline, including that squash-merge means the
+- [x] `check-portability.py` has unit tests over `scan()` — 19 tests. Added beyond the list: one
+      that asserts every entry in `SCANNED` is actually scanned, because a path silently dropped
+      from that list is the one failure the gate cannot self-report.
+- [x] `check-workflows.py` has unit tests over `check_file()` — 18 tests, including the
+      self-description property: the same forbidden terms inside a *comment* must not trip it,
+      which is the entire reason this check is structural rather than a grep.
+- [x] `check-release.py` has unit tests over `main()` with `git` stubbed — 14 tests. Two of them
+      drive the **real** `git` subprocess against a throwaway repository, so the one piece of
+      actual plumbing isn't left untested behind its own stub.
+- [x] CI measures branch coverage across every test file and **fails under 85%**, test files
+      themselves excluded — `.coveragerc`, wired into CI as `unit tests + coverage floor`.
+      Breaker verified by raising the floor to 99 (exit 2) and lowering it back (exit 0), not
+      assumed from the config being present.
+- [x] `CONTRIBUTING.md` states the testing discipline, including that squash-merge means the
       RED/GREEN commit shape is a branch-level convention main cannot be audited for
-- [ ] `CONTRIBUTING.md`'s hard-coded test count is corrected or removed — it says 51 and there are
-      70, so it was stale within a day of being written
-- [ ] Every existing gate still passes; no production behavior changed except where a test finds a
-      real defect
+- [x] `CONTRIBUTING.md`'s hard-coded test count is **removed rather than corrected** — a
+      hand-maintained count in a file nobody re-reads goes stale again. It was wrong within a day
+      the first time.
+- [x] Every existing gate still passes; no production behavior changed — **not one line**. The
+      backfill found no defects, which is a result worth recording: these gates were correct, they
+      were simply unprotected.
+
+## Outcome
+
+Production branch coverage **60% → 95%**; the three gates went 0% → 98% / 97% / 97%. 51 new tests,
+123 total.
+
+Two things came out of doing it that weren't in the plan:
+
+- **The release gate caught its own change.** Committing the test files tripped `check-release.py`
+  — `scripts/*_test.py` sit under a shipped prefix, so installed copies receive them and the
+  version had to move. Unplanned, and the best available evidence that gate works.
+- **Nothing needed fixing.** Backfilling tests onto three untested enforcers turned up zero
+  defects. The risk was never that they were wrong; it was that nothing would notice when they
+  became wrong.
