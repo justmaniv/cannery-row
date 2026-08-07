@@ -11,7 +11,7 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**6 tasks** — 1 new · 0 prioritized · 0 wip · 0 blocked · 5 done.
+**7 tasks** — 1 new · 0 prioritized · 0 wip · 0 blocked · 6 done.
 
 WIP limit: within 3 per human owner.
 
@@ -23,12 +23,13 @@ WIP limit: within 3 per human owner.
 
 _No open dependencies._
 
-## done (5)
+## done (6)
 
-Collapsed — the 5 most recently completed of 5. The full pile is `tasks/done/`; git history is its journey.
+Collapsed — the 6 most recently completed of 6. The full pile is `tasks/done/`; git history is its journey.
 
 | # | Task | Completed |
 |---|---|---|
+| [007](../tasks/done/007-task-body-contract-is-undocumented-and-unenforced.md) | A task file's body has a contract, and nothing states it or checks it | 2026-08-07 |
 | [006](../tasks/done/006-disable-was-wrong-uninstall-is-required.md) | CONTRIBUTING told you to disable the installed copy; disabling does not work | 2026-08-06 |
 | [005](../tasks/done/005-worktree-removal-trap-and-no-regeneration-step.md) | Two defects found by a session using the skill for real work | 2026-08-06 |
 | [003](../tasks/done/003-pinned-version-silently-withheld-the-fix.md) | A pinned version withheld the fix, and reported success while doing it | 2026-08-06 |

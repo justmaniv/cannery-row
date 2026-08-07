@@ -18,7 +18,8 @@ tasks/
 - **One task per file.** If a task spawns sub-tasks, link them; don't nest.
 - **`prioritized/` ordering:** put at the top whatever unblocks the most other work, then whatever reduces the most risk, then the smallest useful batch. Order is expressed by position in the directory listing (hence the numeric prefix), not by a priority field — there is nothing to keep in sync.
 - **WIP limit: 3 in `wip/` per human owner** — roughly one per concurrent session. Pull from the top of `prioritized/`. A task that stalls moves to `blocked/` *before* you pull the next one; that move is what keeps the limit honest rather than decorative.
-- **Frontmatter is required** for status tracking.
+- **Frontmatter is required** for status tracking, and so is a body — an H1 title and a
+  `## Done when` checklist. Both are checked; see below.
 
 ## Frontmatter
 
@@ -43,6 +44,41 @@ block sequence.
 Add your own fields if your project needs them. The board generator ignores what it doesn't know,
 so extra frontmatter costs nothing — but if you want it *rendered*, add it to the generator
 deliberately rather than hoping.
+
+## The body
+
+Two elements are required, in every lane, from the moment the file is created:
+
+```markdown
+# What outcome this task produces
+
+## Context
+
+Whatever carries the handoff — what is verifiably true in the code today, the fork you
+considered, what you recommend. Free-form; use the headings that fit.
+
+## Done when
+
+- [ ] A criterion someone else can check without asking what you meant
+- [ ] Another one
+```
+
+**The H1 is the title of record.** The board reads it for the card headline. There is no `title:`
+frontmatter field on purpose — a title in two places is a title that disagrees with itself.
+
+**`## Done when` is the acceptance criteria**, and it is the load-bearing half. It is the only
+part of the file a later session with none of your context is held to, and "completing" a task is
+*defined* as resolving every box in it — `- [x]` if met, `- ~~struck through~~ (reason)` if
+deliberately skipped. A task with no criteria closes on nobody's authority but the closer's,
+because "resolve every `- [ ]`" is trivially satisfied when there are none.
+
+Write criteria a different person can evaluate. *"Works properly"* is not a criterion; *"the gate
+exits non-zero on a task missing its H1"* is. If you can't state one yet, the task isn't understood
+well enough to hand off — that's a useful signal, not a formality to skip.
+
+`generate-task-board.py` refuses to build a board when any task is missing either element, naming
+every offending file and what to do about it. Both were silent failures before it did: a missing
+H1 rendered a blank card and exited 0, and a missing checklist made the completion gate vacuous.
 
 ## Status hygiene
 

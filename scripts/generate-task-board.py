@@ -59,6 +59,18 @@ AGENT_OWNERS = {"agent", "claude"}
 NAME_RE = re.compile(r"^(\d{3,})-([A-Za-z0-9._-]+)\.md$")
 TASK_REF_RE = re.compile(r"tasks/(?:new|prioritized|wip|blocked|done)/(\d{3,})-[A-Za-z0-9._-]+\.md")
 
+# The body contract. Two elements, both load-bearing, neither previously checked:
+#   H1        — the card headline. Without it the board renders a blank card and exits 0.
+#   Done when — the acceptance criteria, and the only part of a task a later session with none
+#               of the author's context is held to. The completion gate is "resolve every
+#               unchecked box"; with no boxes that is trivially satisfied, so an unenforced
+#               heading lets a task close on nobody's authority but the closer's.
+# Tolerant on shape, strict on presence: any heading level, any case, and a struck-through
+# item counts as a resolved criterion rather than a missing one.
+DONE_WHEN_RE = re.compile(r"^#{2,6}\s*done when\b", re.IGNORECASE)
+HEADING_RE = re.compile(r"^#{1,6}\s")
+CRITERION_RE = re.compile(r"^\s*[-*]\s+(\[[ xX]\]|~~)")
+
 EXTERNAL_LABEL_MAX = 60
 
 MERMAID_CLASSDEFS = (
@@ -78,6 +90,7 @@ class Task:
     completed: str
     blockers: list[str]  # raw `blocked-by:` values — a task path or a prose condition
     path: str  # repo-relative
+    done_when_items: int | None = 1  # None = no `## Done when` heading; 0 = heading, no criteria
 
 
 def _scalar(raw: str) -> str:
@@ -119,6 +132,50 @@ def parse_task(text: str) -> tuple[dict[str, str | list[str]], str]:
     return fm, title
 
 
+def parse_done_when(text: str) -> int | None:
+    """Count the acceptance criteria under `## Done when`. None when the heading is absent —
+    which is a different mistake from a heading with nothing under it, and gets its own message."""
+    lines = text.splitlines()
+    start = next((i for i, ln in enumerate(lines) if DONE_WHEN_RE.match(ln)), None)
+    if start is None:
+        return None
+    count = 0
+    for ln in lines[start + 1:]:
+        if HEADING_RE.match(ln):
+            break
+        if CRITERION_RE.match(ln):
+            count += 1
+    return count
+
+
+def structural_problems(tasks: list[Task]) -> list[str]:
+    """Every violation on every file. Reporting only the first turns a two-minute fix into
+    fix-one, re-run, discover the next."""
+    problems: list[str] = []
+    for t in tasks:
+        if not t.title.strip():
+            problems.append(
+                f"{t.path}\n"
+                "    no H1 title — the board renders this card with a blank headline\n"
+                "    fix: add a line starting with '# ' saying what outcome this task produces"
+            )
+        if t.done_when_items is None:
+            problems.append(
+                f"{t.path}\n"
+                "    no '## Done when' section — this task states no acceptance criteria, so\n"
+                "    nothing gates its close and a later session has nothing to be held to\n"
+                "    fix: add a '## Done when' heading followed by '- [ ] ' criteria"
+            )
+        elif t.done_when_items == 0:
+            problems.append(
+                f"{t.path}\n"
+                "    '## Done when' is present with no criteria under it — the completion gate\n"
+                "    resolves every unchecked box, and zero boxes is trivially resolved\n"
+                "    fix: list the criteria as '- [ ] ' items, or delete the empty heading"
+            )
+    return problems
+
+
 def classify_blocker(raw: str) -> tuple[str, int | str] | None:
     """('task', NNN) for a task-path blocker, ('external', text) for a prose condition, None for
     empty. Prose blockers are first-class — several live tasks are gated on a condition
@@ -143,7 +200,8 @@ def load_tasks(root: Path) -> list[Task]:
             m = NAME_RE.match(path.name)
             if not m:
                 continue
-            fm, title = parse_task(path.read_text(encoding="utf-8"))
+            text = path.read_text(encoding="utf-8")
+            fm, title = parse_task(text)
             raw_blocked = fm.get("blocked-by", "")
             values = raw_blocked if isinstance(raw_blocked, list) else [raw_blocked]
             tasks.append(
@@ -157,6 +215,7 @@ def load_tasks(root: Path) -> list[Task]:
                     completed=str(fm.get("completed", "")),
                     blockers=[v for v in values if v.strip()],
                     path=f"tasks/{lane}/{path.name}",
+                    done_when_items=parse_done_when(text),
                 )
             )
     return tasks
@@ -333,6 +392,22 @@ def main() -> int:
     args = parser.parse_args()
 
     tasks = load_tasks(REPO_ROOT)
+
+    # Before anything is rendered. A board built from a broken task is the bug shipping —
+    # a blank card looks like a styling glitch, and a task with no acceptance criteria looks
+    # exactly like one that has them until someone tries to close it.
+    problems = structural_problems(tasks)
+    if problems:
+        print(f"\n✗ {len(problems)} structural problem(s) in tasks/\n", file=sys.stderr)
+        for problem in problems:
+            print(f"  {problem}\n", file=sys.stderr)
+        print(
+            "Every task needs an H1 title and a '## Done when' checklist. Both are required in\n"
+            "every lane. The conventions are in tasks/README.md; no board was written.",
+            file=sys.stderr,
+        )
+        return 1
+
     board = render_board(tasks)
 
     if args.check:

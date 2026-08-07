@@ -9,7 +9,9 @@ under test. Run:
     python3 scripts/generate_task_board_test.py
 """
 
+import contextlib
 import importlib.util
+import io
 import pathlib
 import re
 import sys
@@ -26,7 +28,7 @@ _spec.loader.exec_module(gen)
 
 
 def task(number=100, lane="new", title=None, owner="smiley", updated="2026-08-01",
-         completed="", blockers=()):
+         completed="", blockers=(), done_when_items=1):
     return gen.Task(
         number=number,
         slug=f"task-{number}",
@@ -37,6 +39,7 @@ def task(number=100, lane="new", title=None, owner="smiley", updated="2026-08-01
         completed=completed,
         blockers=list(blockers),
         path=f"tasks/{lane}/{number:03d}-task-{number}.md",
+        done_when_items=done_when_items,
     )
 
 
@@ -354,6 +357,129 @@ class Board(unittest.TestCase):
         # A freshness gate over a non-deterministic render is a permanently red build.
         tasks = [task(number=1), task(number=2, lane="done", completed="2026-07-01")]
         self.assertEqual(gen.render_board(tasks), gen.render_board(tasks))
+
+
+VALID_FM = (
+    "---\ncreated: 2026-08-07\nupdated: 2026-08-07\ncompleted:\n"
+    "status: new\nowner: tester\nblocked-by: \"\"\n---\n"
+)
+
+
+class DoneWhenParsing(unittest.TestCase):
+    """`## Done when` IS the acceptance criteria — the only part of a task a later session
+    with none of the author's context is held to. Distinguish absent from empty: both are
+    holes, but they are different mistakes and deserve different messages."""
+
+    def test_absent_heading_returns_none(self):
+        self.assertIsNone(gen.parse_done_when("# T\n\n## Fix\n\n- [ ] not under a criteria heading\n"))
+
+    def test_counts_checklist_items(self):
+        self.assertEqual(gen.parse_done_when("# T\n\n## Done when\n- [ ] one\n- [x] two\n"), 2)
+
+    def test_heading_present_but_empty_returns_zero(self):
+        # The vacuous case: the completion gate resolves every unchecked box, and zero boxes
+        # is trivially resolved. A heading with nothing under it is the same hole wearing a hat.
+        self.assertEqual(gen.parse_done_when("# T\n\n## Done when\n\nSoon.\n"), 0)
+
+    def test_heading_match_is_case_insensitive(self):
+        self.assertEqual(gen.parse_done_when("# T\n\n## Done When\n- [ ] one\n"), 1)
+
+    def test_struck_through_item_counts(self):
+        # A deliberately skipped criterion is resolved, not missing.
+        self.assertEqual(gen.parse_done_when("# T\n\n## Done when\n- ~~one~~ (superseded)\n"), 1)
+
+    def test_indented_continuation_item_counts(self):
+        self.assertEqual(gen.parse_done_when("# T\n\n## Done when\n  - [ ] nested\n"), 1)
+
+    def test_section_ends_at_the_next_heading(self):
+        text = "# T\n\n## Done when\n- [ ] one\n\n## Notes\n- [ ] not a criterion\n"
+        self.assertEqual(gen.parse_done_when(text), 1)
+
+
+class StructuralGate(unittest.TestCase):
+    def test_well_formed_task_has_no_problems(self):
+        self.assertEqual(gen.structural_problems([task()]), [])
+
+    def test_missing_h1_is_reported_with_its_path(self):
+        problems = gen.structural_problems([task(number=7, title="")])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("tasks/new/007-task-7.md", problems[0])
+        self.assertIn("H1", problems[0])
+
+    def test_missing_done_when_is_reported_with_its_path(self):
+        problems = gen.structural_problems([task(number=7, done_when_items=None)])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("tasks/new/007-task-7.md", problems[0])
+        self.assertIn("Done when", problems[0])
+
+    def test_empty_done_when_is_distinguished_from_a_missing_one(self):
+        problems = gen.structural_problems([task(done_when_items=0)])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("no criteria under it", problems[0])
+
+    def test_every_violation_is_reported_not_just_the_first(self):
+        # Fix one, re-run, discover the next is the failure mode worth designing out.
+        problems = gen.structural_problems([task(title="", done_when_items=None)])
+        self.assertEqual(len(problems), 2)
+
+    def test_done_lane_is_held_to_the_same_contract(self):
+        # The requirement is every lane, not a completion-time audit.
+        self.assertEqual(len(gen.structural_problems([task(lane="done", title="")])), 1)
+
+    def test_problems_name_every_offending_file(self):
+        problems = gen.structural_problems([task(number=7, title=""), task(number=8, title="")])
+        self.assertEqual(len(problems), 2)
+        self.assertTrue(any("007" in p for p in problems))
+        self.assertTrue(any("008" in p for p in problems))
+
+
+class GateBlocksTheBoard(unittest.TestCase):
+    """The gate is only real if it stops the artifact from being produced. A warning printed
+    beside a freshly written board is a warning nobody reads."""
+
+    def _run(self, body, argv):
+        with tempfile.TemporaryDirectory() as root:
+            write_task(root, "new", "007-x.md", body)
+            out = pathlib.Path(root) / "docs" / "task-board.md"
+            saved = (gen.REPO_ROOT, gen.OUTPUT, sys.argv)
+            gen.REPO_ROOT, gen.OUTPUT, sys.argv = pathlib.Path(root), out, argv
+            try:
+                with contextlib.redirect_stderr(io.StringIO()) as err, \
+                        contextlib.redirect_stdout(io.StringIO()):
+                    code = gen.main()
+            finally:
+                gen.REPO_ROOT, gen.OUTPUT, sys.argv = saved
+            return code, out.exists(), err.getvalue()
+
+    def test_invalid_task_fails_and_writes_no_board(self):
+        code, wrote, _ = self._run(VALID_FM + "\nNo heading anywhere.\n", ["gen"])
+        self.assertEqual(code, 1)
+        self.assertFalse(wrote)
+
+    def test_invalid_task_fails_check_mode_too(self):
+        code, _, _ = self._run(VALID_FM + "\nNo heading anywhere.\n", ["gen", "--check"])
+        self.assertEqual(code, 1)
+
+    def test_failure_names_the_file_and_says_how_to_fix_it(self):
+        _, _, err = self._run(VALID_FM + "\nNo heading anywhere.\n", ["gen"])
+        self.assertIn("tasks/new/007-x.md", err)
+        self.assertIn("fix:", err)
+
+    def test_valid_task_still_writes_the_board(self):
+        body = VALID_FM + "\n# A real title\n\n## Done when\n- [ ] one\n"
+        code, wrote, _ = self._run(body, ["gen"])
+        self.assertEqual(code, 0)
+        self.assertTrue(wrote)
+
+
+class LoadsBodyContract(unittest.TestCase):
+    def test_done_when_items_populated_from_disk(self):
+        with tempfile.TemporaryDirectory() as root:
+            write_task(root, "new", "007-x.md", VALID_FM + "\n# T\n\n## Done when\n- [ ] a\n- [ ] b\n")
+            write_task(root, "new", "008-y.md", VALID_FM + "\n# T\n\n## Fix\n\nnothing\n")
+            loaded = {t.number: t for t in gen.load_tasks(pathlib.Path(root))}
+        self.assertEqual(loaded[7].done_when_items, 2)
+        self.assertIsNone(loaded[8].done_when_items)
 
 
 if __name__ == "__main__":
