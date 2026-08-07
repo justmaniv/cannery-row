@@ -1,0 +1,68 @@
+name: Adoption friction
+description: Something got in the way of using this on a real repository
+title: "[friction] "
+labels: [adoption]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is the report the project most wants. The skill is only worth anything if it survives
+        contact with a repository nobody designed it around — so "I got confused here", "this
+        assumed something my repo doesn't do", and "I stopped using it after two days" are all
+        useful, and none of them need a reproduction.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What got in the way
+      description: The friction, in whatever detail you have. A half-remembered annoyance beats a bug report you didn't file.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+      description: Skip if it's obvious from the above.
+
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did it happen
+      options:
+        - Installing the plugin
+        - Setting up tasks/ in my repo
+        - Writing a task file
+        - Moving a task between lanes
+        - Closing a task (the "Done when" reconciliation or the sweep)
+        - Generating or committing the board
+        - Somewhere else
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: "`claude --version` and `claude plugin list | grep -A2 cannery-row`"
+      placeholder: "CLI 2.1.220, plugin 0.4.3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-claude-did
+    attributes:
+      label: What Claude actually did, if the skill was involved
+      description: |
+        The most valuable thing you can paste. The failures that matter here are the *silent* ones —
+        a task that closed with a criterion nobody resolved, a `blocked-by:` left pointing at a path
+        that moved. Those look like success, so they only surface if someone shows what happened.
+      render: text
+
+  - type: checkboxes
+    id: still-using
+    attributes:
+      label: Are you still using it?
+      options:
+        - label: Yes, this was a papercut
+        - label: No, I stopped — this is why
