@@ -2,7 +2,7 @@
 created: 2026-08-07
 updated: 2026-08-07
 completed: ""
-status: prioritized
+status: wip
 owner: justmaniv
 blocked-by: ""            # cleared 2026-08-07 — 010 closed; see "What this was blocked on"
 links:

@@ -11,13 +11,13 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**15 tasks** — 4 new · 1 prioritized · 0 wip · 0 blocked · 10 done.
+**15 tasks** — 4 new · 0 prioritized · 1 wip · 0 blocked · 10 done.
 
 WIP limit: within 3 per human owner.
 
-| new (4) | prioritized (1) | wip (0) | blocked (0) |
+| new (4) | prioritized (0) | wip (1) | blocked (0) |
 |---|---|---|---|
-| **[012](../tasks/new/012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | **[011](../tasks/prioritized/011-no-changelog.md)** An adopter who updates cannot find out what changed<br><sub>justmaniv · 2026-08-07</sub> | _nothing pulled_ | _nothing waiting_ |
+| **[012](../tasks/new/012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | _nothing triaged_ | **[011](../tasks/wip/011-no-changelog.md)** An adopter who updates cannot find out what changed<br><sub>justmaniv · 2026-08-07</sub> | _nothing waiting_ |
 | **[013](../tasks/new/013-adopters-copy-of-the-generator-drifts.md)** The adopter's copy of the board generator can never be upd…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[014](../tasks/new/014-eval-suite-covers-two-transitions.md)** Three of the five transitions worth testing have no eval c…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[015](../tasks/new/015-eval-deltas-pin-no-model.md)** The eval numbers have no model attached, so they expire wi…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
