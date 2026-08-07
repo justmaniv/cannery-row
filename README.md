@@ -37,8 +37,26 @@ Then, in a repo you want tracked:
 mkdir -p tasks/{new,prioritized,wip,blocked,done}
 ```
 
-Ask Claude to create a task and it will use the skill. Copy `tasks/README.md` from this repo into
-yours if you want the conventions written down for humans too.
+That's enough — ask Claude to create a task and it will use the skill.
+
+**The plugin ships the skill; it does not put files in your repo.** Two things live in *this*
+repository rather than in the plugin, and you fetch them if you want them:
+
+```bash
+# The conventions, written down for humans as well as for Claude.
+curl -o tasks/README.md \
+  https://raw.githubusercontent.com/justmaniv/cannery-row/main/tasks/README.md
+
+# The board — and the gate.
+mkdir -p scripts && curl -o scripts/generate-task-board.py \
+  https://raw.githubusercontent.com/justmaniv/cannery-row/main/scripts/generate-task-board.py
+python3 scripts/generate-task-board.py     # writes docs/task-board.md
+```
+
+The second one is worth doing. **That script is also the structural gate** — it is what refuses a
+task with no H1 or no `## Done when`, described below. Without it those stay conventions that
+Claude follows; with it they are checked, and `--check` in CI makes them enforced. No dependencies
+beyond Python 3.
 
 ## What a task looks like
 

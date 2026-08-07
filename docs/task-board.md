@@ -11,7 +11,7 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**8 tasks** — 1 new · 0 prioritized · 0 wip · 0 blocked · 7 done.
+**9 tasks** — 1 new · 0 prioritized · 0 wip · 0 blocked · 8 done.
 
 WIP limit: within 3 per human owner.
 
@@ -23,12 +23,13 @@ WIP limit: within 3 per human owner.
 
 _No open dependencies._
 
-## done (7)
+## done (8)
 
-Collapsed — the 7 most recently completed of 7. The full pile is `tasks/done/`; git history is its journey.
+Collapsed — the 8 most recently completed of 8. The full pile is `tasks/done/`; git history is its journey.
 
 | # | Task | Completed |
 |---|---|---|
+| [009](../tasks/done/009-adopters-cannot-run-the-board-or-the-gate.md) | An adopter following the README cannot run the board, or the gate that enforces the contract | 2026-08-07 |
 | [008](../tasks/done/008-the-gates-are-untested-and-coverage-is-ungated.md) | The gates that enforce everything are themselves untested, and nothing floors coverage | 2026-08-07 |
 | [007](../tasks/done/007-task-body-contract-is-undocumented-and-unenforced.md) | A task file's body has a contract, and nothing states it or checks it | 2026-08-07 |
 | [006](../tasks/done/006-disable-was-wrong-uninstall-is-required.md) | CONTRIBUTING told you to disable the installed copy; disabling does not work | 2026-08-06 |
