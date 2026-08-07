@@ -1,0 +1,16 @@
+# Coverage floor for the scripts that ship. Branch coverage, not line coverage: the gates are
+# mostly conditionals, and line coverage would call an `if` covered without ever taking its
+# false arm — which is exactly the arm that decides whether a build fails.
+#
+# Test files are omitted from the measurement so the number describes production code. Nothing
+# else is excluded. The three uncovered `sys.exit(main())` lines stay counted rather than
+# waved through with a pragma: a floor with carve-outs is a floor you stop trusting.
+[run]
+branch = True
+source = scripts
+omit = */*_test.py
+
+[report]
+show_missing = True
+skip_covered = False
+fail_under = 85
