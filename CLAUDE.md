@@ -24,7 +24,8 @@ Two loops, and they are different. `CONTRIBUTING.md` is the authority; the short
 ⚠️ **The bump is load-bearing, not bookkeeping.** The version is pinned, so a fix merged without
 one reaches nobody while `plugin update` reports *"already at the latest version."* That happened
 (`tasks/done/003-*`). README- and docs-only changes are exempt; the boundary is
-`skills/ scripts/ tasks/README.md .claude-plugin/`.
+`skills/ scripts/ tasks/README.md .claude-plugin/`. A bump also needs a `CHANGELOG.md` heading for
+the new version — same script, same build break.
 
 ## Before you change the skill
 
