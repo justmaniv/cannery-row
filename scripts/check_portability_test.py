@@ -89,6 +89,40 @@ class ForbiddenVocabulary(unittest.TestCase):
                 self.assertTrue(any(rel in f for f in findings))
 
 
+class HostWorkflowVocabulary(unittest.TestCase):
+    """Remote names and host review mechanics are collaboration topology, not git primitives.
+    This class of coupling shipped seven times over while the gate looked only for languages,
+    vendors, and cadence words — task 017 is the incident report."""
+
+    def _scan(self, text):
+        with tempfile.TemporaryDirectory() as root:
+            return gate.scan(tree(root, **{SKILL: text}))[0]
+
+    def test_remote_and_host_review_vocabulary_is_caught(self):
+        for line in [
+            "reset the branch to origin/main first\n",
+            "leave branches with an open PR\n",
+            "close stale PRs weekly\n",
+            "now that main is PR-protected\n",
+            "open a pull request for review\n",
+            "requires branch protection on main\n",
+        ]:
+            with self.subTest(line=line):
+                self.assertEqual(len(self._scan(line)), 1)
+
+    def test_abbreviation_does_not_swallow_ordinary_words(self):
+        # 'PR' must match as an exact, case-sensitive word: the suffix wildcard the other
+        # terms use would flag 'provenance', 'procedure', and every 'Press'.
+        self.assertEqual(self._scan("Provenance is the point of the procedure. Press on.\n"), [])
+
+    def test_push_is_deliberately_not_forbidden(self):
+        # The skill legitimately instructs a *conditional* push ("if `git remote` prints
+        # anything") — the word is the fix, not the coupling. Guard the decision so a future
+        # sweep doesn't add it and break the skill's own gate.
+        self.assertNotIn("push", gate.FORBIDDEN)
+        self.assertEqual(self._scan("commit always; push when a remote exists\n"), [])
+
+
 class StructuralErrors(unittest.TestCase):
     def test_missing_scanned_file_is_an_error_not_a_finding(self):
         with tempfile.TemporaryDirectory() as root:
