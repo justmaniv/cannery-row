@@ -54,12 +54,23 @@ The opinions, stated plainly so you can disagree with them on purpose:
   record to make the file look finished.
 - **Surfacing beats auto-promoting.** When the last blocker closes, the skill tells you and waits.
   Re-triage is a judgment call and it isn't the tool's.
+- **A host is a bonus, not a dependency.** The tracker is a directory tree, so the lanes and the
+  board work on a filesystem alone. Git adds the history — per-task `git log`, and status changes
+  that land as moves instead of edits in place. A shared remote adds backup and collaboration, and
+  starts paying once a second person or machine is involved. Take as many of those layers as your
+  project actually has; plenty of real use is local-only.
 
 An honest note on **two is better than one**, since it's the opinion most worth arguing with: it is
 an argument plus one worked example, not a measured result. The evals score whether the skill is *followed*; nothing here
 measures two passes against one, and proving it properly would cost more in run hours than the answer
 is worth. It's held on conviction and about 380 tasks of use, and labelled that way rather than
 dressed up as data. [`evals/README.md`](evals/README.md) records the decision not to chase it.
+
+And one rough edge on the last of them, disclosed rather than discovered: the skill's commit step
+currently reads *commit **and push***, which assumes a remote exists and does not hold on a
+local-only project. The tracker itself is unaffected — lanes, board, gates, all local — but that
+instruction needs splitting, and until it is, ignore the push half if you have nothing to push to.
+Tracked in [`tasks/new/017-skill-assumes-a-remote-exists.md`](tasks/new/017-skill-assumes-a-remote-exists.md).
 
 ## Install
 
