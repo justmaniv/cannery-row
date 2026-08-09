@@ -126,6 +126,17 @@ thing a later session is held to, and completing a task is *defined* as resolvin
 different person can evaluate: *"works properly"* isn't one, *"the gate exits non-zero on a task
 missing its H1"* is.
 
+**It is also the cheapest part of a task to review — and the gap between the two passes is where you
+can do it.** Read the boxes when the spec lands, before execution starts. If they describe the wrong
+work, finding that out costs you the time it takes to read a checklist instead of the time it takes
+to read a diff. Approving criteria takes seconds; a page of reasoning takes minutes; the finished
+work takes longer than both.
+
+Nothing prompts you for that review and skipping it is fine — the criteria still do their job, just
+later, as what the executing session gets held to at close. Either way they get checked. The only
+question is whether the check lands before the work or after it, and one pass gives you no seam to
+put it in.
+
 The H1 and the checklist are **required in every lane**, and the board generator fails loudly
 without them — naming the file and the fix, writing no board. Both used to be silent: a missing
 H1 rendered a blank card and exited 0, and a missing checklist made the completion gate vacuous,
@@ -142,7 +153,8 @@ beats is about writing it:
    else can check without asking what you meant.
 2. **The session ends.** Sometimes days and other people's merges, sometimes five minutes. The
    split isn't about waiting for time to pass — it's about refusing to execute in the window that
-   did the thinking.
+   did the thinking. It is also the one place a person can read the acceptance criteria while they
+   are still cheap to change.
 3. **A different session validates it, then executes it.** Validation first: does the spec still
    describe reality? The skill puts this in front of you and gives you the commands; it can't make
    you run them. Nothing enforces it, and nothing can. Avoiding context rot is the operator's job —
