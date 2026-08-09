@@ -6,7 +6,7 @@ The first session thinks the problem through and leaves a file: why the work exi
 the code today, and criteria someone else can check. The second session opens that file holding
 nothing else, confirms it still matches the code, and executes.
 
-Splitting those is the whole idea. A session that reasons its way to a plan spends an hour on dead
+Splitting those is the point. A session that reasons its way to a plan spends an hour on dead
 ends, wrong turns, and decisions it reversed twice — and none of that reaches the session doing the
 work, which starts with a clean window and one task in it. Independence comes free: the session
 that didn't write the spec is the only one that can catch what the spec got wrong. Surviving a
@@ -59,18 +59,6 @@ The opinions, stated plainly so you can disagree with them on purpose:
   that land as moves instead of edits in place. A shared remote adds backup and collaboration, and
   starts paying once a second person or machine is involved. Take as many of those layers as your
   project actually has; plenty of real use is local-only.
-
-An honest note on **two is better than one**, since it's the opinion most worth arguing with: it is
-an argument plus one worked example, not a measured result. The evals score whether the skill is *followed*; nothing here
-measures two passes against one, and proving it properly would cost more in run hours than the answer
-is worth. It's held on conviction and about 380 tasks of use, and labelled that way rather than
-dressed up as data. [`evals/README.md`](evals/README.md) records the decision not to chase it.
-
-And one rough edge on the last of them, disclosed rather than discovered: the skill's commit step
-currently reads *commit **and push***, which assumes a remote exists and does not hold on a
-local-only project. The tracker itself is unaffected — lanes, board, gates, all local — but that
-instruction needs splitting, and until it is, ignore the push half if you have nothing to push to.
-Tracked in [`tasks/new/017-skill-assumes-a-remote-exists.md`](tasks/new/017-skill-assumes-a-remote-exists.md).
 
 ## Install
 
@@ -159,34 +147,10 @@ task with no acceptance criteria isn't enforcing the one thing it exists to enfo
 
 ## What it's for
 
-Agent-driven, spec-driven development. The task file **is** the spec, and only one of the three
-beats is about writing it:
-
-1. **One session writes the task as a spec** — why the work exists, what is verifiably true in the
-   code *today*, the design fork with its trade-offs and a recommendation, and criteria somebody
-   else can check without asking what you meant.
-2. **The session ends.** Sometimes days and other people's merges, sometimes five minutes. The
-   split isn't about waiting for time to pass — it's about refusing to execute in the window that
-   did the thinking. It is also the one place a person can read the acceptance criteria while they
-   are still cheap to change.
-3. **A different session validates it, then executes it.** Validation first: does the spec still
-   describe reality? The skill puts this in front of you and gives you the commands; it can't make
-   you run them. Nothing enforces it, and nothing can. Avoiding context rot is the operator's job —
-   the tool's job is to make sure the question gets asked.
-
-Beat 3 is the one people skip, and it is where most of the value is. Two things happen there, and
-only one of them is execution.
-
-**A review pass, for nothing.** The executing session reads a spec it has no investment in, with no
-memory of why any decision felt right at the time. That is the position a code reviewer occupies,
-and it catches the one class of error the writing session structurally cannot: a premise that was
-already false when it was written. Care in beat 1 doesn't substitute, because the author and the
-checker are the same context.
-
-**A window holding one task.** The reasoning that produced the spec — the dead ends, the reversed
-decisions, the files that turned out to be irrelevant — stays in the session that did it. What
-crosses the boundary is the conclusion. The executor spends its whole window on the work instead of
-on the archaeology of how the work got specified.
+Agent-driven, spec-driven development. The task file **is** the spec — and the beat people skip is
+the third one, where a different session *validates* the spec before executing it. Validation
+first: does this still describe reality? The skill puts the question in front of you and gives you
+the commands; it can't make you run them. Nothing enforces it, and nothing can.
 
 **A worked example, from this project's own use.** A session wrote a well-formed task: scope
 boundaries against two neighbouring pieces of work, a three-option design fork with effort
@@ -197,7 +161,7 @@ happened had worked for a year. The original grep had searched the wrong directo
 
 Nothing was wrong with the task as *writing*. It was wrong as a *claim*, and every automated check
 in the world would have passed it. Caught in about four minutes, before a line of code was written,
-because validating the spec is beat 3 and not an optional courtesy.
+because validating the spec is the executing session's first job and not an optional courtesy.
 
 That is the loop this exists to support. Files in the repo are what make it possible: the handoff
 has to carry everything, because there is nobody left to ask. A conversation log can't be pulled up
@@ -312,11 +276,26 @@ followed the wrong half, leaving a task in `blocked/` with an empty `blocked-by:
 nothing, and nothing would ever surface it again. That is the argument for evals in one paragraph:
 both halves were shipped text, both read fine, and no amount of proofreading was going to catch it.
 
+**What these numbers do not cover** — an honest note on **two is better than one**, the opinion
+above most worth arguing with: it is an argument plus one worked example, not a measured result.
+The evals score whether the skill is *followed*; nothing here measures two passes against one, and
+proving it properly would cost more in run hours than the answer is worth. It's held on conviction
+and about 380 tasks of use, and labelled that way rather than dressed up as data.
+[`evals/README.md`](evals/README.md) records the decision not to chase it.
+
 Running the suite costs about $5 and twelve minutes, needs Claude credentials, and so is deliberately
 **not** in CI — this repo holds no secrets, which is the best security property a public repo can
 have, and it is not worth trading for a check any contributor can run locally.
 [`CONTRIBUTING.md`](CONTRIBUTING.md) has the command; [`evals/README.md`](evals/README.md) has the
 design rules.
+
+## Known limits
+
+One rough edge, disclosed rather than discovered: if your repository *has* a remote, the skill
+pushes on every lane move, and there is currently no way to say you'd rather it didn't. For some
+projects that cadence is the point; for others it's chatty. A local-only repository is unaffected —
+the commit is the whole step there, by design. Tracked in
+[`tasks/prioritized/019-user-cannot-opt-out-of-remote-operations.md`](tasks/prioritized/019-user-cannot-opt-out-of-remote-operations.md).
 
 ## Contributing
 
