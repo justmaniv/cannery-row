@@ -9,7 +9,7 @@ links:
   - README.md
   - CLAUDE.md
   - tasks/done/024-validation-is-not-independent-review.md
-  - tasks/new/025-skill-does-not-say-where-its-own-check-stops.md
+  - tasks/done/025-skill-does-not-say-where-its-own-check-stops.md
 ---
 
 # The README recommends a second reader and gives nobody a way to have one

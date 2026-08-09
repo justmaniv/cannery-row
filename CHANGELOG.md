@@ -25,6 +25,34 @@ release, with no docs-only commits mixed in.
 There is no `Unreleased` section, and that is deliberate: `check-release.py` requires an entry in
 the same change that moves the version, so an entry never exists before the version it names.
 
+## [0.5.1] — 2026-08-09
+
+### Changed
+
+- **The claim-validation step now says where it stops, and tells you to read against the claim
+  rather than for it** (task 025). Two changes to § *"Before starting: validate the task's
+  claims"*, both small:
+
+  *"Read the code before you trust the task"* now adds that you read it to **break** the claim, not
+  to confirm it — *"check this claim"* finds the thing the task cited and stops there; *"try to
+  prove this wrong"* opens what that thing actually does.
+
+  A closing paragraph states what the step does not establish. It is answered by a reader who has
+  just absorbed the task's argument, so it is validation and not an independent read, and it is
+  weak against a claim about *how* something works where every citation is real and the mechanism
+  is invented. When the task's output is itself a spec, that kind of error reaches the `## Done
+  when` list and becomes self-enforcing — so it names the escalation: a reader that was not in the
+  conversation which accepted the task.
+
+  **The skill still ships no review mechanism and does not prescribe one.** It marks the boundary;
+  what you put on the other side of it is yours. The field case behind this is one where every
+  cited test existed and asserted the cited thing, and the task's account of *how* — a request
+  header — was invented; it had already reached three sibling tasks, one as an acceptance
+  criterion.
+
+  Nothing about the four outcomes, the two greps, or when the step fires has changed. If you were
+  following this section, you keep following it; it now admits a case it does not close.
+
 ## [0.5.0] — 2026-08-08
 
 ### Changed

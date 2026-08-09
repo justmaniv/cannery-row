@@ -130,8 +130,11 @@ and specified work to seed it. Seven migrations were already doing exactly that 
 had searched one directory while the writes lived in another. Four minutes of checking; the task
 was one day old, and every "is it stale?" heuristic would have waved it through.
 
-Read the code before you trust the task. Start with the claims the work depends on — the ones where
-being wrong changes what you build, not every sentence.
+Read the code before you trust the task, and read it to **break** the claim rather than to confirm
+it. The two questions send you to different files: *"check this claim"* finds the thing the task
+cited and stops there; *"try to prove this wrong"* opens what that thing actually does. Start with
+the claims the work depends on — the ones where being wrong changes what you build, not every
+sentence.
 
 Then, for task number `NNN`, check whether the work already shipped elsewhere:
 
@@ -167,6 +170,17 @@ caught only because the pickup happened to read the code first. That is luck, no
 
 If you also run a periodic grooming sweep, this is its per-pickup complement: grooming bounds
 staleness to at most one cycle; this catches it at zero latency, at the moment it would cost work.
+
+**Where this check stops.** It is answered by a reader who has just absorbed the task's argument, so
+it is validation and not an independent read. It is built for the two failures above and is weak
+against a third: a claim about *how* something works, where everything cited is real and the
+mechanism is invented. A citation that checks out is not evidence for the sentence around it — the
+load-bearing claim is rarely *"this artifact exists"*, it is *"it does X by doing Y"*, and Y is the
+part that gets made up. When the task's own output is a spec later sessions are held to, a false
+mechanism does not stop at this file: it flows into its `## Done when` list and its siblings', and
+once it is a criterion it is self-enforcing. That case wants a second reader that was not in the
+conversation which accepted the task, told to assume something is wrong and go find it. This skill
+does not ship one and does not prescribe one — it tells you where its own check stops.
 
 ---
 

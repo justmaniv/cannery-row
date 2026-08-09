@@ -9,7 +9,7 @@ links:
   - README.md
   - skills/task-lifecycle/SKILL.md
   - tasks/done/016-two-pass-claim-is-unmeasured.md
-  - tasks/new/025-skill-does-not-say-where-its-own-check-stops.md
+  - tasks/done/025-skill-does-not-say-where-its-own-check-stops.md
 ---
 
 # The README says independence comes free; a field report says it does not
@@ -98,6 +98,11 @@ the validation step with no stop line and with confirming framing. That is `task
 separate because it crosses the version-bump boundary and reopens the eval-coverage question that
 `tasks/done/016-*` answered once already. A reader who runs the skill and never opens the README
 therefore does not yet get this caveat — which is exactly the argument 025 has to settle.
+
+> **Correction, 2026-08-09** (while executing 025): *"the question `016-*` answered once already"*
+> over-reads 016. It answered the **session-topology** question and explicitly recommended the
+> false-premise case as *"worth doing either way."* 025 inherited this wording and had to argue
+> against 016 rather than lean on it.
 
 **This task was written and executed by one session.** The project's own opinion says that is the
 weaker arrangement, and it was the right trade for a docs change whose source material arrived

@@ -86,6 +86,42 @@ Recorded here so the omission reads as a decision rather than an oversight someo
 fix. Decided 2026-08-08; see `tasks/done/016-two-pass-claim-is-unmeasured.md` for the four options
 weighed.
 
+### No case for "where the check stops", and it is not 016's reason
+
+Skill 0.5.1 added a stop line to § *"Before starting: validate the task's claims"*: the step is weak
+against a task whose citations are all real and whose *mechanism* is invented, and that case wants a
+reader who was not in the conversation that accepted the task. The obvious case to write is a
+scaffold with a true citation and a false mechanism, graded on whether the pickup traces it. **None
+is planned, for a reason specific to this behavior.**
+
+It is *not* the reason from 016 above. That one turned on session topology being expensive and maybe
+inexpressible; this case is single-session and sits on the existing `with-without` axis, so the
+harness objection does not transfer. 016 in fact **recommended** the neighbouring case — *"scaffold a
+spec with a deliberately false premise, grade whether the cold session catches it before building"* —
+and called it *"the sharpest single thing in this whole area."* That one is still live and belongs
+with the three in `tasks/new/014-*`, one of which (**Overtaken-by-events**) already covers the other
+half of this same section. Nothing here kills it.
+
+What is unwritable is a case over the *mechanism* half, because the graders would have to assert one
+of two things and both are bad:
+
+- **"The session caught the fabricated mechanism."** This grades the skill on the outcome its own
+  new prose declines to promise. Passing would prove the model reads fixtures unaided; failing would
+  be the documented behavior. Neither number changes anything, and per the design rule at the bottom
+  of this file a case whose delta cannot be acted on is a case that tests the model.
+- **"The session said it could not establish the mechanism and escalated."** A grader over the
+  agent's own report of its limits, satisfiable with a sentence, in the same family as the two traps
+  above — it would pass while proving nothing.
+
+The falsification framing that shipped in the same version has the same problem in a milder form:
+no grader here distinguishes *"read the code"* from *"tried to break the claim"* except by the
+finding it produces, which is the first bullet again.
+
+The behavior does have evidence, from use rather than from a run: `tasks/done/024-*`, where a fresh
+reader falsified four claims in a task that had already passed the four-minute check, one of them
+already propagated into a sibling's acceptance criteria. Decided 2026-08-09 while executing
+`tasks/done/025-*`.
+
 ## Grader semantics — read this before adding a case
 
 The grader types are not interchangeable, and two of them do not do what their names suggest. Both
