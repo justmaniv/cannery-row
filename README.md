@@ -1,11 +1,16 @@
 # Cannery Row
 
-**Your agent's work survives the session that wrote it.**
+**One session writes the work. A different session does it. Every time, on purpose.**
 
-One session writes a task as a spec. Days pass; that context window ends and takes every unwritten
-assumption with it. A *different* session picks the task up, checks the spec still describes
-reality, and executes it — because the handoff is a file in your repo, not a conversation nobody
-can reopen.
+The first session thinks the problem through and leaves a file: why the work exists, what's true in
+the code today, and criteria someone else can check. The second session opens that file holding
+nothing else, confirms it still matches the code, and executes.
+
+Splitting those is the whole idea. A session that reasons its way to a plan spends an hour on dead
+ends, wrong turns, and decisions it reversed twice — and none of that reaches the session doing the
+work, which starts with a clean window and one task in it. Independence comes free: the session
+that didn't write the spec is the only one that can catch what the spec got wrong. Surviving a
+restart is a side effect — a real one, but not the reason.
 
 Task state as files, where the location is the status:
 
@@ -106,13 +111,27 @@ beats is about writing it:
 1. **One session writes the task as a spec** — why the work exists, what is verifiably true in the
    code *today*, the design fork with its trade-offs and a recommendation, and criteria somebody
    else can check without asking what you meant.
-2. **Time passes.** Days, and other people's merges.
-3. **A different session picks it up, validates it, then executes it.** Validation first: does the
-   spec still describe reality? The skill puts this in front of you and gives you the commands; it
-   can't make you run them. Nothing enforces it, and nothing can. Avoiding context rot is the
-   operator's job — the tool's job is to make sure the question gets asked.
+2. **The session ends.** Sometimes days and other people's merges, sometimes five minutes. The
+   split isn't about waiting for time to pass — it's about refusing to execute in the window that
+   did the thinking.
+3. **A different session validates it, then executes it.** Validation first: does the spec still
+   describe reality? The skill puts this in front of you and gives you the commands; it can't make
+   you run them. Nothing enforces it, and nothing can. Avoiding context rot is the operator's job —
+   the tool's job is to make sure the question gets asked.
 
-Beat 3 is the one people skip, and it is the one that makes the other two safe.
+Beat 3 is the one people skip, and it is where most of the value is. Two things happen there, and
+only one of them is execution.
+
+**A review pass, for nothing.** The executing session reads a spec it has no investment in, with no
+memory of why any decision felt right at the time. That is the position a code reviewer occupies,
+and it catches the one class of error the writing session structurally cannot: a premise that was
+already false when it was written. Care in beat 1 doesn't substitute, because the author and the
+checker are the same context.
+
+**A window holding one task.** The reasoning that produced the spec — the dead ends, the reversed
+decisions, the files that turned out to be irrelevant — stays in the session that did it. What
+crosses the boundary is the conclusion. The executor spends its whole window on the work instead of
+on the archaeology of how the work got specified.
 
 **A worked example, from this project's own use.** A session wrote a well-formed task: scope
 boundaries against two neighbouring pieces of work, a three-option design fork with effort
@@ -156,10 +175,13 @@ The ecosystem's nearest neighbours are good, and they solve different problems:
 | [`obra/superpowers`](https://github.com/obra/superpowers) | in-conversation | agent discipline — brainstorm → spec → test-first |
 | BMAD | planning artifacts | requirements → architecture → work breakdown |
 | Anthropic's `productivity` plugin | one markdown list plus memory, outside the repo | knowledge work — email, calendar, chat capture |
-| **Cannery Row** | **one file per task, inside the repo, in git** | **durable state that survives the session** |
+| **Cannery Row** | **one file per task, inside the repo, in git** | **two-pass execution — write it in one session, execute it cold in another** |
 
-None of the others put durable, per-task, versioned state *inside the repository it describes*.
-That's the gap this fills, and it's the only claim it makes.
+Several of these have phases: brainstorm, then spec, then build. The difference is where the phase
+boundary falls. Theirs are steps *inside* one context, so the window that wrote the spec is the
+window that executes it — no clean context, no independent read. Cannery Row puts the boundary
+between sessions, and a boundary between sessions needs per-task state in the repository to cross.
+That's the gap, and durability is what makes it crossable rather than being the point itself.
 
 Concretely, four things follow from one-file-per-task:
 
