@@ -152,7 +152,9 @@ CLAUDE_CODE_WALNUT_SPIRE=1 claude plugin eval . \
   --allow-tools Bash Read Edit Write Glob Grep Skill
 ```
 
-About twelve minutes and $4.50 for the full suite (2 cases × 2 arms × 3 runs). `--case <glob>
+About twelve minutes for the full suite (2 cases × 2 arms × 3 runs), and $4.50 of tokens at list
+price — what you actually pay depends on your access; see
+[`evals/README.md`](evals/README.md#cases). `--case <glob>
 --runs 1` while iterating. The plugin arm scores 1.00 on every run today, so the default
 `--threshold 1.0` is a real gate and not a flake generator.
 **`claude plugin eval` is early access — without `CLAUDE_CODE_WALNUT_SPIRE=1` it prints a notice

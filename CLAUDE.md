@@ -38,7 +38,8 @@ CLAUDE_CODE_WALNUT_SPIRE=1 claude plugin eval . \
   --allow-tools Bash Read Edit Write Glob Grep Skill
 ```
 
-~$4.50, ~12 minutes. **`claude plugin eval` is early access — without that env var it prints a
+~12 minutes, and ~$4.50 of tokens at list price — money only on metered API access, usage against
+your plan on a subscription (`evals/README.md` § Cases). **`claude plugin eval` is early access — without that env var it prints a
 notice and exits 0**, which looks exactly like a clean run. Target `.`, not the plugin name: cases
 are discovered under the target, and a name target looks inside the plugin cache. `evals/README.md`
 covers the design rules and three grader traps that produce assertions which pass while proving

@@ -360,7 +360,8 @@ proving it properly would cost more in run hours than the answer is worth. It's 
 and about 380 tasks of use, and labelled that way rather than dressed up as data.
 [`evals/README.md`](evals/README.md) records the decision not to chase it.
 
-Running the suite costs about $5 and twelve minutes, needs Claude credentials, and so is deliberately
+Running the suite takes twelve minutes and about $5 of tokens at list price — real money on metered
+API access, plan usage on a subscription — needs Claude credentials, and so is deliberately
 **not** in CI — this repo holds no secrets, which is the best security property a public repo can
 have, and it is not worth trading for a check any contributor can run locally.
 [`CONTRIBUTING.md`](CONTRIBUTING.md) has the command; [`evals/README.md`](evals/README.md) has the
