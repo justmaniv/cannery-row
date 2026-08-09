@@ -2,7 +2,7 @@
 created: 2026-08-08
 updated: 2026-08-08
 completed: ""
-status: blocked
+status: prioritized
 owner: justmaniv
 blocked-by: tasks/done/017-skill-assumes-a-remote-exists.md
 links:
