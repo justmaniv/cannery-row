@@ -101,3 +101,8 @@ file may name names; `tasks/*.md` are not shipped and the gate does not scan the
 - [ ] `check-portability.py` passes on the changed shipped files
 - [ ] `version` bumped in both manifests with a matching `CHANGELOG.md` heading, and the
       behavioral evals run before merge
+- [ ] Every doc describing the changed behavior is updated in the same change — or the docs
+      checked are named here, with why none needed it. At minimum: `README.md`'s
+      *"A host is a bonus, not a dependency"* bullet, which currently offers a rung where
+      *"the lanes and the board work on a filesystem alone"* — the git-less mode ruling 1 strikes —
+      and `tasks/README.md`, which documents the conventions this option changes
