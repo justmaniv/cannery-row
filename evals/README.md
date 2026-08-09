@@ -157,6 +157,14 @@ strike carry a *reason*; was the unblocked task *surfaced*).
 
 3 runs per arm, CLI 2.1.220, skill 0.4.3. Whole suite: **$4.52, 12m09s**.
 
+**That dollar figure is a list-price estimate, not necessarily a bill.** It is what the run's tokens
+price out to at API rates, which makes it a stable unit for *"is this worth running"* across
+machines and plans. Whether it costs you money depends on how your session authenticates: on
+metered API access — an API key, or a cloud provider's model endpoint — it is roughly what you are
+charged; on a subscription it is not charged at all and the run draws on your plan's usage limits
+instead. Twelve minutes of wall clock is the one cost everybody pays. The figure is quoted this way
+throughout the docs; read it as *cost of the run*, not *charge to you*.
+
 | Case | What the baseline gets wrong | Without | With | Δ |
 |------|------------------------------|---------|------|---|
 | `reverse-dependency-sweep` | never rewrites the dependents' `blocked-by:` paths (3/3); moves the newly-unblocked task instead of surfacing it (3/3); fails to mention it at all (1/3) | 0.50 | 1.00 | **+0.50** |
@@ -177,7 +185,7 @@ Deliberate, and recorded in full in task 004. In short: a CI run would need both
 flag and working Claude credentials, and this repo's strongest security property is that it holds
 **no secrets at all** — a public repo with no secrets and no self-hosted runner has no attack
 surface worth exploiting. Trading that for a check any contributor can run locally in twelve
-minutes for about $5 is a bad trade. Run it before merging a skill change; the workflow gates the
+minutes, at the cost above, is a bad trade. Run it before merging a skill change; the workflow gates the
 form, you gate the behavior.
 
 What CI *can* do for free is `scripts/check-evals.py`, which asserts the suite is well-formed — so
