@@ -83,3 +83,28 @@ coverage run -m unittest discover -s scripts -p '*_test.py' && coverage report  
   every create/start/block/close. `tasks/README.md` documents layout for humans; the skill governs
   operations. Regenerate `docs/task-board.md` in the same commit as any lane move.
 - **`main` is PR-only.** Open the PR, enable auto-merge, carry it through to merged.
+
+## Picking up a task you did not write
+
+Run the skill's claim-validation step first. Then, before any work starts — and again before commit
+when the deliverable is itself a spec other sessions will execute (a task file, `SKILL.md`, a "Done
+when" list, anything in `CLAUDE.md` or `CONTRIBUTING.md`) — hand the task to a subagent in a fresh
+context with this instruction:
+
+> At least one claim in this task file is wrong. For each load-bearing claim, open the code it
+> refers to and try to prove it false. A cited file or test *existing* is not the claim — the claim
+> is **how** it works, and that is the part that gets invented. Report every claim you could not
+> confirm from the code, quoting what you read. You have not seen the reasoning that produced this
+> task; you do not need it.
+
+Correct the task file — and any sibling task that inherited the claim — before proceeding, with a
+dated note saying what was wrong.
+
+**The fresh context is the whole mechanism.** A session that has just validated the task cannot do
+this to itself: by then it has read the argument and is checking whether the claims are *supported*
+rather than whether they are *true*. That failure is on record — `tasks/done/024-*`, where a
+fabricated test mechanism passed pickup validation and had already reached three sibling tasks, one
+as a "Done when" criterion prescribing a change to something that does not exist.
+
+Skip it on a one-function change that gets read as a diff anyway. This repo's output is mostly prose
+that other sessions execute, so mostly it does not get skipped.

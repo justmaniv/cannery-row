@@ -99,6 +99,42 @@ task with no H1 or no `## Done when`, described below. Without it those stay con
 Claude follows; with it they are checked, and `--check` in CI makes them enforced. No dependencies
 beyond Python 3.
 
+### The layer the plugin can't ship: a second reader at pickup
+
+The layers so far each catch one thing and are blind to the next. The lanes catch *where the work
+is*. The skill catches *the transition going wrong* — a dropped criterion, a dependent left pointing
+at a moved file. The gate catches *a task with no acceptance criteria*. None of them can tell you the
+task's reasoning was **invented**, because a fabricated mechanism is well-formed, in the right lane,
+and has a checklist.
+
+That one needs a reader, and it is the only layer here that is a paste rather than an install. Put
+it in your project instructions — `CLAUDE.md`, or whatever your host reads at session start:
+
+````markdown
+## Picking up a task you did not write
+
+Run the skill's claim-validation step first. Then, before any work starts — and again before commit
+when the deliverable is itself a spec other sessions will execute — hand the task to a subagent in a
+fresh context with this instruction:
+
+> At least one claim in this task file is wrong. For each load-bearing claim, open the code it
+> refers to and try to prove it false. A cited file or test *existing* is not the claim — the claim
+> is **how** it works, and that is the part that gets invented. Report every claim you could not
+> confirm from the code, quoting what you read. You have not seen the reasoning that produced this
+> task; you do not need it.
+
+Correct the task file — and any sibling task that inherited the claim — before proceeding, with a
+dated note saying what was wrong.
+````
+
+**The property that makes it work is the fresh context, not the seniority of the reader.** It reads
+the claims and the code and none of the conversation that found them convincing. A subagent, a
+second session, or a colleague all qualify; the session that just spent four minutes validating the
+task does not, which is the whole point.
+
+It costs one subagent run. Spend it where the task's output is a spec others get held to; skip it on
+a task that changes one function and gets reviewed as a diff anyway.
+
 ## What a task looks like
 
 One file — `tasks/new/007-short-kebab-slug.md`. The directory is the status, so there is no
@@ -204,12 +240,11 @@ Two things help, and neither of them is a feature:
   In the case above it had already reached three sibling tasks, one as a criterion prescribing a
   change to a header that does not exist.
 
-**So this project has an opinion about your setup and not only about its own: have some reader that
-arrives with no framing to confirm.** A subagent in a clean context, a second session, a person —
-the mechanism doesn't matter and this plugin deliberately doesn't ship one. The property that
-matters is that it has read the code and not the task. Spend it on the tasks whose output other
-sessions get held to, not on all of them; four minutes of validation at pickup is worth having and
-is not a substitute.
+**So this project has an opinion about your setup and not only about its own: put a second reader at
+pickup, one that was not in the conversation that accepted the task.** The rule is written out and
+ready to paste in [Install](#the-layer-the-plugin-cant-ship-a-second-reader-at-pickup) — the plugin
+deliberately ships no review mechanism, but it can hand you the paragraph. The four-minute check at
+pickup is worth having and is not a substitute for it.
 
 ### The spec is the main shape, not the only one
 
