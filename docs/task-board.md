@@ -11,11 +11,11 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**23 tasks** — 9 new · 1 prioritized · 0 wip · 0 blocked · 13 done.
+**25 tasks** — 10 new · 1 prioritized · 0 wip · 0 blocked · 14 done.
 
 WIP limit: within 3 per human owner.
 
-| new (9) | prioritized (1) | wip (0) | blocked (0) |
+| new (10) | prioritized (1) | wip (0) | blocked (0) |
 |---|---|---|---|
 | **[012](../tasks/new/012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | **[019](../tasks/prioritized/019-user-cannot-opt-out-of-remote-operations.md)** A user can turn off remote and host operations even when a…<br><sub>justmaniv · 2026-08-09 · ⛔ 017</sub> | _nothing pulled_ | _nothing waiting_ |
 | **[013](../tasks/new/013-adopters-copy-of-the-generator-drifts.md)** The adopter's copy of the board generator can never be upd…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
@@ -26,6 +26,7 @@ WIP limit: within 3 per human owner.
 | **[021](../tasks/new/021-numbering-scan-worktree-half-scans-nothing.md)** The numbering scan's worktree half silently scans nothing<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
 | **[022](../tasks/new/022-task-root-is-hardcoded-to-repo-root.md)** The task tree can only live at `<repo>/tasks/`, which some…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
 | **[023](../tasks/new/023-no-public-signal-for-what-to-build-next.md)** Nobody outside the repo can say which of these tasks matte…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
+| **[025](../tasks/new/025-skill-does-not-say-where-its-own-check-stops.md)** The skill teaches the validation step and never says where…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
 
 ## Blocked-by graph
 
@@ -41,12 +42,13 @@ graph LR
 
 Edge reads *blocker → blocked*. Green = blocker already closed (stale reference). Amber = a condition, not a task.
 
-## done (13)
+## done (14)
 
-Collapsed — the 12 most recently completed of 13. The full pile is `tasks/done/`; git history is its journey.
+Collapsed — the 12 most recently completed of 14. The full pile is `tasks/done/`; git history is its journey.
 
 | # | Task | Completed |
 |---|---|---|
+| [024](../tasks/done/024-validation-is-not-independent-review.md) | The README says independence comes free; a field report says it does not | 2026-08-09 |
 | [017](../tasks/done/017-skill-assumes-a-remote-exists.md) | The skill mandates a push, so it fails on a project that has no remote | 2026-08-08 |
 | [016](../tasks/done/016-two-pass-claim-is-unmeasured.md) | The README's headline claim is the one thing the eval suite does not measure | 2026-08-08 |
 | [011](../tasks/done/011-no-changelog.md) | An adopter who updates cannot find out what changed | 2026-08-07 |
@@ -58,4 +60,3 @@ Collapsed — the 12 most recently completed of 13. The full pile is `tasks/done
 | [006](../tasks/done/006-disable-was-wrong-uninstall-is-required.md) | CONTRIBUTING told you to disable the installed copy; disabling does not work | 2026-08-06 |
 | [005](../tasks/done/005-worktree-removal-trap-and-no-regeneration-step.md) | Two defects found by a session using the skill for real work | 2026-08-06 |
 | [003](../tasks/done/003-pinned-version-silently-withheld-the-fix.md) | A pinned version withheld the fix, and reported success while doing it | 2026-08-06 |
-| [002](../tasks/done/002-decide-notice-copyright-holder.md) | Decide whether NOTICE should carry a legal name | 2026-08-06 |
