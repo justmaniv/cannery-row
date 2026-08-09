@@ -29,6 +29,35 @@ up under real use.
 
 A Claude Code plugin. Nothing to run, nothing to host, no database.
 
+## It's opinionated, and it's active
+
+Worth knowing before you install it, because it changes how the first hour feels: this is a set of
+opinions about how work gets handed off, not a neutral file convention. Once the skill is in play it
+*does things* — moves files, rewrites other tasks' `blocked-by:` paths when a blocker closes,
+refuses to close a task whose criteria didn't all come true, regenerates the board in the same commit
+as the move, and stops to tell you when an invariant can't hold. That activity is the product. A
+tracker that only stores state is a directory, and you already have one of those.
+
+The opinions, stated plainly so you can disagree with them on purpose:
+
+- **Two passes beat one.** The session that writes the spec should not be the session that executes
+  it. Everything at the top of this page.
+- **The directory is the status.** No `status` field that can disagree with where the file actually
+  is, and the journey lands in `git log` instead of being overwritten in place.
+- **Acceptance criteria are mandatory.** A task with no `## Done when` closes on nobody's authority
+  but the closer's — so the board generator refuses to build from one, in every lane.
+- **Unresolved beats tidy.** A criterion that didn't come true is struck with a reason, never
+  ticked. A closed blocker's reference is rewritten, never deleted. Both shortcuts destroy the
+  record to make the file look finished.
+- **Surfacing beats auto-promoting.** When the last blocker closes, the skill tells you and waits.
+  Re-triage is a judgment call and it isn't the tool's.
+
+An honest note on the first one, since it's the load-bearing opinion: it is an argument plus one
+worked example, not a measured result. The evals score whether the skill is *followed*; nothing here
+measures two passes against one, and proving it properly would cost more in run hours than the answer
+is worth. It's held on conviction and about 380 tasks of use, and labelled that way rather than
+dressed up as data. [`evals/README.md`](evals/README.md) records the decision not to chase it.
+
 ## Install
 
 ```

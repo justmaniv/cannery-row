@@ -1,8 +1,8 @@
 ---
 created: 2026-08-08
 updated: 2026-08-08
-completed: ""
-status: new
+completed: 2026-08-08
+status: done
 owner: justmaniv
 blocked-by: ""
 links:
@@ -70,14 +70,34 @@ but it could equally mean the methodology does not pay off on work this small, a
 not distinguishable by staring at the score. Say which one you concluded and how you ruled the other
 out.
 
+## Resolution
+
+**Option 4 — don't measure it; hold it as a stated opinion.** Decided by the owner on 2026-08-08:
+the run hours needed to measure this properly are worth more than the answer, given the claim already
+rests on ~380 tasks of direct use.
+
+The framing that came out of it is better than the one this task assumed. The README now has an
+**"It's opinionated, and it's active"** section that lists five opinions the project holds on
+purpose — two-pass first among them — and says of that first one, in plain words, that it is an
+argument plus one worked example rather than a measured result. That is a stronger position than a
+defensive footnote: it invites disagreement instead of implying a proof exists somewhere.
+
+The harness question this task opened first — whether `claude plugin eval` can chain two agents
+through a handoff — was never answered, and is now moot for this axis. If anyone needs it later,
+`tasks/new/014-*` has a related unknown about the eval sandbox that is worth answering in the same
+sitting.
+
 ## Done when
 
-- [ ] Whether `claude plugin eval` can chain two agents with a filesystem handoff and no shared
-      context is answered in writing, before any case is designed
-- [ ] Either a case exists measuring two-pass against one-pass on the same work, with its delta
+- ~~Whether `claude plugin eval` can chain two agents with a filesystem handoff and no shared
+      context is answered in writing, before any case is designed~~ (moot — no case is being
+      designed; nothing was spent finding out)
+- [x] Either a case exists measuring two-pass against one-pass on the same work, with its delta
       recorded — or the decision not to measure it is recorded in `evals/README.md` with the reason
-- [ ] `README.md` does not imply the two-pass claim is measured while it is not; if it stays
+      — *`evals/README.md` § "What this suite does not measure"*
+- [x] `README.md` does not imply the two-pass claim is measured while it is not; if it stays
       unmeasured, the opening says it is an argument and points at the worked example as the n=1
-      evidence it is
-- [ ] If a case ships: `evals/README.md`'s case table, the README's with/without table, and the
-      suite's recorded cost and runtime are all updated together
+      evidence it is — *§ "It's opinionated, and it's active", closing paragraph*
+- ~~If a case ships: `evals/README.md`'s case table, the README's with/without table, and the
+      suite's recorded cost and runtime are all updated together~~ (no case shipped, so the
+      recorded numbers are unchanged and still describe two cases)

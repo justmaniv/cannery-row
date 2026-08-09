@@ -68,6 +68,24 @@ containing it would hand the baseline arm the procedure, and the delta would mea
 skill-over-README instead of skill-over-nothing. The skill is the independent variable; it stays the
 only source of the procedure.
 
+### What this suite does not measure
+
+`README.md` leads with the claim that two passes beat one — that a spec written in one session and
+executed cold in another produces better work than doing both in one window. **No case here tests
+that, and none is planned.**
+
+The axis this suite varies is *whether the skill is present* inside a single session. Varying session
+**topology** instead would need two agents chained through a filesystem handoff with no shared
+context, which the harness may not be able to express at all. Even granting that it can, the result
+would be hard to read: a small delta is indistinguishable from "two passes don't pay off on work this
+small," and separating a topology effect from ordinary run variance would take considerably more than
+3 runs an arm. That is a real bill for a claim already backed by ~380 tasks of direct use.
+
+So it stays an argument with one worked example behind it, and the README says so in those words.
+Recorded here so the omission reads as a decision rather than an oversight someone later tries to
+fix. Decided 2026-08-08; see `tasks/done/016-two-pass-claim-is-unmeasured.md` for the four options
+weighed.
+
 ## Grader semantics — read this before adding a case
 
 The grader types are not interchangeable, and two of them do not do what their names suggest. Both

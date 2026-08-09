@@ -11,28 +11,28 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**16 tasks** — 5 new · 0 prioritized · 0 wip · 0 blocked · 11 done.
+**16 tasks** — 4 new · 0 prioritized · 0 wip · 0 blocked · 12 done.
 
 WIP limit: within 3 per human owner.
 
-| new (5) | prioritized (0) | wip (0) | blocked (0) |
+| new (4) | prioritized (0) | wip (0) | blocked (0) |
 |---|---|---|---|
 | **[012](../tasks/new/012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | _nothing triaged_ | _nothing pulled_ | _nothing waiting_ |
 | **[013](../tasks/new/013-adopters-copy-of-the-generator-drifts.md)** The adopter's copy of the board generator can never be upd…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[014](../tasks/new/014-eval-suite-covers-two-transitions.md)** Three of the five transitions worth testing have no eval c…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[015](../tasks/new/015-eval-deltas-pin-no-model.md)** The eval numbers have no model attached, so they expire wi…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
-| **[016](../tasks/new/016-two-pass-claim-is-unmeasured.md)** The README's headline claim is the one thing the eval suit…<br><sub>justmaniv · 2026-08-08</sub> |  |  |  |
 
 ## Blocked-by graph
 
 _No open dependencies._
 
-## done (11)
+## done (12)
 
-Collapsed — the 11 most recently completed of 11. The full pile is `tasks/done/`; git history is its journey.
+Collapsed — the 12 most recently completed of 12. The full pile is `tasks/done/`; git history is its journey.
 
 | # | Task | Completed |
 |---|---|---|
+| [016](../tasks/done/016-two-pass-claim-is-unmeasured.md) | The README's headline claim is the one thing the eval suite does not measure | 2026-08-08 |
 | [011](../tasks/done/011-no-changelog.md) | An adopter who updates cannot find out what changed | 2026-08-07 |
 | [010](../tasks/done/010-releases-have-no-tags.md) | Eight versions have shipped and none of them is findable in git | 2026-08-07 |
 | [009](../tasks/done/009-adopters-cannot-run-the-board-or-the-gate.md) | An adopter following the README cannot run the board, or the gate that enforces the contract | 2026-08-07 |
