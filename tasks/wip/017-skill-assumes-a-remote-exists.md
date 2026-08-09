@@ -1,8 +1,8 @@
 ---
 created: 2026-08-09
-updated: 2026-08-09
+updated: 2026-08-08
 completed: ""
-status: new
+status: wip
 owner: justmaniv
 blocked-by: ""
 links:
@@ -82,5 +82,9 @@ skill rather than leaving it implied.
 - [ ] Either the portability gate gains terms for host-workflow vocabulary, or the decision not to
       add them is recorded with the reason — the gate's docs currently claim a scope its term list
       does not cover
+- [ ] On a repository that **has** a remote, behavior is unchanged from today: every transition
+      still ends with an immediate push at the same points (status moves, singleton creation,
+      batch-consistent bulk creation) — the push becomes conditional on a remote existing, not
+      optional when one does
 - [ ] `version` bumped in both manifests with a matching `CHANGELOG.md` heading, and the behavioral
       evals run before merge
