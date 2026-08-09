@@ -25,6 +25,31 @@ release, with no docs-only commits mixed in.
 There is no `Unreleased` section, and that is deliberate: `check-release.py` requires an entry in
 the same change that moves the version, so an entry never exists before the version it names.
 
+## [0.5.0] — 2026-08-08
+
+### Changed
+
+- **The skill no longer assumes a remote exists** (task 017). The section that closed every
+  transition as "commit + push" is now **Commit** — the invariant, because provenance needs
+  history, not a remote — plus **Push, when a remote exists**, gated on `git remote` printing
+  anything. On a repository *with* a remote nothing changes: pushes still happen immediately, at
+  the same points and cadence as before. On a local-only repository the skill no longer instructs
+  a command that exits non-zero on every transition.
+- Incidental host assumptions swept from the skill and `tasks/README.md`: `origin/main` in the
+  campsite worktree step, "an open PR" in branch cleanup, "PR-protected" in the numbering
+  rationale, and "a PR number" in the overtaken check. Each now reads correctly for a repository
+  with no host attached.
+- The skill now states its baseline once, in the Commit section: git is assumed — a remote is not.
+
+### Added
+
+- `check-portability.py` forbids host-workflow vocabulary in shipped files: `origin`, `PR`,
+  `pull request`, `branch protection`. This is the class the gate's docs claimed to cover while
+  its term list didn't, and the second portability class found by eye after passing CI. All-caps
+  terms match as exact case-sensitive words so `PR` cannot swallow "provenance". `push`, `remote`,
+  and `fork` are deliberately not forbidden — the reasons are recorded at the term table, and a
+  test pins the `push` decision so a future sweep cannot quietly break the skill's own gate.
+
 ## [0.4.4] — 2026-08-07
 
 ### Added
@@ -138,6 +163,7 @@ the same change that moves the version, so an entry never exists before the vers
 `0.1.0`, `0.1.1` and `0.2.0` predate the pull-request loop and are deliberately untagged — nobody
 is diffing them, and reconstructing entries for them now would be archaeology rather than a record.
 
+[0.5.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.4.4...cannery-row--v0.5.0
 [0.4.4]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.4.3...cannery-row--v0.4.4
 [0.4.3]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.4.2...cannery-row--v0.4.3
 [0.4.2]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.4.1...cannery-row--v0.4.2
