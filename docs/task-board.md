@@ -11,7 +11,7 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**25 tasks** — 10 new · 1 prioritized · 0 wip · 0 blocked · 14 done.
+**26 tasks** — 10 new · 1 prioritized · 0 wip · 0 blocked · 15 done.
 
 WIP limit: within 3 per human owner.
 
@@ -42,12 +42,13 @@ graph LR
 
 Edge reads *blocker → blocked*. Green = blocker already closed (stale reference). Amber = a condition, not a task.
 
-## done (14)
+## done (15)
 
-Collapsed — the 12 most recently completed of 14. The full pile is `tasks/done/`; git history is its journey.
+Collapsed — the 12 most recently completed of 15. The full pile is `tasks/done/`; git history is its journey.
 
 | # | Task | Completed |
 |---|---|---|
+| [026](../tasks/done/026-the-second-reader-is-advice-not-a-rule.md) | The README recommends a second reader and gives nobody a way to have one | 2026-08-09 |
 | [024](../tasks/done/024-validation-is-not-independent-review.md) | The README says independence comes free; a field report says it does not | 2026-08-09 |
 | [017](../tasks/done/017-skill-assumes-a-remote-exists.md) | The skill mandates a push, so it fails on a project that has no remote | 2026-08-08 |
 | [016](../tasks/done/016-two-pass-claim-is-unmeasured.md) | The README's headline claim is the one thing the eval suite does not measure | 2026-08-08 |
@@ -59,4 +60,3 @@ Collapsed — the 12 most recently completed of 14. The full pile is `tasks/done
 | [004](../tasks/done/004-author-eval-suite-for-the-skill.md) | Nothing tests whether the skill is followed, only that it is well-formed | 2026-08-07 |
 | [006](../tasks/done/006-disable-was-wrong-uninstall-is-required.md) | CONTRIBUTING told you to disable the installed copy; disabling does not work | 2026-08-06 |
 | [005](../tasks/done/005-worktree-removal-trap-and-no-regeneration-step.md) | Two defects found by a session using the skill for real work | 2026-08-06 |
-| [003](../tasks/done/003-pinned-version-silently-withheld-the-fix.md) | A pinned version withheld the fix, and reported success while doing it | 2026-08-06 |
