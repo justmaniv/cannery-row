@@ -8,9 +8,10 @@ nothing else, confirms it still matches the code, and executes.
 
 Splitting those is the point. A session that reasons its way to a plan spends an hour on dead
 ends, wrong turns, and decisions it reversed twice — and none of that reaches the session doing the
-work, which starts with a clean window and one task in it. Independence comes free: the session
-that didn't write the spec is the only one that can catch what the spec got wrong. Surviving a
-restart is a side effect — a real one, but not the reason.
+work, which starts with a clean window and one task in it. The session that didn't write the spec is
+the only one that can catch what the spec got wrong — though that independence is *available*, not
+automatic, and [it has a failure mode worth setting up against](#what-validating-the-spec-does-not-cover).
+Surviving a restart is a side effect — a real one, but not the reason.
 
 Task state as files, where the location is the status:
 
@@ -47,6 +48,10 @@ The opinions, stated plainly so you can disagree with them on purpose:
   happens to be holding it.
 - **Two is better than one.** The session that writes the spec should not be the session that
   executes it. Everything at the top of this page.
+- **Validating a spec is not reviewing it.** The executing session checks the task's claims before
+  it starts, which catches work that already shipped and premises that were false when written. It
+  is not an independent audit — by the time it runs, the checker has read the task and inherited its
+  framing. Set something up that hasn't; [see below](#what-validating-the-spec-does-not-cover).
 - **The directory is the status.** No `status` field that can disagree with where the file actually
   is, and the journey lands in `git log` instead of being overwritten in place.
 - **Unresolved beats tidy.** A criterion that didn't come true is struck with a reason, never
@@ -169,6 +174,42 @@ has to carry everything, because there is nobody left to ask. A conversation log
 in a new session. A shared list can't hold a page of reasoning per item. Notes kept outside the
 repository drift away from the code they describe. A file next to the code, in the same commit
 history, does not.
+
+### What validating the spec does not cover
+
+The question that step asks is *"is this claim true?"*, and it is answered by a reader who has just
+finished reading the task. That is enough for the two failures it was built for — work that already
+shipped under a different number, and a premise that was false the day it was written. It is not an
+independent audit, and passing it is not evidence that the task's description of *how* something
+works is true.
+
+**A citation checking out is weak evidence.** The task names a test; the test is there, at that path,
+asserting that thing. But the load-bearing claim is rarely *"this test exists"* — it is *"this test
+does X by doing Y"*, and Y is the part that gets invented. From the same project as the example
+above: a task claimed a backend test injected a request header. Everything cited was real. No test
+set any header — the fixture seeded a database column with a raw `INSERT`. Pickup validation passed
+it in four minutes, because everything it went looking for was found. A second reader in a fresh
+context, told to assume the task was wrong somewhere and go find it, falsified four of its claims
+including that one.
+
+Two things help, and neither of them is a feature:
+
+- **Ask to falsify, not to confirm.** *"Try to prove this claim wrong"* reads different code than
+  *"check this claim"* — it sends you to the fixture instead of to the assertion. Do this one first;
+  it costs a rephrasing.
+- **Escalate when the task's output is itself a spec.** Working agreements, decision records, and
+  criteria other sessions will execute. A false mechanism in a task body flows into that task's own
+  `## Done when` and into its siblings', and once it reaches the acceptance criteria it is
+  self-enforcing: a later session executes the wrong instruction and the checklist confirms it did.
+  In the case above it had already reached three sibling tasks, one as a criterion prescribing a
+  change to a header that does not exist.
+
+**So this project has an opinion about your setup and not only about its own: have some reader that
+arrives with no framing to confirm.** A subagent in a clean context, a second session, a person —
+the mechanism doesn't matter and this plugin deliberately doesn't ship one. The property that
+matters is that it has read the code and not the task. Spend it on the tasks whose output other
+sessions get held to, not on all of them; four minutes of validation at pickup is worth having and
+is not a substitute.
 
 ### The spec is the main shape, not the only one
 
