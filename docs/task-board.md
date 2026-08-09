@@ -11,17 +11,18 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**17 tasks** — 5 new · 0 prioritized · 0 wip · 0 blocked · 12 done.
+**18 tasks** — 6 new · 0 prioritized · 0 wip · 0 blocked · 12 done.
 
 WIP limit: within 3 per human owner.
 
-| new (5) | prioritized (0) | wip (0) | blocked (0) |
+| new (6) | prioritized (0) | wip (0) | blocked (0) |
 |---|---|---|---|
 | **[012](../tasks/new/012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | _nothing triaged_ | _nothing pulled_ | _nothing waiting_ |
 | **[013](../tasks/new/013-adopters-copy-of-the-generator-drifts.md)** The adopter's copy of the board generator can never be upd…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[014](../tasks/new/014-eval-suite-covers-two-transitions.md)** Three of the five transitions worth testing have no eval c…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[015](../tasks/new/015-eval-deltas-pin-no-model.md)** The eval numbers have no model attached, so they expire wi…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[017](../tasks/new/017-skill-assumes-a-remote-exists.md)** The skill mandates a push, so it fails on a project that h…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
+| **[018](../tasks/new/018-capability-surface-is-undocumented.md)** Nobody can say what Cannery Row's feature set is, includin…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
 
 ## Blocked-by graph
 
