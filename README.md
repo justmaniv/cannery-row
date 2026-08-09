@@ -45,8 +45,8 @@ The opinions, stated plainly so you can disagree with them on purpose:
   list on purpose: it is where most of the value is, and it is not what people come here for. The
   lanes are what gets noticed; the checklist is what stops a task being declared finished by whoever
   happens to be holding it.
-- **Two passes beat one.** The session that writes the spec should not be the session that executes
-  it. Everything at the top of this page.
+- **Two is better than one.** The session that writes the spec should not be the session that
+  executes it. Everything at the top of this page.
 - **The directory is the status.** No `status` field that can disagree with where the file actually
   is, and the journey lands in `git log` instead of being overwritten in place.
 - **Unresolved beats tidy.** A criterion that didn't come true is struck with a reason, never
@@ -55,8 +55,8 @@ The opinions, stated plainly so you can disagree with them on purpose:
 - **Surfacing beats auto-promoting.** When the last blocker closes, the skill tells you and waits.
   Re-triage is a judgment call and it isn't the tool's.
 
-An honest note on the two-pass one, since it's the opinion most worth arguing with: it is an argument
-plus one worked example, not a measured result. The evals score whether the skill is *followed*; nothing here
+An honest note on **two is better than one**, since it's the opinion most worth arguing with: it is
+an argument plus one worked example, not a measured result. The evals score whether the skill is *followed*; nothing here
 measures two passes against one, and proving it properly would cost more in run hours than the answer
 is worth. It's held on conviction and about 380 tasks of use, and labelled that way rather than
 dressed up as data. [`evals/README.md`](evals/README.md) records the decision not to chase it.
