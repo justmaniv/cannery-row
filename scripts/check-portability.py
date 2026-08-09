@@ -83,19 +83,34 @@ FORBIDDEN = {
     "retro": ("a methodology-specific ceremony", '"a review"'),
     "standup": ("a methodology-specific ceremony", "drop it"),
     "runway": ("an artifact name from the upstream project", '"the doc that tracks phases"'),
+    # Collaboration topology — a remote and a host are a bonus, not a dependency (task 017).
+    # Deliberately absent from this class: "push" and "remote", because the skill's own fix is
+    # a *conditional* push gated on `git remote` output — the words are the repair, not the
+    # coupling; and "fork", because these files use it constantly in its decision-point sense
+    # and the host sense never appears without other flagged vocabulary alongside.
+    "origin": ("the conventional remote name — a repository may have no remote", '"the remote", or gate the step on `git remote` output'),
+    "PR": ("a host's review mechanism, not a git primitive", '"review branch" or "proposed change"'),
+    "pull request": ("a host's review mechanism, not a git primitive", '"review" or "propose the change"'),
+    "branch protection": ("a host feature, not a git primitive", '"a reviewed main branch"'),
 }
 
-# Whole-word, case-insensitive. `fly.io` needs its dot escaped; `\b` after a dot
-# would not match, so anchor the tail on a non-word boundary instead.
-PATTERNS = {
-    term: re.compile(
+# Whole-word, case-insensitive, suffixes included ("sprints" is "sprint" wearing a plural).
+# Two exceptions: `fly.io` needs its dot escaped and `\b` after a dot would not match, so
+# non-alnum tails anchor on a non-word boundary instead; and all-caps terms ("PR") match as
+# exact case-sensitive words plus a plural s — the suffix wildcard would swallow every word
+# starting with those letters ("provenance"), and lowercase look-alikes are innocent.
+def _pattern(term: str) -> re.Pattern[str]:
+    if term.isupper():
+        return re.compile(r"\b" + re.escape(term) + r"s?\b")
+    return re.compile(
         (r"(?<!\w)" + re.escape(term) + r"(?!\w)")
         if not term[-1].isalnum()
         else (r"\b" + re.escape(term) + r"\w*\b"),
         re.IGNORECASE,
     )
-    for term in FORBIDDEN
-}
+
+
+PATTERNS = {term: _pattern(term) for term in FORBIDDEN}
 
 
 def scan(repo_root: Path) -> tuple[list[str], list[str]]:
