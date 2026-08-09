@@ -157,13 +157,19 @@ strike carry a *reason*; was the unblocked task *surfaced*).
 
 3 runs per arm, CLI 2.1.220, skill 0.4.3. Whole suite: **$4.52, 12m09s**.
 
-**That dollar figure is a list-price estimate, not necessarily a bill.** It is what the run's tokens
-price out to at API rates, which makes it a stable unit for *"is this worth running"* across
-machines and plans. Whether it costs you money depends on how your session authenticates: on
-metered API access — an API key, or a cloud provider's model endpoint — it is roughly what you are
-charged; on a subscription it is not charged at all and the run draws on your plan's usage limits
-instead. Twelve minutes of wall clock is the one cost everybody pays. The figure is quoted this way
-throughout the docs; read it as *cost of the run*, not *charge to you*.
+**That dollar figure is a measurement, not a price list, and this is the only place it appears.**
+It is what one run's tokens priced out to at API rates, under the CLI and skill versions named
+above — quoted here because a measurement with its conditions attached ages honestly. Whether it
+costs *you* money depends on how your session authenticates: on metered API access — an API key, or
+a cloud provider's model endpoint — it is roughly what you are charged; on a subscription it is not
+charged at all and the run draws on your plan's usage limits instead.
+
+Everywhere else the docs say **twelve minutes and not free**, and stop. That is the whole of what
+the run/don't-run decision needs, and nobody runs the suite at $4.52 who would skip it at $7. The
+dollar figure moves with model prices, token counts, and every case added; nothing in this
+repository gates it, and no sensible gate exists. Quoting it as guidance in four files was a
+standing invitation to drift — it had already been read as an out-of-pocket bill by a session that
+used it to argue for skipping a run.
 
 | Case | What the baseline gets wrong | Without | With | Δ |
 |------|------------------------------|---------|------|---|
@@ -185,8 +191,8 @@ Deliberate, and recorded in full in task 004. In short: a CI run would need both
 flag and working Claude credentials, and this repo's strongest security property is that it holds
 **no secrets at all** — a public repo with no secrets and no self-hosted runner has no attack
 surface worth exploiting. Trading that for a check any contributor can run locally in twelve
-minutes, at the cost above, is a bad trade. Run it before merging a skill change; the workflow gates the
-form, you gate the behavior.
+minutes is a bad trade. Run it before merging a skill change; the workflow gates the form, you gate
+the behavior.
 
 What CI *can* do for free is `scripts/check-evals.py`, which asserts the suite is well-formed — so
 nobody pays for a run to discover a renamed scaffold or a case whose graders are all `with-only`
