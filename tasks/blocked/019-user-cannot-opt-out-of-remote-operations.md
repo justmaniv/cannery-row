@@ -4,10 +4,10 @@ updated: 2026-08-08
 completed: ""
 status: blocked
 owner: justmaniv
-blocked-by: tasks/wip/017-skill-assumes-a-remote-exists.md
+blocked-by: tasks/done/017-skill-assumes-a-remote-exists.md
 links:
   - skills/task-lifecycle/SKILL.md
-  - tasks/wip/017-skill-assumes-a-remote-exists.md
+  - tasks/done/017-skill-assumes-a-remote-exists.md
 ---
 
 # A user can turn off git and host operations even when a remote exists

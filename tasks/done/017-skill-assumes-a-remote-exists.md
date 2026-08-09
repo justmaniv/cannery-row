@@ -1,8 +1,8 @@
 ---
 created: 2026-08-09
 updated: 2026-08-08
-completed: ""
-status: wip
+completed: 2026-08-08
+status: done
 owner: justmaniv
 blocked-by: ""
 links:
@@ -74,17 +74,20 @@ skill rather than leaving it implied.
 
 ## Done when
 
-- [ ] The skill's commit step works as written on a repository with no remote — provenance stated as
+- [x] The skill's commit step works as written on a repository with no remote — provenance stated as
       requiring a commit, sharing stated as requiring a remote, and no instruction that exits
-      non-zero when `git remote` is empty
-- [ ] `origin/main`, "PR-protected" and "an open PR" no longer appear in the skill as universals;
-      the campsite and numbering sections read correctly for a local-only project
-- [ ] Either the portability gate gains terms for host-workflow vocabulary, or the decision not to
-      add them is recorded with the reason — the gate's docs currently claim a scope its term list
-      does not cover
-- [ ] On a repository that **has** a remote, behavior is unchanged from today: every transition
+      non-zero when `git remote` is empty (the section split into "Commit" + "Push, when a remote
+      exists", gated on `git remote` output)
+- [x] `origin/main`, "PR-protected" and "an open PR" no longer appear in the skill as universals;
+      the campsite and numbering sections read correctly for a local-only project (also swept "a PR
+      number" here and in `tasks/README.md`)
+- [x] Either the portability gate gains terms for host-workflow vocabulary, or the decision not to
+      add them is recorded with the reason — did both: `origin`, `PR`, `pull request`,
+      `branch protection` added (RED → GREEN); `push`/`remote`/`fork` excluded with reasons at the
+      term table and a test pinning the `push` decision
+- [x] On a repository that **has** a remote, behavior is unchanged from today: every transition
       still ends with an immediate push at the same points (status moves, singleton creation,
       batch-consistent bulk creation) — the push becomes conditional on a remote existing, not
       optional when one does
-- [ ] `version` bumped in both manifests with a matching `CHANGELOG.md` heading, and the behavioral
-      evals run before merge
+- [x] `version` bumped in both manifests with a matching `CHANGELOG.md` heading, and the behavioral
+      evals run before merge (0.4.4 → 0.5.0; with-arm 1.00 on both cases, mean Δ +0.30, $4.56)

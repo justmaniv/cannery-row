@@ -7,7 +7,7 @@ owner: justmaniv
 blocked-by: ""
 links:
   - tasks/new/013-adopters-copy-of-the-generator-drifts.md
-  - tasks/new/017-skill-assumes-a-remote-exists.md
+  - tasks/done/017-skill-assumes-a-remote-exists.md
   - README.md
   - scripts/check-portability.py
 ---
