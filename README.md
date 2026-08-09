@@ -152,7 +152,8 @@ the third one, where a different session *validates* the spec before executing i
 first: does this still describe reality? The skill puts the question in front of you and gives you
 the commands; it can't make you run them. Nothing enforces it, and nothing can.
 
-**A worked example, from this project's own use.** A session wrote a well-formed task: scope
+**A worked example, from the project this was extracted from** — not this repo, which has no
+database of its own; see [Provenance](#provenance). A session wrote a well-formed task: scope
 boundaries against two neighbouring pieces of work, a three-option design fork with effort
 estimates and a recommendation, thresholds sourced to their owning documents. Its premise was that
 a database table had never been populated. The session that picked it up checked before starting
