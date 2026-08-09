@@ -86,7 +86,7 @@ running it in CI is what makes them enforced.
 
 `status` and the file's directory must always agree. When moving a task:
 
-- **Starting:** if the task has sat for more than one planning cycle, first check it hasn't been overtaken — `git log --oneline --all --grep="\bNNN\b"` (ignore hits where NNN is only a PR number) and `grep -rn "task NNN" --exclude-dir=tasks .`. Read any hit before starting: a task's work can ship under a *different* task number while its file sits untouched. Then `git mv` to `wip/`, set `status: wip`, bump `updated`.
+- **Starting:** if the task has sat for more than one planning cycle, first check it hasn't been overtaken — `git log --oneline --all --grep="\bNNN\b"` (ignore hits where NNN is only a merge reference) and `grep -rn "task NNN" --exclude-dir=tasks .`. Read any hit before starting: a task's work can ship under a *different* task number while its file sits untouched. Then `git mv` to `wip/`, set `status: wip`, bump `updated`.
 - **Completing:** resolve every `- [ ]` in the "Done when" checklist (`- [x]` if met, `- ~~strikethrough~~ (reason)` if deliberately skipped), set `status: done`, set `completed`, bump `updated`, `git mv` to `done/`.
 - **Blocking:** `git mv` to `blocked/`, set `status: blocked`, bump `updated`, fill `blocked-by`.
 

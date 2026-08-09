@@ -83,7 +83,7 @@ git status -sb             # working tree clean, on a known branch (usually main
 jobs                       # background polls/servers you started → stop them
 ```
 
-- **Temp worktrees:** reset the branch to `origin/main` first if it holds merged work (avoids a
+- **Temp worktrees:** reset the branch to its merge target (usually `main`) first if it holds merged work (avoids a
   "discard permanently?" prompt), then `git worktree remove`. Never leave a task's worktree behind.
 
   ⚠️ **Run the removal from outside the tree you are removing.** `git worktree remove` deletes the
@@ -97,8 +97,8 @@ jobs                       # background polls/servers you started → stop them
   ```
 
   Then finish the checklist from there. This is the single most-reported stumble in this section.
-- **Local branches:** delete the ones *you* created that are now merged or whose remote is `gone`.
-  **Leave** branches with an open PR or active sibling task — say which you left and why.
+- **Local branches:** delete the ones *you* created that are now merged or whose upstream is `gone`.
+  **Leave** branches still under review or carrying an active sibling task — say which you left and why.
 - **Remote branches / anything outward-facing:** do not delete without asking — surface it instead.
 - **Background jobs:** stop any poll/watch/server you spawned for the task.
 - **Scratchpad temp files** are session-scoped and auto-cleaned — no action needed; never put task
@@ -136,7 +136,7 @@ being wrong changes what you build, not every sentence.
 Then, for task number `NNN`, check whether the work already shipped elsewhere:
 
 ```bash
-git log --oneline --all --grep="\bNNN\b"     # discard hits where NNN is only a PR number, (#NNN)
+git log --oneline --all --grep="\bNNN\b"     # discard hits where NNN is only a merge reference, (#NNN)
 grep -rn "task NNN" --include='*.rs' --include='*.md' --exclude-dir=tasks .
 ```
 
@@ -253,14 +253,14 @@ worktree** — not just the tree you happen to be sitting in. Numbering off a pl
 `ls tasks/` in the current worktree is the **#1 collision source**: two parallel
 branches each read the same stale max, both grab the same "next" number, and they
 clash at merge. This is not hypothetical — it happens whenever work is split across
-worktrees (which is the norm now that `main` is PR-protected).
+worktrees (routine wherever parallel sessions each take a branch).
 
 **Always compute the next number with this scan** — it covers committed task files
 on every local + remote ref, *plus* working-tree files (including staged/untracked
 new ones) in every worktree:
 
 ```bash
-# If other machines/sessions push task branches, fetch first so their numbers count:
+# If other machines/sessions share task branches via a remote, fetch first so their numbers count:
 #   git fetch --all -q
 next=$( {
   git for-each-ref --format='%(refname)' refs/heads refs/remotes 2>/dev/null \
@@ -275,23 +275,29 @@ printf 'next task number: %03d\n' $(( 10#${next:-0} + 1 ))
 - `git ls-tree` reads each ref's committed tree; the `find` over `git worktree list`
   paths catches numbers created-but-not-yet-committed in a sibling worktree.
 - Creating several tasks at once? Increment locally from that base; don't re-scan between them.
-- Collide anyway (a branch got pushed after you scanned)? The loser **renumbers via
+- Collide anyway (a branch landed after you scanned)? The loser **renumbers via
   `git mv` before merge** — task numbers carry no meaning, so yielding a number is free.
 - Never reach into another session's worktree to renumber *its* task; renumber *yours*.
 
 ---
 
-## Commit + push (closes every transition)
+## Commit (closes every transition)
 
-Every status move and every new task file is committed and pushed in the same session the change happens. Provenance — *why* this task moved, *why* this task exists — lives in conversation context until it's in git history. If the session ends before the commit, that reasoning is lost.
+Every status move and every new task file is committed in the same session the change happens. Provenance — *why* this task moved, *why* this task exists — lives in conversation context until it's in git history. If the session ends before the commit, that reasoning is lost.
+
+Git is assumed throughout this skill — history is what makes the provenance claim true. A remote is not: a local commit satisfies provenance completely, and a repository tracked only on a filesystem is an ordinary way to use this skill, not a degraded one.
 
 The atomic unit is *"what would I want to revert in one move."*
 
-- **Status moves** (one or two files): commit + push immediately after the lifecycle ops land. Use the `commit-push` skill.
-- **Singleton task creation** (a one-off task drafted with its own rationale, e.g. a single new spec): commit + push immediately, like a move.
-- **Bulk creation** (generating many cross-referencing task files at once): commit per **coherent batch** — one commit per group whose members reference each other and don't independently revert. Push when the batch is internally consistent (every internal cross-reference resolves). Per-file commits in this case are ceremony without provenance benefit and drown the signal at bisect time.
+- **Status moves** (one or two files): commit immediately after the lifecycle ops land. Use the `commit-push` skill.
+- **Singleton task creation** (a one-off task drafted with its own rationale, e.g. a single new spec): commit immediately, like a move.
+- **Bulk creation** (generating many cross-referencing task files at once): commit per **coherent batch** — one commit per group whose members reference each other and don't independently revert. Per-file commits in this case are ceremony without provenance benefit and drown the signal at bisect time.
 
 `git mv` is preferred for moves *of tracked files*. If the file is untracked (just created this session), a plain `mv` + commit is equivalent — the commit captures the destination path.
+
+### Push, when a remote exists
+
+Sharing and backup are what a remote adds — a bonus, not a dependency. If `git remote` prints anything, push in the same session as the commit, at the same cadence: status moves and singleton creations push immediately after their commit; bulk creation pushes when the batch is internally consistent (every internal cross-reference resolves). If `git remote` prints nothing, the commit is the whole step — there is nothing to push to, and no part of this skill should exit non-zero because of that.
 
 ### Regenerate any projection of `tasks/` in the same commit
 
@@ -369,4 +375,4 @@ If your project has no such document, this section is a no-op. Don't invent one 
 - **Doesn't decide what to work on.** Prioritization is a judgment call; this skill executes transitions.
 - **Doesn't write task content.** "Done when" updates reflect work the user/Claude already did.
 - **Doesn't auto-promote unblocked tasks.** It surfaces them; the user triages.
-- **Doesn't write the commit message.** It mandates the commit + push (see above) but defers message authorship to the `commit-push` skill.
+- **Doesn't write the commit message.** It mandates the commit — and the push, where a remote exists (see above) — but defers message authorship to the `commit-push` skill.
