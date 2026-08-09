@@ -11,29 +11,39 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**18 tasks** — 6 new · 0 prioritized · 0 wip · 0 blocked · 12 done.
+**19 tasks** — 5 new · 0 prioritized · 0 wip · 1 blocked · 13 done.
 
 WIP limit: within 3 per human owner.
 
-| new (6) | prioritized (0) | wip (0) | blocked (0) |
+| new (5) | prioritized (0) | wip (0) | blocked (1) |
 |---|---|---|---|
-| **[012](../tasks/new/012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | _nothing triaged_ | _nothing pulled_ | _nothing waiting_ |
+| **[012](../tasks/new/012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | _nothing triaged_ | _nothing pulled_ | **[019](../tasks/blocked/019-user-cannot-opt-out-of-remote-operations.md)** A user can turn off git and host operations even when a re…<br><sub>justmaniv · 2026-08-08 · ⛔ 017</sub> |
 | **[013](../tasks/new/013-adopters-copy-of-the-generator-drifts.md)** The adopter's copy of the board generator can never be upd…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[014](../tasks/new/014-eval-suite-covers-two-transitions.md)** Three of the five transitions worth testing have no eval c…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[015](../tasks/new/015-eval-deltas-pin-no-model.md)** The eval numbers have no model attached, so they expire wi…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
-| **[017](../tasks/new/017-skill-assumes-a-remote-exists.md)** The skill mandates a push, so it fails on a project that h…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
 | **[018](../tasks/new/018-capability-surface-is-undocumented.md)** Nobody can say what Cannery Row's feature set is, includin…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
 
 ## Blocked-by graph
 
-_No open dependencies._
+```mermaid
+graph LR
+  T017["017 · skill-assumes-a-remote-exists"]
+  T019["019 · user-cannot-opt-out-of-remote-operations"]
+  T017 --> T019
+  classDef satisfied fill:#EAF2EA,stroke:#3A7D44,color:#1F3D24;
+  classDef external fill:#F4F1E8,stroke:#B58500,color:#5A4300;
+  class T017 satisfied
+```
 
-## done (12)
+Edge reads *blocker → blocked*. Green = blocker already closed (stale reference). Amber = a condition, not a task.
 
-Collapsed — the 12 most recently completed of 12. The full pile is `tasks/done/`; git history is its journey.
+## done (13)
+
+Collapsed — the 12 most recently completed of 13. The full pile is `tasks/done/`; git history is its journey.
 
 | # | Task | Completed |
 |---|---|---|
+| [017](../tasks/done/017-skill-assumes-a-remote-exists.md) | The skill mandates a push, so it fails on a project that has no remote | 2026-08-08 |
 | [016](../tasks/done/016-two-pass-claim-is-unmeasured.md) | The README's headline claim is the one thing the eval suite does not measure | 2026-08-08 |
 | [011](../tasks/done/011-no-changelog.md) | An adopter who updates cannot find out what changed | 2026-08-07 |
 | [010](../tasks/done/010-releases-have-no-tags.md) | Eight versions have shipped and none of them is findable in git | 2026-08-07 |
@@ -45,4 +55,3 @@ Collapsed — the 12 most recently completed of 12. The full pile is `tasks/done
 | [005](../tasks/done/005-worktree-removal-trap-and-no-regeneration-step.md) | Two defects found by a session using the skill for real work | 2026-08-06 |
 | [003](../tasks/done/003-pinned-version-silently-withheld-the-fix.md) | A pinned version withheld the fix, and reported success while doing it | 2026-08-06 |
 | [002](../tasks/done/002-decide-notice-copyright-holder.md) | Decide whether NOTICE should carry a legal name | 2026-08-06 |
-| [001](../tasks/done/001-generated-board-leaked-upstream-links.md) | The generated board carried two links back to the repo it came from | 2026-08-06 |
