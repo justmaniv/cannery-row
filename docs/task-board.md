@@ -11,21 +11,21 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**26 tasks** — 9 new · 1 prioritized · 0 wip · 0 blocked · 16 done.
+**27 tasks** — 9 new · 1 prioritized · 1 wip · 0 blocked · 16 done.
 
 WIP limit: within 3 per human owner.
 
-| new (9) | prioritized (1) | wip (0) | blocked (0) |
+| new (9) | prioritized (1) | wip (1) | blocked (0) |
 |---|---|---|---|
-| **[012](../tasks/new/012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | **[019](../tasks/prioritized/019-user-cannot-opt-out-of-remote-operations.md)** A user can turn off remote and host operations even when a…<br><sub>justmaniv · 2026-08-09 · ⛔ 017</sub> | _nothing pulled_ | _nothing waiting_ |
+| **[012](../tasks/new/012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | **[019](../tasks/prioritized/019-user-cannot-opt-out-of-remote-operations.md)** A user can turn off remote and host operations even when a…<br><sub>justmaniv · 2026-08-09 · ⛔ 017</sub> | **[020](../tasks/wip/020-task-template-has-no-docs-criterion.md)** A closure's findings reach the docs and the open tasks the…<br><sub>justmaniv · 2026-08-11</sub> | _nothing waiting_ |
 | **[013](../tasks/new/013-adopters-copy-of-the-generator-drifts.md)** The adopter's copy of the board generator can never be upd…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[014](../tasks/new/014-eval-suite-covers-two-transitions.md)** Three of the five transitions worth testing have no eval c…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[015](../tasks/new/015-eval-deltas-pin-no-model.md)** The eval numbers have no model attached, so they expire wi…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[018](../tasks/new/018-capability-surface-is-undocumented.md)** Nobody can say what Cannery Row's feature set is, includin…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
-| **[020](../tasks/new/020-task-template-has-no-docs-criterion.md)** A closure's findings reach the docs and the open tasks the…<br><sub>justmaniv · 2026-08-11</sub> |  |  |  |
 | **[021](../tasks/new/021-numbering-scan-worktree-half-scans-nothing.md)** The numbering scan's worktree half silently scans nothing<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
 | **[022](../tasks/new/022-task-root-is-hardcoded-to-repo-root.md)** The task tree can only live at `<repo>/tasks/`, which some…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
 | **[023](../tasks/new/023-no-public-signal-for-what-to-build-next.md)** Nobody outside the repo can say which of these tasks matte…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
+| **[028](../tasks/new/028-a-shipped-version-went-untagged-as-010-said-it-would.md)** A shipped version went untagged, which is the one conditio…<br><sub>justmaniv · 2026-08-11</sub> |  |  |  |
 
 ## Blocked-by graph
 

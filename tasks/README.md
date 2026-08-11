@@ -61,6 +61,9 @@ considered, what you recommend. Free-form; use the headings that fit.
 
 - [ ] A criterion someone else can check without asking what you meant
 - [ ] Another one
+- [ ] Every document and open task this change makes wrong is updated, and anything the work
+      turned up that nothing yet records is written down — or what was checked is named here,
+      with why none of it needed changing
 ```
 
 **The H1 is the title of record.** The board reads it for the card headline. There is no `title:`
@@ -75,6 +78,20 @@ because "resolve every `- [ ]`" is trivially satisfied when there are none.
 Write criteria a different person can evaluate. *"Works properly"* is not a criterion; *"the gate
 exits non-zero on a task missing its H1"* is. If you can't state one yet, the task isn't understood
 well enough to hand off — that's a useful signal, not a formality to skip.
+
+**The third line in the template is the propagation criterion, and it is the one nobody would think
+to write.** A closure leaves two things behind: a document that now says something false, and a
+thing the closer learned that no document says at all. Only the session doing the work can name
+either, and it is the session about to end. The wording is deliberately unsatisfiable in silence —
+*"or what was checked is named here"* means a closer who ticks it without naming anything has
+visibly not resolved it, and `- ~~struck through~~ (reason)` already covers the honest "nothing
+applied" case. `- [ ] Docs updated` would be worse than no line at all: tickable without opening a
+single file, and green forever.
+
+This is a convention, **not** a gate. Nothing checks for the line, and that is deliberate — see the
+note in `generate-task-board.py` where the gate deliberately stops. The skill enforces the
+obligation at close instead, where the answer actually exists; the template line is for the task
+that knows its blast radius when it's written.
 
 If you have `generate-task-board.py` (see below — it is fetched separately), it **refuses to build
 a board** when any task is missing either element, naming every offending file and what to do about
@@ -98,6 +115,14 @@ invalidates other files. When a task lands in `done/`, find what referenced it
 (`grep -rl "blocked-by:" tasks/ | xargs grep -l <slug>`), rewrite the now-stale path to the new
 `done/` location, and re-triage any task whose only remaining blocker just closed. Skipping this
 leaves tasks sitting in `blocked/` behind something that finished weeks ago.
+
+**On completion, also carry the content outward.** That sweep repairs *references* — it does not
+notice that an open task or a document now describes behavior which just changed, and it never
+visits the artifact that doesn't mention this task at all. So before reporting a task done, name
+what this change made wrong and anything it turned up that nothing yet records. Bound it by what
+already cites the task, the task's own `links:`, and the files you had to open to do the work —
+that last one is where the unrecorded thing usually belongs. Naming an artifact and routing it to
+the task that owns it is enough; you are not obliged to fix every site you find.
 
 > The operational procedure for Claude Code is in the `task-lifecycle` skill this repo ships.
 > This README is the human-readable summary; the skill governs the operations.

@@ -150,7 +150,19 @@ def parse_done_when(text: str) -> int | None:
 
 def structural_problems(tasks: list[Task]) -> list[str]:
     """Every violation on every file. Reporting only the first turns a two-minute fix into
-    fix-one, re-run, discover the next."""
+    fix-one, re-run, discover the next.
+
+    Two properties, reported as three messages, and the list stops there on purpose. Adding a
+    fourth for the propagation criterion the templates now carry — "every document and open task
+    this change makes wrong is updated" — was considered and declined (task 020). A grep can see
+    that a *line exists*; it cannot see that anything was read. Gating on the line teaches authors
+    to keep the line, which manufactures exactly the always-green box the criterion is worded to
+    prevent, and hands it a passing build as evidence. The checks below survive that test because
+    presence *is* the property: an H1 that exists is an H1, and a criterion someone can read is a
+    criterion.
+
+    So the obligation lives in the skill's close procedure instead, where the session answering it
+    has just done the work and knows what it changed. Declined deliberately — not overlooked."""
     problems: list[str] = []
     for t in tasks:
         if not t.title.strip():

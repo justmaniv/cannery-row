@@ -2,13 +2,14 @@
 created: 2026-08-09
 updated: 2026-08-11
 completed:
-status: new
+status: wip
 owner: justmaniv
 blocked-by: ""
 links:
   - tasks/README.md
   - skills/task-lifecycle/SKILL.md
   - tasks/done/007-task-body-contract-is-undocumented-and-unenforced.md
+  - tasks/prioritized/019-user-cannot-opt-out-of-remote-operations.md
 ---
 
 # A closure's findings reach the docs and the open tasks they change, not just whoever remembers
@@ -32,21 +33,26 @@ That is the whole default, in both places the template appears — `tasks/README
 `SKILL.md` §"The shape of a task file". Neither mentions documentation, and neither mentions the
 other tasks the work just changed the meaning of.
 
-**Verified state of the repo today:**
+**Verified state of the repo today** — ⚠️ *as of 2026-08-09, before this task's own change. Every
+`SKILL.md` line number below is now off by roughly 57 lines, and the `wip → done` row says seven
+numbered steps where there are now eight. Left as written rather than re-pointed: this table is the
+**before** picture and is what the change is measured against. This is the fourth citation-drift
+note on this file; see the pattern rather than the individual numbers.*
 
 | Where propagation could be required | What is actually there |
 |---|---|
 | `tasks/README.md` body template | two generic placeholders; no docs criterion |
 | `SKILL.md` "shape of a task file" | same two placeholders |
-| `SKILL.md` `wip → done` procedure | reconcile the checklist, sweep dependents, clean the campsite — no docs step, no findings step |
-| `SKILL.md` reverse-dependency sweep | `blocked-by` only — a **graph** edge, not content |
-| `SKILL.md` mentions of `docs/` | two, both incidental: `grep` targets for prior coverage (§"Before creating"), and locating the board's output (§"Regenerate any projection") |
-| board generator | gates H1 and `## Done when` presence only |
+| `SKILL.md` `wip → done` procedure (`:51-63`) | seven numbered steps: reconcile, three frontmatter fields, `git mv`, sweep dependents, clean the campsite — no step for either half below |
+| `SKILL.md` §"Phase-tipping tasks" (`:370-383`) | **the one closure-time doc-currency step that already exists** — scoped to a single named document and its rendered visual |
+| `SKILL.md` reverse-dependency sweep (`:345`) | walks `blocked-by:`, but the shipped command greps the *slug* anywhere in the file, so a task that **cites** this one does surface |
+| `SKILL.md` mentions of `docs/` | two sites, both incidental: `grep` targets for prior coverage (`:200`), and locating the board's output (`:325`) |
+| board generator (`:151-176`) | gates three things and only these: a missing H1, a missing `## Done when`, and a `## Done when` with zero items |
 
-Nothing anywhere asks whether the change left a document wrong, or whether the closing session
-learned something an open task needs. Propagation is therefore a habit, not a contract — and habits
-are exactly what the two-pass model cannot rely on, because the session that closes a task is not
-the session that knew which artifacts described the old behavior.
+Outside the phase doc, nothing asks whether the change left a document wrong, and nothing anywhere
+asks whether the closing session learned something an open task needs. Propagation is therefore a
+habit, not a contract — and habits are exactly what the two-pass model cannot rely on, because the
+session that closes a task is not the session that knew which artifacts described the old behavior.
 
 ## Two halves, one pain point
 
@@ -58,29 +64,59 @@ lifecycle propagates *structure* and never *content* — and one spec should car
   nothing anywhere says. No existing sentence is incorrect; a sentence is *missing*, and only the
   closer knows it.
 
-**Everything `wip → done` propagates today is structural**, and each step is found by a mechanical
-query over paths or frontmatter: the reverse-dependency sweep (`grep blocked-by`), the projections
-(`git grep -l "tasks/"`), the phase doc. That is why (b) has no owner — it cannot be reached by
-traversing a path.
+**Almost everything `wip → done` propagates today is structural**, found by a mechanical query over
+paths: the reverse-dependency sweep (`grep` for the slug across `tasks/`), the projections
+(`git grep -l "tasks/"`). That is why (b) has no owner — it cannot be reached by traversing a path.
 
-⚠️ **The reverse-dependency sweep does not already cover this, and it will be assumed to.** It walks
-`blocked-by` — an open task that describes the same surface, and is now wrong about it, is not a
-blocker and is never visited. In the instance below, seven live tasks needed correcting and **none
-of them was a blocker of the task doing the correcting.**
+The one exception is the precedent to build on rather than a counter-example. **§"Phase-tipping
+tasks" (`:370-383`) is already a content step and already unqueryable** — *"explicitly evaluate
+whether this closure moves the project across a phase boundary… Do this every time"* — and it
+carries no `grep`, because there is none to carry. It works because its scope is one named
+document. What is missing is the same shape for the artifacts nobody named in advance.
+
+⚠️ **The reverse-dependency sweep does not already cover this, and it will be assumed to.** Read it
+precisely (corrected 2026-08-11 — the first version of this row overstated it). The shipped command
+is `grep -rl "blocked-by:" tasks/ | xargs grep -l "NNN-slug"`, and since every task file contains
+`blocked-by:`, the first filter removes nothing — so a task that **cites this one by slug** does
+surface, whether or not it is a blocker. What is never visited is the task that describes the same
+surface and **never names this one**, and step 1 of the sweep tells you what to do with a hit
+anyway: rewrite the path. Nothing tells you to read the file for content that just went stale.
 
 ## Evidence
 
-**1. A ruling landed in `tasks/` and the front page kept advertising the opposite.** Ruling 1 on task
-019 established that git is not optional, while `README.md:63` still tells readers *"the lanes and
-the board work on a filesystem alone… Take as many of those layers as your project actually has."*
-A docs criterion on 019 is what would have caught it. This is half (a), in this repo.
+**1. A ruling landed in `tasks/` and the front page kept advertising the opposite.** Task 019's
+§"Scope ruling" settled that the opt-out covers the remote and never git, citing `SKILL.md:302`
+(*"Git is assumed throughout this skill"*). `README.md:62-63` still tells readers *"the lanes and
+the board work on a filesystem alone"* — where `SKILL.md:302` uses "on a filesystem" to mean
+local-only **git**, the front page uses "on a filesystem alone" to mean **no git**. That one
+fragment is the whole contradiction. This is half (a), in this repo.
 
-⚠️ **Two corrections to this entry, made 2026-08-11 — both of them are the point.** The line was
-cited as `README.md:57`; it is now **63**, so the citation had drifted in the four days between
-writing and re-reading (the text is unchanged and the contradiction is live — re-verified against
-`main`). And the line is **not orphaned**: task 019's own "Done when" already names it, quoting the
-same sentence. So this evidence item is real but *owned*, which is the stopping rule below working
-exactly as intended — the right move was to name it and leave it with 019, not to fix it here.
+⚠️ **Three corrections to this entry, the first two made 2026-08-11 and the third the same day
+after an independent read — the citation drift is itself the point.**
+
+1. The line was first cited as `README.md:57`, then as `63`. Both are wrong: the sentence **starts
+   at 62** and runs onto 63. Two revisions, two bad line numbers, on the one claim this task offers
+   as its in-repo proof.
+2. The entry originally extended the quote with *"…Take as many of those layers as your project
+   actually has."* That clause is at `README.md:65-66` and is about the **remote** layer — the
+   elided sentences say *"Git adds the history… A shared remote adds backup and collaboration"* and
+   it closes *"plenty of real use is local-only."* It is not evidence of a git-less claim and has
+   been dropped from the quote.
+3. The entry claimed *"a docs criterion on 019 is what would have caught it."* **019 already has
+   one** — `tasks/prioritized/019-…:104-108` quotes the same fragment and names the
+   *"A host is a bonus, not a dependency"* bullet. The drift persists because 019 is unstarted, not
+   because it lacks the criterion. That sentence is struck.
+
+So this evidence item is real but *owned*, which is the stopping rule below working exactly as
+intended — the right move is to name it and leave it with 019, not to fix it here.
+
+⚠️ **Evidence 2 and 3 are external and cannot be checked from this repository** — added 2026-08-11
+after an independent read went looking for them. Both describe an unnamed adopting project; nothing
+here corroborates them, and every count in them (*"seven live tasks"*, *"~30 sites across five
+areas"*, *"four lines"*) is unattributable to any artifact a second reader can open. They are
+load-bearing anyway: 2 is the only support for half (b), and 3 is the only support for the stopping
+rule. Weigh them as testimony, not as citations. The in-repo half (a) evidence above stands on its
+own; **half (b) is being taken on argument, and that is the honest description of it.**
 
 **2. An adopting project shipped a state no one can see, and almost recorded it nowhere.** A closure
 made a failure surface report the correct cause instead of a wrong one. During closure the author
@@ -102,9 +138,12 @@ own premises was false. Two lessons: the work is real, and it does not stay smal
 ## The vacuity problem — this is the whole design difficulty
 
 `- [ ] Docs updated` is worse than nothing. It is tickable without reading a single document, and
-it converts a real obligation into a box that is always green. This project's own README warns
-against exactly this shape of check, and its coverage standard names the failure: a test that
-would not fail if the code broke is not a test.
+it converts a real obligation into a box that is always green. This project's coverage standard
+names the failure exactly — `CONTRIBUTING.md:107-109`: *"A test that executes code without
+asserting its result is not a test; it is a hole with a green check over it. Coverage counts only
+when the assertion would fail if the code broke."* (Corrected 2026-08-11: this was attributed to
+`README.md`, which carries a related but different warning — about an *empty* checklist and about
+ticking an *unmet* box, not about a criterion that is truthfully tickable without doing any work.)
 
 The criterion has to be unsatisfiable without doing the work. The mechanism available is
 **naming** — a criterion that cannot be resolved without listing what was inspected:
@@ -172,10 +211,13 @@ the plugin, so a template change reaches an existing adopter only when they re-f
 skill's copy travels with the plugin version. These two move at different speeds, and the change
 must say so rather than assume adopters are current.
 
-**Wording constraint.** The criterion lands in `tasks/README.md` and `SKILL.md`, both scanned by
-`check-portability.py` — so it must be phrased without stack or methodology vocabulary. "Test
-script", "decision record" and "acceptance criteria" are the kinds of nouns to check against
-`FORBIDDEN` before committing to wording.
+**Wording constraint.** The criterion lands in `tasks/README.md` and `SKILL.md`, both in
+`check-portability.py`'s `SCANNED` list — so it must be phrased without stack or methodology
+vocabulary. Corrected 2026-08-11: an earlier version named "test script", "decision record" and
+"acceptance criteria" as the nouns to check, and **none of them, nor any component word, is in
+`FORBIDDEN`** — the pattern is `\bterm\w*\b`, so it does not reach them either. The terms actually
+at risk in prose about propagating work are the methodology class: `story`, `epic`, `backlog`,
+`sprint`, `retro`. Run `--list` rather than guessing.
 
 ## Done when
 
@@ -199,6 +241,11 @@ script", "decision record" and "acceptance criteria" are the kinds of nouns to c
       not that it is true — so declining it reads as deliberate rather than forgotten
 - [ ] The change states how an existing adopter picks the new template up, given
       `tasks/README.md` is copied and the skill is versioned
+- [ ] `check-release.py:38`'s comment no longer says `SHIPPED_PREFIXES` is *"what an installed copy
+      actually receives"* — an installed copy does not receive `tasks/README.md`; adopters fetch it
+      themselves, which is the same fact the criterion above turns on. Added 2026-08-11 by the
+      independent read; in this change's blast radius rather than routed away, because it is the
+      one line that would contradict the adopter-pickup note
 - [ ] `check-portability.py` passes on the changed shipped files
 - [ ] `version` bumped in both manifests with a matching `CHANGELOG.md` heading, and the
       behavioral evals run before merge
