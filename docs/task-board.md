@@ -11,13 +11,13 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**27 tasks** — 9 new · 1 prioritized · 1 wip · 0 blocked · 16 done.
+**28 tasks** — 10 new · 1 prioritized · 0 wip · 0 blocked · 17 done.
 
 WIP limit: within 3 per human owner.
 
-| new (9) | prioritized (1) | wip (1) | blocked (0) |
+| new (10) | prioritized (1) | wip (0) | blocked (0) |
 |---|---|---|---|
-| **[012](../tasks/new/012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | **[019](../tasks/prioritized/019-user-cannot-opt-out-of-remote-operations.md)** A user can turn off remote and host operations even when a…<br><sub>justmaniv · 2026-08-09 · ⛔ 017</sub> | **[020](../tasks/wip/020-task-template-has-no-docs-criterion.md)** A closure's findings reach the docs and the open tasks the…<br><sub>justmaniv · 2026-08-11</sub> | _nothing waiting_ |
+| **[012](../tasks/new/012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | **[019](../tasks/prioritized/019-user-cannot-opt-out-of-remote-operations.md)** A user can turn off remote and host operations even when a…<br><sub>justmaniv · 2026-08-09 · ⛔ 017</sub> | _nothing pulled_ | _nothing waiting_ |
 | **[013](../tasks/new/013-adopters-copy-of-the-generator-drifts.md)** The adopter's copy of the board generator can never be upd…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[014](../tasks/new/014-eval-suite-covers-two-transitions.md)** Three of the five transitions worth testing have no eval c…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[015](../tasks/new/015-eval-deltas-pin-no-model.md)** The eval numbers have no model attached, so they expire wi…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
@@ -26,6 +26,7 @@ WIP limit: within 3 per human owner.
 | **[022](../tasks/new/022-task-root-is-hardcoded-to-repo-root.md)** The task tree can only live at `<repo>/tasks/`, which some…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
 | **[023](../tasks/new/023-no-public-signal-for-what-to-build-next.md)** Nobody outside the repo can say which of these tasks matte…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
 | **[028](../tasks/new/028-a-shipped-version-went-untagged-as-010-said-it-would.md)** A shipped version went untagged, which is the one conditio…<br><sub>justmaniv · 2026-08-11</sub> |  |  |  |
+| **[030](../tasks/new/030-the-with-arm-regressed-on-the-grader-that-case-exists-for.md)** The with-skill arm ticked a criterion that never came true…<br><sub>justmaniv · 2026-08-11</sub> |  |  |  |
 
 ## Blocked-by graph
 
@@ -41,12 +42,13 @@ graph LR
 
 Edge reads *blocker → blocked*. Green = blocker already closed (stale reference). Amber = a condition, not a task.
 
-## done (16)
+## done (17)
 
-Collapsed — the 12 most recently completed of 16. The full pile is `tasks/done/`; git history is its journey.
+Collapsed — the 12 most recently completed of 17. The full pile is `tasks/done/`; git history is its journey.
 
 | # | Task | Completed |
 |---|---|---|
+| [020](../tasks/done/020-task-template-has-no-docs-criterion.md) | A closure's findings reach the docs and the open tasks they change, not just whoever remembers | 2026-08-11 |
 | [026](../tasks/done/026-the-second-reader-is-advice-not-a-rule.md) | The README recommends a second reader and gives nobody a way to have one | 2026-08-09 |
 | [025](../tasks/done/025-skill-does-not-say-where-its-own-check-stops.md) | The skill teaches the validation step and never says where it stops | 2026-08-09 |
 | [024](../tasks/done/024-validation-is-not-independent-review.md) | The README says independence comes free; a field report says it does not | 2026-08-09 |
@@ -58,4 +60,3 @@ Collapsed — the 12 most recently completed of 16. The full pile is `tasks/done
 | [008](../tasks/done/008-the-gates-are-untested-and-coverage-is-ungated.md) | The gates that enforce everything are themselves untested, and nothing floors coverage | 2026-08-07 |
 | [007](../tasks/done/007-task-body-contract-is-undocumented-and-unenforced.md) | A task file's body has a contract, and nothing states it or checks it | 2026-08-07 |
 | [004](../tasks/done/004-author-eval-suite-for-the-skill.md) | Nothing tests whether the skill is followed, only that it is well-formed | 2026-08-07 |
-| [006](../tasks/done/006-disable-was-wrong-uninstall-is-required.md) | CONTRIBUTING told you to disable the installed copy; disabling does not work | 2026-08-06 |
