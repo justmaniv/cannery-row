@@ -9,7 +9,7 @@ links:
   - tasks/README.md
   - skills/task-lifecycle/SKILL.md
   - tasks/done/007-task-body-contract-is-undocumented-and-unenforced.md
-  - tasks/prioritized/019-user-cannot-opt-out-of-remote-operations.md
+  - tasks/blocked/019-user-cannot-opt-out-of-remote-operations.md
 ---
 
 # A closure's findings reach the docs and the open tasks they change, not just whoever remembers

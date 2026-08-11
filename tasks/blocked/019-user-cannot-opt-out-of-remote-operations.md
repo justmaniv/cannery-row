@@ -1,16 +1,43 @@
 ---
 created: 2026-08-08
-updated: 2026-08-09
+updated: 2026-08-11
 completed: ""
-status: prioritized
+status: blocked
 owner: justmaniv
-blocked-by: tasks/done/017-skill-assumes-a-remote-exists.md
+blocked-by: |
+  tasks/done/017-skill-assumes-a-remote-exists.md
+  tasks/new/031-a-project-cannot-say-where-else-to-look-for-work.md
 links:
   - skills/task-lifecycle/SKILL.md
   - tasks/done/017-skill-assumes-a-remote-exists.md
+  - tasks/new/031-a-project-cannot-say-where-else-to-look-for-work.md
 ---
 
 # A user can turn off remote and host operations even when a remote exists
+
+## ⚠️ Blocked 2026-08-11 — not ready as written
+
+Moved out of `prioritized/` by the owner. Two reasons, both about this file rather than about the
+capability, which is still wanted:
+
+1. **Ruling 1 below assumes every project is a git repository, and the front page does not.**
+   *"Settled. Not to be re-proposed"* is doing work it has not earned: `README.md:62-66` promises
+   *"the lanes and the board work on a filesystem alone. Git adds the history… Take as many of those
+   layers as your project actually has."* A ruling that makes git the floor contradicts a shipped
+   claim, and the git-optional direction is a track this project has already started rather than a
+   hole someone is trying to open. The ruling stands as **the reasoning that was available on
+   2026-08-09**; it does not stand as settled, and this task cannot be picked up until it is
+   re-decided against the front-page promise.
+
+2. **Its placement fork is subordinate to a decision it does not own.** §"The fork" chooses where a
+   per-project marker lives, but three settings now want that surface (see `031`) and this task
+   would be choosing for all of them from inside the narrowest of the three. `031` owns the
+   placement; this task consumes it.
+
+The scope ruling at §"Scope ruling — the opt-out is repo-level, never global" is **not** what is in
+dispute here — a project-scoped setting is right. What is open is whether *repo-level only* was
+proved: the argument given rules out a global tier that overrides projects, and says nothing about a
+global default that a project overrides. Resolve that when re-deciding point 1.
 
 ## What's wanted
 

@@ -1,6 +1,6 @@
 ---
 created: 2026-08-09
-updated: 2026-08-09
+updated: 2026-08-11
 completed:
 status: new
 owner: justmaniv
@@ -8,7 +8,7 @@ blocked-by: ""
 links:
   - scripts/generate-task-board.py
   - skills/task-lifecycle/SKILL.md
-  - tasks/prioritized/019-user-cannot-opt-out-of-remote-operations.md
+  - tasks/blocked/019-user-cannot-opt-out-of-remote-operations.md
 ---
 
 # The task tree can only live at `<repo>/tasks/`, which some repos cannot offer
@@ -71,6 +71,14 @@ forfeits the per-task history that makes provenance real. This task must not bec
 that reopens it, and the reason is recorded here so a future reader sees a decision rather than an
 omission.
 
+⚠️ **The strike above rests on a ruling that is no longer settled — corrected 2026-08-11.** 019 was
+moved to `blocked/` that day precisely because ruling 1 assumes every project is a git repository
+while `README.md:62-66` promises *"the lanes and the board work on a filesystem alone… Take as many
+of those layers as your project actually has."* Do not treat option C as struck on 019's authority
+until 019 is re-decided. This entry is left standing rather than rewritten because the *reasoning*
+in it — that moving lanes outside git forfeits per-task history — is a real cost that survives
+whichever way the ruling lands; what does not survive is citing 019 as having settled it.
+
 Recommendation: **A, scoped tightly, and B only behind an explicit statement of what it costs.**
 "Head task directory" should mean *a path within the repository*, defaulting to `tasks/`. That
 covers the legacy-repo cases above at a fraction of B's blast radius, and it does not require the
@@ -89,8 +97,15 @@ So this task is evidence for 019's second option — a dedicated marker at a fix
 because picking the `tasks/README.md` field first and discovering this later means a second config
 surface, or a migration off the first.
 
-The same repo-level-never-global ruling from 019 applies here unchanged: a task root is a property
-of one project, and a user-global setting for it would be actively wrong.
+⚠️ **Updated 2026-08-11: the placement decision has an owner now, and it is neither this task nor
+019.** A third setting wants the same surface — `031`, a project's declaration of where else to look
+for its work — and `031` owns the placement for all three. This section stands as the argument that
+sent it there; make the decision in `031` and consume it here.
+
+A task root is a property of one project, and a user-global setting that *overrode* a project would
+be actively wrong — that much of 019's scope ruling holds. Whether a user-level **default** may sit
+underneath a project's own answer was not argued either way in 019 and is open; see the note added
+to that task on 2026-08-11.
 
 ## Done when
 
@@ -106,7 +121,9 @@ of one project, and a user-global setting for it would be actively wrong.
 - [ ] `REPO_ROOT` no longer depends on the generator script sitting in `<repo>/scripts/`, or that
       dependency is documented as a supported constraint rather than left implicit
 - [ ] Scope is recorded: whether a root outside the repository (option B) is supported, and if it
-      is, what it costs stated where the user chooses it; option C stays struck per 019 ruling 1
+      is, what it costs stated where the user chooses it. Option C is decided on its own merits
+      against `README.md:62-66`'s layer promise — 019 ruling 1 is no longer available as the reason,
+      per the note in §"The fork"
 - [ ] `check-portability.py` passes on the changed shipped files
 - [ ] `version` bumped in both manifests with a matching `CHANGELOG.md` heading, and the
       behavioral evals run before merge
