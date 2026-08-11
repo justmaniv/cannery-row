@@ -22,7 +22,7 @@ WIP limit: within 3 per human owner.
 | **[014](../tasks/new/014-eval-suite-covers-two-transitions.md)** Three of the five transitions worth testing have no eval c…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[015](../tasks/new/015-eval-deltas-pin-no-model.md)** The eval numbers have no model attached, so they expire wi…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[018](../tasks/new/018-capability-surface-is-undocumented.md)** Nobody can say what Cannery Row's feature set is, includin…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
-| **[020](../tasks/new/020-task-template-has-no-docs-criterion.md)** The task template has no docs criterion, so keeping docs c…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
+| **[020](../tasks/new/020-task-template-has-no-docs-criterion.md)** A closure's findings reach the docs and the open tasks the…<br><sub>justmaniv · 2026-08-11</sub> |  |  |  |
 | **[021](../tasks/new/021-numbering-scan-worktree-half-scans-nothing.md)** The numbering scan's worktree half silently scans nothing<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
 | **[022](../tasks/new/022-task-root-is-hardcoded-to-repo-root.md)** The task tree can only live at `<repo>/tasks/`, which some…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
 | **[023](../tasks/new/023-no-public-signal-for-what-to-build-next.md)** Nobody outside the repo can say which of these tasks matte…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
