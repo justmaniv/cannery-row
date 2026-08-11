@@ -75,38 +75,64 @@ marker as the alternative it thinks wins. Neither task owns the decision, so it 
 - **Portable prose.** The declaration is described in `SKILL.md` and `tasks/README.md`, both scanned
   by `check-portability.py`. Run `--list` rather than guessing.
 
-## The open fork — this needs the owner's answer before the criteria below are final
+## Scope — settled 2026-08-11
 
-**What "look for work" reaches.** Two readings, and they build differently:
+**What "look for work" reaches: the searches, not the tracker.** Decided by the owner the day this
+task was written, after the alternative was put to them explicitly.
 
-| Reading | What it means |
-|---|---|
-| **A. Search scope** | The declared locations are added to the searches the skill runs — prior coverage before creating, the propagation bound at close, the reverse-dependency sweep. Work stays in one home; the tool reads more places when looking for what already covers a topic or what a change made wrong. |
-| **B. Multiple task homes** | The declared locations may themselves hold lane trees. The board generator reads all of them, numbering has to stay unique across them, and `blocked-by:` has to resolve across them. |
+Work still lives in **one task home per project**. That is what *"each with its own task home"*
+means — one home each, not many homes each. What a declaration adds is **where the skill's searches
+read**, and nothing else:
 
-B contains A. B is materially more work — the generator, the numbering scan, and the reference
-format all move — and it is the reading the phrase *"each with its own task home"* most naturally
-supports. Do not guess: the answer changes the criteria below, and this is exactly the fork whose
-guessing wasted the exchange that produced this task.
+```
+project-a/tasks/{new,prioritized,wip,blocked,done}/   <- the one home
+shared-docs/                                          <- declared
+sibling-project/docs/                                 <- declared
+
+board   -> unchanged, reads the one home
+numbers -> unchanged, unique within the one home
+search  -> reads the home *and* every declared location
+```
+
+**Explicit non-goals**, so an implementer does not drift into them:
+
+- The board generator does not gain a second root. It reads the project's home, as today.
+- The numbering scan does not widen. Numbers stay unique within one home.
+- `blocked-by:` does not have to resolve across locations, so the reference format does not move.
+
+A declared location holding its own lane tree is a **later** question. It is strictly larger — the
+generator, the numbering scan, and the reference format all move together — and nothing about this
+task's design should foreclose it. If it is ever wanted it gets its own task, and the first thing
+that task will ask is whether the declaration format chosen here can carry more than a path.
+
+**Which searches are in scope** — every one the skill hands out, which is the same list `029` is
+repairing: prior coverage before creating, the propagation gate's bound at close, and the
+reverse-dependency sweep. If `029` has already landed, this extends a working search; if not, this
+task inherits the defects and must not paper over them.
 
 ## Done when
 
-⚠️ Provisional until the fork above is answered; the last three assume nothing about it.
-
-- [ ] A project can declare additional locations for its work, and the tool honors the declaration
-      on a project that is not a git repository as well as on one that is
-- [ ] The declaration is found without knowing where the project's first task home is, and without
-      running a git command
-- [ ] Absent a declaration, every behavior is byte-for-byte today's — demonstrated, not asserted
+- [ ] A project can declare additional locations, and every search the skill hands out reads them in
+      addition to the project's own task home — demonstrated on a location that holds no lane tree
+      and contains only prose
+- [ ] The declaration works on a project that is **not** a git repository as well as on one that is,
+      per `README.md:62-66`'s layer promise
+- [ ] The declaration is found without already knowing where the project's task home is
+- [ ] Absent a declaration, every behavior is today's — demonstrated on a project with no
+      declaration, not asserted
 - [ ] Two projects on one machine answer differently with no reconfiguration between them
-- [ ] `019` and `022` are reconciled against the placement this task lands: `019`'s fork table at
-      `:66-76` and `022`'s "fixed, known location" criterion either resolve to this surface or state
-      why they need their own
-- [ ] `README.md:62-66`'s layer promise still reads true after the change, or is amended in the same
-      change to say what it now promises
+- [ ] A declared location that does not exist, or has become unreadable, degrades to a stated
+      behavior rather than an error that stops a lifecycle operation — the searches it feeds are
+      mandatory steps, so a broken declaration must not be able to block a close
+- [ ] The non-goals are recorded in the change itself: the board reads one home, numbering stays
+      within one home, `blocked-by:` does not resolve across locations. A later task may widen them;
+      this one does not, and a reader must see that as a decision rather than an omission
+- [ ] `019`'s placement fork at `:66-76` and `022`'s "fixed, known location" criterion are
+      reconciled against the surface this task lands — both consume it or state why they need their
+      own
 - [ ] `check-portability.py` passes on the changed shipped files
 - [ ] `version` bumped in both manifests with a matching `CHANGELOG.md` heading, and the behavioral
       evals run before merge
 - [ ] Every document and open task this change makes wrong is updated, and anything the work turned
       up that nothing yet records is written down — or what was checked is named here, with why none
-      of it needed changing
+      of it needed changing. At minimum: `tasks/README.md`, and `029` if it has not yet landed
