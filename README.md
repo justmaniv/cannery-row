@@ -161,7 +161,18 @@ asking you what you meant. Free-form; use whatever headings carry the handoff.
 
 - [ ] The board regenerates with no links to the upstream repo
 - [ ] A test fails if they come back
+- [ ] Every document and open task this change makes wrong is updated, and anything the work
+      turned up that nothing yet records is written down — or what was checked is named here,
+      with why none of it needed changing
 ```
+
+That third line is in the template by default. It is the one nobody thinks to write, and only the
+session doing the work can answer it — a closure leaves behind both a document that now says
+something false and a thing the closer learned that no document says at all. It is worded so it
+can't be ticked in silence: *"or what was checked is named here"* means a closer who names nothing
+has visibly not resolved it. `- [ ] Docs updated` would be worse than no line — tickable without
+opening a file, and green forever. **Nothing gates it**, deliberately; the skill enforces the
+obligation at close, where the answer exists.
 
 **`## Done when` is the acceptance criteria, and it is the load-bearing part.** It is the only
 thing a later session is held to, and completing a task is *defined* as resolving every box —
@@ -297,7 +308,7 @@ what the skill is for.
 
 | | |
 |---|---|
-| `skills/task-lifecycle/SKILL.md` | The operational procedure — transitions, frontmatter invariants, the reverse `blocked-by` sweep, collision-safe numbering across worktrees, and a claim-validation step before starting a task you didn't write. This is the substance. |
+| `skills/task-lifecycle/SKILL.md` | The operational procedure — transitions, frontmatter invariants, the reverse `blocked-by` sweep, collision-safe numbering across worktrees, a claim-validation step before starting a task you didn't write, and a propagation gate at close that names the documents and open tasks the work made wrong — and routes them, rather than obliging you to fix every one. This is the substance. |
 | `tasks/README.md` | The human-readable conventions. Copy it into your repo. |
 | `scripts/generate-task-board.py` | Generates `docs/task-board.md` — lanes in flow order, the blocker graph as Mermaid, a WIP-limit check. Pure projection; the files stay the source of truth. `--check` for CI. Also the structural gate: it refuses to build a board from a task missing its H1 or its `## Done when`. |
 | `scripts/check-portability.py` | Fails if any shipped file names a language, vendor, or planning cadence. See below. |

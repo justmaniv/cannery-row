@@ -25,6 +25,79 @@ release, with no docs-only commits mixed in.
 There is no `Unreleased` section, and that is deliberate: `check-release.py` requires an entry in
 the same change that moves the version, so an entry never exists before the version it names.
 
+## [0.6.0] — 2026-08-11
+
+### Added
+
+- **A propagation gate at close** (task 020). Closing a task now has a step between the
+  reverse-dependency sweep and the campsite check, and a new invariant 9 behind it: what the
+  closure made wrong gets corrected, and what the closure turned up gets written down somewhere it
+  will be read again.
+
+  The gap it fills is narrow and worth stating precisely. Every other thing this skill propagates
+  is reachable by walking a path — the sweep walks the tasks that name this one, the projection
+  step walks whatever reads `tasks/`, the phase check walks a document the project already
+  identified. **Content has no path to walk**, so the artifact that describes what you just changed,
+  and never mentions
+  your task, was never visited by anything. Neither was the thing you learned during the work that
+  no document says at all — no sentence is wrong, a sentence is missing, and the only session that
+  can write it is the one about to end.
+
+  ⚠️ **This is not the reverse-dependency sweep**, and it will be mistaken for it. That sweep finds
+  tasks that *name* this one and rewrites a stale path; it is bookkeeping on a reference. The new
+  gate reads for content that stopped being true, and its most valuable hits are files that never
+  named the task.
+
+  Two things keep it from becoming an unbounded sweep, because *"update everything relevant"* is
+  satisfied by finding nothing and refuted by nothing:
+
+  - **A bound** — what already cites the work (`grep -rl "NNN-slug" tasks/ docs/`), the task's own
+    `links:`, and the artifacts you had to read to do the work. The third has no query behind it
+    and is the one that reaches the missing sentence.
+  - **A stopping rule** — name the artifact and route it to the task that owns it. You are not
+    obliged to fix every site you find. This is the same call the sweep already makes one step
+    over, where it surfaces newly-unblocked tasks rather than moving them itself.
+
+- **A third line in the task-file template**, in both `tasks/README.md` and the skill's copy, worded
+  identically: *"Every document and open task this change makes wrong is updated, and anything the
+  work turned up that nothing yet records is written down — or what was checked is named here, with
+  why none of it needed changing."*
+
+  `- [ ] Docs updated` would have been worse than no line: tickable without opening a file, green
+  forever. The wording is unsatisfiable in silence — a closer who ticks it having named nothing has
+  visibly not resolved it, and the strikethrough convention already covers the honest "nothing
+  applied" case.
+
+  It is a **default, not a requirement**. Invariant 9 holds whether or not a task file carries the
+  line, so an author who deletes it changes nothing about the obligation — same relationship the
+  campsite gate has to the tasks that never mention it.
+
+### Changed
+
+- **The board generator gates exactly what it gated before, deliberately.** Making it refuse a task
+  whose checklist lacks the propagation line was considered and declined; the reasoning is now a
+  comment in `structural_problems()` so it does not get re-proposed as an oversight. A grep can see
+  that a *line exists*; it cannot see that anything was read. Gating on the line teaches authors to
+  keep the line, which manufactures the always-green box the wording exists to prevent — and hands
+  it a passing build as evidence. H1 and `## Done when` survive that test because presence *is* the
+  property being checked. This one isn't.
+
+- The skill's `description:` frontmatter names the new gate. That string is what Claude reads when
+  deciding whether to invoke the skill, so leaving it describing the old procedure would have been
+  a silent mismatch — the same slip 0.5.1 fixed.
+
+- The marketplace entry said the plugin *"ships the task-lifecycle skill and a generated board
+  view."* It does not ship the board view — that is the `curl` above, and the sentence contradicted
+  the `check-release.py` correction in the same release.
+
+- `check-release.py`'s comment on `SHIPPED_PREFIXES` said it was *"what an installed copy actually
+  receives."* It isn't, and the difference is the thing an adopter needs to know: `skills/` and
+  `.claude-plugin/` travel with the plugin version, so you get them by updating. **`tasks/README.md`
+  and `scripts/` never install** — you fetched them with `curl` and you re-fetch them the same way.
+  So the template line above is live for anyone fetching from `main` today, and an existing adopter
+  who pinned nothing will not see it until they re-run the `curl` from the README's Install section.
+  The bump is what forces this entry to exist; it is not what delivers those two files.
+
 ## [0.5.1] — 2026-08-09
 
 ### Changed
@@ -191,6 +264,13 @@ the same change that moves the version, so an entry never exists before the vers
 `0.1.0`, `0.1.1` and `0.2.0` predate the pull-request loop and are deliberately untagged — nobody
 is diffing them, and reconstructing entries for them now would be archaeology rather than a record.
 
+⚠️ **`0.5.1` is untagged by accident, not by choice**, which is why `0.6.0` above compares against
+`0.5.0` and why `0.5.1` has no link line. Found 2026-08-11 during task 020's independent read.
+Tagging it retroactively is an outward-facing act on the remote, so it is routed rather than done
+in passing — `tasks/new/028-a-shipped-version-went-untagged-as-010-said-it-would.md`, which is the
+escalation task 010 pre-wrote for exactly this condition.
+
+[0.6.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.5.0...cannery-row--v0.6.0
 [0.5.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.4.4...cannery-row--v0.5.0
 [0.4.4]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.4.3...cannery-row--v0.4.4
 [0.4.3]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.4.2...cannery-row--v0.4.3

@@ -1,6 +1,6 @@
 ---
 name: task-lifecycle
-description: Move tasks between status directories (new/prioritized/wip/blocked/done) with full frontmatter sync, "Done when" reconciliation, reverse blocked-by sweep, claim validation before starting a task you did not write, and collision-safe task numbering. Use whenever creating, starting, blocking, unblocking, or completing a task in a repository's `tasks/` directory.
+description: Move tasks between status directories (new/prioritized/wip/blocked/done) with full frontmatter sync, "Done when" reconciliation, reverse blocked-by sweep, a propagation gate that carries a closure's changes and findings out to the documents and open tasks they affect, claim validation before starting a task you did not write, and collision-safe task numbering. Use whenever creating, starting, blocking, unblocking, or completing a task in a repository's `tasks/` directory.
 allowed-tools: Bash, Read, Edit
 ---
 
@@ -22,6 +22,7 @@ This skill is the source of truth for the lifecycle procedure. Project `tasks/RE
 6. No task sits in `blocked/` with every one of its blockers closed. A `blocked-by:` entry whose task has moved is **rewritten to the new path**, never deleted — the entry is the audit trail, and `status: blocked` over an empty `blocked-by:` is a task blocked by nothing. When the last blocker closes, surface the task for re-triage (see the sweep); it does not sit there.
 7. **The campsite is clean** before any task is reported `done` to the human — see the Clean-campsite gate in the `wip → done` procedure. "Done" is never claimed over a littered workspace.
 8. **Every task file carries an H1 title and a `## Done when` checklist with at least one criterion** — in every lane, from the moment it is created. See "The shape of a task file" below.
+9. **What the closure made wrong has been corrected, and what the closure turned up has been written down somewhere it will be read again** — see the Propagation gate in the `wip → done` procedure. Naming the artifact and routing it satisfies this; fixing every site does not have to.
 
 If you can't satisfy an invariant, stop and surface the conflict — don't move the file.
 
@@ -29,7 +30,7 @@ If you can't satisfy an invariant, stop and surface the conflict — don't move 
 
 ## Transitions
 
-All transitions are: (a) update frontmatter in place, (b) `git mv` the file, (c) for `→ done`, run the reverse-dependency sweep. Do this in the same turn as the work that triggered the transition. Don't ask "should I move it?" as a separate question.
+All transitions are: (a) update frontmatter in place, (b) `git mv` the file, (c) for `→ done`, run the three closing gates — the reverse-dependency sweep, the propagation gate, and the campsite check. Do this in the same turn as the work that triggered the transition. Don't ask "should I move it?" as a separate question.
 
 ### `new → prioritized`
 - Set `status: prioritized`
@@ -59,8 +60,64 @@ All transitions are: (a) update frontmatter in place, (b) `git mv` the file, (c)
 3. Set `completed:` to today
 4. Bump `updated:` to today
 5. `git mv` to `tasks/done/`
-6. **Run reverse-dependency sweep** (next section).
-7. **Clean the campsite** (next section) — the last thing before you report `done` to the human.
+6. **Run reverse-dependency sweep** (below).
+7. **Run the propagation gate** (next section) — carry outward what this closure made wrong and what it turned up.
+8. **Clean the campsite** (below) — the last thing before you report `done` to the human.
+
+---
+
+## Propagation gate (before claiming `done`)
+
+**A closure changes what is true, and nothing else in this skill carries that outward.** Every other
+propagation step here walks a path: the reverse-dependency sweep walks the tasks that name this one,
+the projection step walks whatever reads `tasks/`, the phase check walks a document the project has
+already identified. Content has no path to walk. The session holding the answer is the one about to
+end, so what does not go out now does not go out.
+
+**This gate holds on every closure, whether or not the task file says so** (invariant 9). The
+template carries a matching line because most tasks benefit from stating their blast radius up
+front — but an author who drops it changes nothing about the obligation, exactly as with the
+campsite gate one section down.
+
+Two things go outward, and the second is the one that gets missed:
+
+- **What the change left wrong.** Something asserts the old behavior and is now false.
+- **What the change turned up that nothing yet says.** No sentence is wrong; a sentence is
+  *missing*, and only you know it. There is no query behind this half — the artifact that needs the
+  note may never mention this task at all.
+
+⚠️ **This is not the reverse-dependency sweep, and it will be mistaken for it.** That sweep finds
+tasks that *name* this one and rewrites a stale path — a bookkeeping fix to a reference. This gate
+reads for *content that just stopped being true*, and its most valuable hits are artifacts that
+never named this task and never will.
+
+### The bound
+
+*"Everything relevant"* is not a criterion. It is satisfied by finding nothing and refuted by
+nothing — the shape of check §"The shape of a task file" tells you not to write. Three sources, and
+it is the third that reaches the second half:
+
+1. **What already cites this work**, by number or by slug:
+
+   ```bash
+   grep -rl "NNN-slug" tasks/ docs/
+   ```
+
+2. **The task's own `links:` frontmatter.**
+3. **The artifacts you had to read to do the work.** No query returns this list; you have it because
+   you just opened them. It is usually where the missing sentence belongs, and neither of the other
+   two sources can see it.
+
+### The stopping rule — name and route, don't fix everything
+
+A four-line change can open into dozens of sites, and an unbounded sweep at closure is how this step
+gets ticked blind to escape it. **Name the artifact and route it to the task that owns it — you are
+not obliged to fix every site you find.** Correct what this change itself made wrong; for anything
+further out, name it in the closing task and either open a task for it or add it to the one that
+already owns that ground. This is the same call the reverse-dependency sweep makes one step over: it
+*surfaces* newly-unblocked tasks for the user to triage rather than moving them itself.
+
+Then, in the done report, say what you carried and what you routed elsewhere.
 
 ---
 
@@ -242,6 +299,9 @@ Context, the verifiable state of the code today, the fork you considered and wha
 
 - [ ] A criterion someone else can check without asking what you meant
 - [ ] Another one
+- [ ] Every document and open task this change makes wrong is updated, and anything the work
+      turned up that nothing yet records is written down — or what was checked is named here,
+      with why none of it needed changing
 ```
 
 - **The H1 is the title of record.** Any projection of `tasks/` reads it for the card headline;
@@ -250,6 +310,12 @@ Context, the verifiable state of the code today, the fork you considered and wha
   is held to, and the `wip → done` transition is *defined* as reconciling it (invariant 5). A task
   with no criteria — or with the heading and nothing under it — closes on nobody's authority but
   the closer's, because "resolve every `- [ ]`" is trivially true when there are none.
+
+- **The third line is the propagation criterion.** It is worded so it cannot be resolved silently:
+  a closer who ticks it having named nothing has visibly not done it. It is in the template as a
+  default, not as a requirement — invariant 9 holds whether or not the file carries the line, so
+  dropping it costs nothing but the reminder. Keep it when the task can already guess what its
+  change will make wrong.
 
 Write criteria a different person can evaluate. "Works properly" is not a criterion; "the gate
 fails with a non-zero exit on a task missing its H1" is. If you cannot state one, the task is not

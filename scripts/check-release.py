@@ -35,7 +35,16 @@ PLUGIN = REPO_ROOT / ".claude-plugin" / "plugin.json"
 MARKETPLACE = REPO_ROOT / ".claude-plugin" / "marketplace.json"
 CHANGELOG = REPO_ROOT / "CHANGELOG.md"
 
-# What an installed copy actually receives. A README change does not need a bump.
+# What crosses into somebody else's repository, by either of the two routes — which are not the
+# same route and do not move at the same speed. `skills/` and `.claude-plugin/` travel with the
+# plugin: an adopter gets them by pinning a new version, so those genuinely need the bump.
+# `tasks/README.md` and `generate-task-board.py` do not install at all — an adopter fetches them
+# from `main` themselves, so they are already live for anyone fetching today and the bump gates
+# nothing about their delivery. They are in this list anyway, because the CHANGELOG entry the bump
+# forces is the only place an existing adopter is told there is something new to re-fetch. The rest
+# of `scripts/` is this repo's own CI and reaches nobody, but the prefix is kept whole rather than
+# enumerated — a bump nobody needed is cheap, and a missed one is task 003.
+# A change confined to README.md or CONTRIBUTING.md reaches nobody's repo and needs no bump.
 SHIPPED_PREFIXES = ("skills/", "scripts/", "tasks/README.md", ".claude-plugin/")
 
 

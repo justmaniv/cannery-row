@@ -33,7 +33,11 @@ That is the whole default, in both places the template appears — `tasks/README
 `SKILL.md` §"The shape of a task file". Neither mentions documentation, and neither mentions the
 other tasks the work just changed the meaning of.
 
-**Verified state of the repo today:**
+**Verified state of the repo today** — ⚠️ *as of 2026-08-09, before this task's own change. Every
+`SKILL.md` line number below is now off by roughly 57 lines, and the `wip → done` row says seven
+numbered steps where there are now eight. Left as written rather than re-pointed: this table is the
+**before** picture and is what the change is measured against. This is the fourth citation-drift
+note on this file; see the pattern rather than the individual numbers.*
 
 | Where propagation could be required | What is actually there |
 |---|---|
