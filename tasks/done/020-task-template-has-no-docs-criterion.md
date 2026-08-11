@@ -1,8 +1,8 @@
 ---
 created: 2026-08-09
 updated: 2026-08-11
-completed:
-status: wip
+completed: 2026-08-11
+status: done
 owner: justmaniv
 blocked-by: ""
 links:
@@ -221,34 +221,67 @@ at risk in prose about propagating work are the methodology class: `story`, `epi
 
 ## Done when
 
-- [ ] The body template in `tasks/README.md` carries a criterion covering **both** halves — the docs
+- [x] The body template in `tasks/README.md` carries a criterion covering **both** halves — the docs
       the change left wrong and the findings nothing yet records — worded so it cannot be resolved
       without naming what was checked
-- [ ] `SKILL.md` §"The shape of a task file" carries the identical criterion — the two templates
-      are compared line by line and do not disagree
-- [ ] `SKILL.md` §`wip → done` carries the propagation step as a numbered step, alongside the
+- [x] `SKILL.md` §"The shape of a task file" carries the identical criterion — the two templates
+      are compared line by line and do not disagree. Verified by `diff` on the extracted ranges,
+      not by eye: byte-identical including the six-space continuation indent
+- [x] `SKILL.md` §`wip → done` carries the propagation step as a numbered step, alongside the
       checklist reconciliation and the campsite gate, modelled on the campsite gate's shape
       (invariant + bounded procedure, not a line restated per task file)
-- [ ] The step names a **mechanical bound** a second person can re-run — at minimum a `grep` over
+- [x] The step names a **mechanical bound** a second person can re-run — at minimum a `grep` over
       `tasks/` and `docs/`, the task's own `links:`, and the artifacts the closer read to do the
       work — so "all relevant" never stands alone as the whole instruction
-- [ ] The step names a **stopping rule**: the closer names the artifact and routes it to its owning
+- [x] The step names a **stopping rule**: the closer names the artifact and routes it to its owning
       task rather than being obliged to fix every site found. Cross-referenced to the
       reverse-dependency sweep's existing surface-don't-auto-move precedent
-- [ ] `SKILL.md` states how this differs from the reverse-dependency sweep — that one walks
-      `blocked-by`, this one walks content — so an implementer does not read it as already covered
-- [ ] The decision on option B is recorded with its reasoning — a gate can verify a line exists,
-      not that it is true — so declining it reads as deliberate rather than forgotten
-- [ ] The change states how an existing adopter picks the new template up, given
-      `tasks/README.md` is copied and the skill is versioned
-- [ ] `check-release.py:38`'s comment no longer says `SHIPPED_PREFIXES` is *"what an installed copy
-      actually receives"* — an installed copy does not receive `tasks/README.md`; adopters fetch it
-      themselves, which is the same fact the criterion above turns on. Added 2026-08-11 by the
-      independent read; in this change's blast radius rather than routed away, because it is the
-      one line that would contradict the adopter-pickup note
-- [ ] `check-portability.py` passes on the changed shipped files
-- [ ] `version` bumped in both manifests with a matching `CHANGELOG.md` heading, and the
-      behavioral evals run before merge
-- [ ] Every doc and open task describing the changed behavior is updated in the same change — at
-      minimum `README.md`'s description of what the generator gates — or the ones checked are named
-      here, with why none needed it
+- [x] `SKILL.md` states how this differs from the reverse-dependency sweep — carries its own ⚠️
+      paragraph. Corrected against the shipped command rather than the assumed one: the sweep does
+      surface a task that *cites* this one; what it never visits is the task that describes the
+      same surface without naming it
+- [x] The decision on option B is recorded with its reasoning — in `structural_problems()`'s
+      docstring, where someone proposing a fourth check will read it, and in `CHANGELOG.md`
+- [x] The change states how an existing adopter picks the new template up, given
+      `tasks/README.md` is copied and the skill is versioned — `CHANGELOG.md` § *Changed*, second
+      entry, which states the asymmetry rather than implying the bump delivers anything
+- [x] `check-release.py:38`'s comment no longer says `SHIPPED_PREFIXES` is *"what an installed copy
+      actually receives"*. Corrected further after the pre-commit read: the first rewrite said
+      "`tasks/README.md` and `scripts/`", but only `generate-task-board.py` is adopter-fetched —
+      the other four scripts are this repo's own CI and reach nobody
+- [x] `check-portability.py` passes on the changed shipped files — `ok: 4 shipped files carry no
+      stack-coupled vocabulary`
+- ~~`version` bumped in both manifests with a matching `CHANGELOG.md` heading, and the behavioral
+      evals run before merge~~ — **struck rather than ticked, because only the first half is true.**
+      The bump landed: `0.5.1` → `0.6.0` in both manifests, `## [0.6.0]` heading, `check-release.py`
+      green. The evals did **not** run before merge. Auto-merge was enabled while CI was pending and
+      the merge completed twelve seconds later; `gh pr merge --disable-auto` then failed because
+      there was nothing left to hold. They ran immediately after against `main` at `97521e0`, which
+      is byte-identical to what merged — the right code measured at the wrong time. **The result is
+      not clean:** `done-when-reconciliation`'s with-skill arm fell 1.00 → 0.94, and the failing
+      grader is the weight-5 `dropped-criterion-not-claimed-met`, the one that case exists for.
+      Three runs cannot separate that from variance. Routed to
+      `tasks/new/030-the-with-arm-regressed-on-the-grader-that-case-exists-for.md`
+- [x] Every doc and open task describing the changed behavior is updated in the same change — or
+      the ones checked are named here, with why none needed it. **Dogfooding this task's own
+      criterion, so the list is the deliverable, not a formality:**
+
+      *Updated:* `README.md` — the "What's in the box" row, **and** the "What a task looks like"
+      example task file, which the pre-commit read caught still showing the two-line template. That
+      is this change failing its own gate on its own change, found by the mechanism this task
+      exists to install. `SKILL.md`'s `description:` frontmatter (drives invocation; describing the
+      old procedure would be a silent mismatch) and §Transitions' one-line summary of the close.
+      `.claude-plugin/marketplace.json`, which claimed the plugin ships the board view — it does
+      not, and that contradicted the `check-release.py` correction in the same release.
+
+      *Checked, no change needed:* `README.md`'s description of what the generator gates — named in
+      this criterion specifically, and correct as-is precisely **because** option B was declined.
+      `CONTRIBUTING.md` — no template or close-procedure description (greps for `wip → done`,
+      `template`, `checklist`, `criterion` return nothing). `evals/*/case.yaml` — neither case
+      grades propagation.
+
+      *Named and routed, not fixed here:* `README.md:62-63`'s filesystem-alone fragment, owned by
+      task 019 (evidence 1 above). `0.5.1` was never tagged → `tasks/new/028`, which is the
+      escalation task 010 pre-wrote for exactly this. The eval regression → `tasks/new/029`.
+      `README.md`'s scored table still reads 1.00 / 0.88 and no longer matches the newest
+      measurement — deliberately left for 029 to settle rather than republished off a 3-run sample

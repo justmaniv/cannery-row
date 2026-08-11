@@ -7,7 +7,7 @@ owner: justmaniv
 blocked-by: ""
 links:
   - tasks/done/010-releases-have-no-tags.md
-  - tasks/wip/020-task-template-has-no-docs-criterion.md
+  - tasks/done/020-task-template-has-no-docs-criterion.md
   - CONTRIBUTING.md
 ---
 
