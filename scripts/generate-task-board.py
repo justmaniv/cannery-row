@@ -382,11 +382,12 @@ def render_board(tasks: list[Task]) -> str:
         "<!--\n"
         "  GENERATED FILE — do not hand-edit.\n"
         "  Source: tasks/<status>/NNN-*.md frontmatter + H1 titles.\n"
-        "  Regenerate: scripts/generate-task-board.py  (run --check in CI for freshness)\n"
+        "  Regenerate: scripts/generate-task-board.py  (--check reports staleness)\n"
         "-->\n",
         "# Task board\n",
         "Projection of `tasks/` — the directory is the tracker, this is its view. Columns are the\n"
-        "lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, commit.\n"
+        "lanes in flow order; `prioritized/` is in pull order. Regenerated on demand, not on every\n"
+        "move — so this view can lag the tracker, and the tracker wins.\n"
         "Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another\n"
         "task gates it, `condition` when nothing but a judgement call does.\n",
         f"**{len(tasks)} tasks** — {tally}.\n",

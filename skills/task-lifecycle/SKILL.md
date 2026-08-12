@@ -70,9 +70,9 @@ All transitions are: (a) update frontmatter in place, (b) `git mv` the file, (c)
 
 **A closure changes what is true, and nothing else in this skill carries that outward.** Every other
 propagation step here walks a path: the reverse-dependency sweep walks the tasks that name this one,
-the projection step walks whatever reads `tasks/`, the phase check walks a document the project has
-already identified. Content has no path to walk. The session holding the answer is the one about to
-end, so what does not go out now does not go out.
+and the phase check walks a document the project has already identified. Content has no path to
+walk. The session holding the answer is the one about to end, so what does not go out now does not
+go out.
 
 **This gate holds on every closure, whether or not the task file says so** (invariant 9). The
 template carries a matching line because most tasks benefit from stating their blast radius up
@@ -379,26 +379,32 @@ The atomic unit is *"what would I want to revert in one move."*
 
 Sharing and backup are what a remote adds — a bonus, not a dependency. If `git remote` prints anything, push in the same session as the commit, at the same cadence: status moves and singleton creations push immediately after their commit; bulk creation pushes when the batch is internally consistent (every internal cross-reference resolves). If `git remote` prints nothing, the commit is the whole step — there is nothing to push to, and no part of this skill should exit non-zero because of that.
 
-### Regenerate any projection of `tasks/` in the same commit
+### Projections of `tasks/` are refreshed on demand — not as part of the move
 
-**Before committing, ask what else is derived from this directory, and regenerate it.** A
-directory-as-tracker attracts generated views — a board, an index, a status roll-up, a diagram —
-and every one of them goes stale the instant a task file is added, moved, or has its frontmatter
-edited. Adding a task and committing only that file is a half-move.
+A directory-as-tracker attracts generated views: a board, an index, a status roll-up, a diagram.
+Each one goes stale the moment a task is added, moved, or has its frontmatter edited. **That is
+accepted.** Do not regenerate a view as part of a status move, and do not treat a stale one as an
+incomplete move. Refresh it when someone wants to read it, using whatever command the project
+documents.
 
-```bash
-git grep -l "tasks/" -- '*.py' '*.sh' '*.js' ':!tasks/'   # what reads the tracker?
-ls docs/*board* docs/*task* 2>/dev/null                    # what looks like its output?
-```
+This obligation used to run the other way — regenerate in the same commit, so the tracker and its
+view could never disagree at any commit. That argument was reasoned about one session moving one
+task, and it does not survive concurrency. A view is a single file that *every* lane change
+rewrites, so where parallel sessions are normal it becomes the most contended file in the tree,
+and the conflict it produces is pure ceremony: the file is derived, and nobody has ever needed to
+hand-merge two renderings of the same directory. Cheap to run was never the problem — running it
+costs a fraction of a second. The cost is the collision, and one merged change can make every
+sibling change touching the view pay a re-merge, a regenerate, and a fresh round of automated
+checks.
 
-Regenerate what you find and stage it **in the same commit as the move**, so the tracker and its
-view can never disagree at any commit. Splitting them means every bisect between the two lands on
-an inconsistent tree.
+⚠️ **If the project fails a build on a stale view, the two halves are coupled.** A staleness check
+that runs on every proposed change will fail every task move once this rule is gone, and the fix is
+to hand-run the generator anyway — the same work, now discovered as a failed build instead of
+prompted. That combination is worse than either alternative. A project that wants the freshness
+guarantee should keep regenerating as part of the move; a project optimising for low churn should
+drop the check. Follow whichever the project has chosen; don't add a gate on its behalf.
 
-This is not optional politeness where a project gates it in CI — a stale projection is a red build
-someone else inherits. But run the check even where nothing gates it: the generated view is usually
-what a human actually reads, so a stale one is worse than none. If the project has no projection,
-this is a no-op — don't invent one.
+If the project has no generated view, this is a no-op — don't invent one.
 
 ---
 

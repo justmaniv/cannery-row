@@ -25,6 +25,41 @@ release, with no docs-only commits mixed in.
 There is no `Unreleased` section, and that is deliberate: `check-release.py` requires an entry in
 the same change that moves the version, so an entry never exists before the version it names.
 
+## [0.7.0] — 2026-08-12
+
+### Changed
+
+- **Projections of `tasks/` are refreshed on demand, not regenerated as part of a status move**
+  (task 032). *"Regenerate any projection of `tasks/` in the same commit"* is gone from the Commit
+  block, along with its discovery snippet. **This changes what happens in your repository**: the
+  skill will no longer regenerate your board, index, or roll-up when it moves a task, and it will
+  not treat a stale one as an unfinished move.
+
+  The rule it replaces (0.4.x, task 005) had a real argument — split commits mean a bisect between
+  them lands on a tree where the tracker and its view disagree. What that argument never priced is
+  concurrency. A projection is one file that *every* lane change rewrites, so where parallel
+  sessions are normal it becomes the most contended file in the tree, and the conflict is pure
+  ceremony because the file is derived. Nobody hand-merges two renderings of the same directory.
+  Measured in an adopter running concurrent sessions as its default: the board changed in **204 of
+  894 commits over 30 days**, while regenerating it costs **~0.2s**. Making the rule cheaper to run
+  would not have helped — it was already free. The cost is the collision, and it lands on whoever
+  merges second.
+
+  ⚠️ **If your project fails a build on a stale projection, you must change something too.** A
+  freshness check fails on a stale view, and a task move now leaves the view stale — so every
+  task-move change goes red, and the fix is to hand-run the generator anyway. That combination is
+  strictly worse than either alternative. Either keep regenerating as part of the move as a
+  *project* rule, or drop the check. `tasks/README.md` states the trade with both rows; the skill
+  now tells you to follow whichever the project chose rather than adding a gate on its behalf.
+
+- **`scripts/generate-task-board.py` no longer stamps the old rule into the board it generates.**
+  The header line said *"Move a file, regenerate, commit."* — it now says the board is regenerated
+  on demand and that the tracker wins when the two disagree. Behaviour, `--check` mode, and the
+  structural refusal on a missing H1 or `## Done when` are unchanged.
+
+- **`tasks/README.md`** carries the same correction, plus the `--check`-in-CI trade as a table with
+  two defensible answers instead of a blanket recommendation.
+
 ## [0.6.0] — 2026-08-11
 
 ### Added
@@ -270,6 +305,7 @@ Tagging it retroactively is an outward-facing act on the remote, so it is routed
 in passing — `tasks/new/028-a-shipped-version-went-untagged-as-010-said-it-would.md`, which is the
 escalation task 010 pre-wrote for exactly this condition.
 
+[0.7.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.6.0...cannery-row--v0.7.0
 [0.6.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.5.0...cannery-row--v0.6.0
 [0.5.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.4.4...cannery-row--v0.5.0
 [0.4.4]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.4.3...cannery-row--v0.4.4

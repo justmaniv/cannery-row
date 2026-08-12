@@ -35,9 +35,9 @@ A Claude Code plugin. Nothing to run, nothing to host, no database.
 Worth knowing before you install it, because it changes how the first hour feels: this is a set of
 opinions about how work gets handed off, not a neutral file convention. Once the skill is in play it
 *does things* — moves files, rewrites other tasks' `blocked-by:` paths when a blocker closes,
-refuses to close a task whose criteria didn't all come true, regenerates the board in the same commit
-as the move, and stops to tell you when an invariant can't hold. That activity is the product. A
-tracker that only stores state is a directory, and you already have one of those.
+refuses to close a task whose criteria didn't all come true, and stops to tell you when an invariant
+can't hold. That activity is the product. A tracker that only stores state is a directory, and you
+already have one of those.
 
 The opinions, stated plainly so you can disagree with them on purpose:
 
@@ -96,8 +96,27 @@ python3 scripts/generate-task-board.py     # writes docs/task-board.md
 
 The second one is worth doing. **That script is also the structural gate** — it is what refuses a
 task with no H1 or no `## Done when`, described below. Without it those stay conventions that
-Claude follows; with it they are checked, and `--check` in CI makes them enforced. No dependencies
-beyond Python 3.
+Claude follows; with it they are checked every time you run it. No dependencies beyond Python 3.
+
+**The board is refreshed by hand, on demand — deliberately.** The skill does *not* regenerate it as
+part of a status move, and a stale board is not an unfinished move. It is one file that every lane
+change rewrites, so in a repo with several people or sessions working in parallel it becomes the
+most contended file in the tree, and each of those conflicts is ceremony: the file is derived, and
+nobody needs to hand-merge two renderings of the same directory. In the project this was extracted
+from, the board changed in 204 of 894 commits over 30 days. Regenerating costs a fraction of a
+second — the cost was never compute, it is the collisions, and they land on whoever merges second.
+
+**`--check` in CI is a real trade, and both answers are defensible:**
+
+| | |
+|---|---|
+| **Run `--check`** | The board can never be stale on a merged change, and the structural gate fires on every proposed change. The price is that every task move has to regenerate the board — the churn above. Take this if you want the freshness guarantee. |
+| **Don't run it** | The board drifts between refreshes and someone regenerates when it matters. The structural gate then fires only when the generator runs. Take this if low churn is what you're optimising for. |
+
+⚠️ **One combination is strictly worse than either: `--check` in CI *without* regenerating on every
+move.** A staleness check fails on a stale board, and a task move makes the board stale — so every
+task-move change goes red, and the fix is to hand-run the generator anyway. Same work, discovered as
+a failed build instead of prompted. Pick a row; the failure is landing between them.
 
 ### The layer the plugin can't ship: a second reader at pickup
 
@@ -348,8 +367,8 @@ and a suite that does not control for it is measuring the model.
 
 | Case | Without the skill | With it |
 |------|------------------|---------|
-| Close a task whose dependents are waiting on it | **0.50** | **1.00** |
-| Close a task whose criteria didn't all come true | **0.88** | **1.00** |
+| Close a task whose dependents are waiting on it | **0.55** | **1.00** |
+| Close a task whose criteria didn't all come true | **0.81** | **1.00** |
 
 The gap is where the skill lives. Nobody infers *"go rewrite the `blocked-by:` paths in other
 files"* from "wrap up task 012" — so in all three baseline runs the dependents were left pointing
