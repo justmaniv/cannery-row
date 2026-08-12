@@ -175,30 +175,42 @@ benefit there.
 
 ## Done when
 
-- [ ] The same-commit regeneration section is gone from `skills/task-lifecycle/SKILL.md`, replaced
+- [x] The same-commit regeneration section is gone from `skills/task-lifecycle/SKILL.md`, replaced
       by an on-demand pointer that states *why* the obligation was removed.
-- [ ] `README.md` no longer claims the skill "regenerates the board in the same commit" anywhere,
+- [x] `README.md` no longer claims the skill "regenerates the board in the same commit" anywhere,
       and gives the generate command as the normal refresh path.
-- [ ] `README.md` states the hand-generated-by-design rationale in terms of multi-developer churn —
+- [x] `README.md` states the hand-generated-by-design rationale in terms of multi-developer churn —
       a reader can tell it is a decision, not an omission.
-- [ ] `tasks/README.md` carries the same correction, since that is the copy adopters take.
-- [ ] The README presents the CI `--check` as a **trade with two defensible answers**, not a blanket
+- [x] `tasks/README.md` carries the same correction, since that is the copy adopters take.
+- [x] The README presents the CI `--check` as a **trade with two defensible answers**, not a blanket
       recommendation — and says explicitly that keeping the gate *without* the same-commit rule is
       the one combination strictly worse than either alternative.
-- [ ] `CLAUDE.md:85` no longer states the same-commit rule as inherited procedure — it states
+- [x] `CLAUDE.md:85` no longer states the same-commit rule as inherited procedure — it states
       cannery-row's own answer to the CI trade, so the repo lands in a defensible row rather than
       the red one.
-- [ ] `generate-task-board.py` no longer emits *"Move a file, regenerate, commit."* into the board
+- [x] `generate-task-board.py` no longer emits *"Move a file, regenerate, commit."* into the board
       it generates, and `docs/task-board.md` is regenerated. The generator's behaviour, `--check`
       mode, and structural refusal are untouched.
-- [ ] `version` is bumped in **both** `.claude-plugin/*.json` **and** `CHANGELOG.md` carries a
+- [x] `version` is bumped in **both** `.claude-plugin/*.json` **and** `CHANGELOG.md` carries a
       `## [X.Y.Z]` heading for it — shipped skill content changed, and `check-release.py` fails on
       either omission independently. Without the bump `plugin update` reports "already at the
       latest version" and no adopter gets this.
-- [ ] The board graders in `evals/done-when-reconciliation/case.yaml` (`:132-143`) no longer score
+- [x] The board graders in `evals/done-when-reconciliation/case.yaml` (`:132-143`) no longer score
       regeneration, and the surrounding prose that justified them — `case.yaml:9-15`, `:122-131`,
       `:145`, `:165`, and `evals/README.md:56-62` and `:151` — is corrected to the on-demand rule.
       The case is **updated, not deleted**; it still grades the rest of the `wip → done` arc.
-- [ ] The eval suite runs green afterwards. ⚠️ `plugin eval` exits 0 silently when it fails to
-      run at all — confirm it actually executed the cases rather than reading the exit code.
+- [x] The eval suite runs green afterwards — **1.00 on every run of both cases**, threshold 1.0.
+      Confirmed it actually executed rather than exiting 0 silently: `partial: false`, 913s,
+      $5.29, 6 runs across 2 cases, per-grader results in the run JSON.
+- [x] The published eval numbers are re-measured, not left stale. Removing the two board graders
+      took 5 points out of a 26-point rubric, so `0.88 / +0.115` became unreproducible. Now
+      `0.81 → 1.00` (Δ +0.19) and `0.55 → 1.00` (Δ +0.45), with the old figures labelled
+      non-comparable rather than silently overwritten. *(Added mid-task — the second fresh-context
+      read caught that the deletion invalidated four published sites.)*
+- [x] Every document and open task this change made wrong is updated: `SKILL.md`'s propagation
+      section no longer cites the deleted step as an active mechanism, and
+      `tasks/new/029-*` carries a dated note because its `git grep` argument rested on the removed
+      snippet. `evals/README.md` also gained the general rule the miss exposed — a grader kept on
+      *"the skill requires it"* has to be revisited when the skill changes, and nothing automated
+      catches it. *(Added mid-task.)*
 - [ ] PR merged.
