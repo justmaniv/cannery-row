@@ -11,11 +11,11 @@ lanes in flow order; `prioritized/` is in pull order. Move a file, regenerate, c
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**30 tasks** — 12 new · 0 prioritized · 0 wip · 1 blocked · 17 done.
+**31 tasks** — 13 new · 0 prioritized · 0 wip · 1 blocked · 17 done.
 
 WIP limit: within 3 per human owner.
 
-| new (12) | prioritized (0) | wip (0) | blocked (1) |
+| new (13) | prioritized (0) | wip (0) | blocked (1) |
 |---|---|---|---|
 | **[012](../tasks/new/012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | _nothing triaged_ | _nothing pulled_ | **[019](../tasks/blocked/019-user-cannot-opt-out-of-remote-operations.md)** A user can turn off remote and host operations even when a…<br><sub>justmaniv · 2026-08-11 · ⛔ condition</sub> |
 | **[013](../tasks/new/013-adopters-copy-of-the-generator-drifts.md)** The adopter's copy of the board generator can never be upd…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
@@ -29,6 +29,7 @@ WIP limit: within 3 per human owner.
 | **[029](../tasks/new/029-propagation-sweep-hardcodes-two-directories.md)** The searches the skill hands out look in two named directo…<br><sub>justmaniv · 2026-08-11</sub> |  |  |  |
 | **[030](../tasks/new/030-the-with-arm-regressed-on-the-grader-that-case-exists-for.md)** The with-skill arm ticked a criterion that never came true…<br><sub>justmaniv · 2026-08-11</sub> |  |  |  |
 | **[031](../tasks/new/031-a-project-cannot-say-where-else-to-look-for-work.md)** A project can tell this tool where else to look for its wo…<br><sub>justmaniv · 2026-08-11</sub> |  |  |  |
+| **[032](../tasks/new/032-same-commit-regeneration-rule-is-too-chatty.md)** Regenerating the board in the same commit is too chatty fo…<br><sub>justmaniv · 2026-08-12</sub> |  |  |  |
 
 ## Blocked-by graph
 
