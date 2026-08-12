@@ -1,8 +1,8 @@
 ---
 created: 2026-08-12
 updated: 2026-08-12
-completed:
-status: wip
+completed: 2026-08-12
+status: done
 owner: justmaniv
 blocked-by: ""
 links:
@@ -213,4 +213,7 @@ benefit there.
       snippet. `evals/README.md` also gained the general rule the miss exposed — a grader kept on
       *"the skill requires it"* has to be revisited when the skill changes, and nothing automated
       catches it. *(Added mid-task.)*
-- [ ] PR merged.
+- [x] Merged as #39 (squashed to `6bd75a3` on main). ⚠️ The branch hit a conflict on
+      `docs/task-board.md` — the derived file, and the only one — while merging task 027. Resolved
+      by regenerating rather than hand-merging. That is the failure this task removes, occurring on
+      the branch that removes it.
