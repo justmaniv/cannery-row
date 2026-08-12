@@ -1,6 +1,6 @@
 ---
 created: 2026-08-11
-updated: 2026-08-11
+updated: 2026-08-12
 completed:
 status: new
 owner: justmaniv
@@ -53,11 +53,19 @@ none of them owns one:
 | Where this project's task home is | `022` |
 | Where else to look for work | this task |
 
-`019:66-76` has a fork table for the placement and recommends a field in `tasks/README.md`
-frontmatter. `022:83-87` shows that placement cannot carry a task-home setting — finding
+`019:89-103` has a fork table for the placement and recommends a field in `tasks/README.md`
+frontmatter. `022:88-93` shows that placement cannot carry a task-home setting — finding
 `tasks/README.md` requires already knowing where the task home is — and names a fixed-location
 marker as the alternative it thinks wins. Neither task owns the decision, so it has not been made.
 **This task owns it.** The other two become consumers.
+
+⚠️ **Citations corrected 2026-08-12.** The three line references above and at §Constraints read
+`019:66-76`, `022:83-87` and `019:47-52` when this file was written. All three were already stale
+that day: commit `54e1325` — the commit that created this task — shifted `019` by ~23 lines, so the
+references pointed at unrelated prose from the moment they landed. `027` copied two of them forward
+without reopening the file, and they were caught by its pickup validation. **Re-open a cited file
+before quoting a line range from a sibling task**; a line number is the one kind of citation that
+rots without anything failing.
 
 ## Constraints the answer has to satisfy
 
@@ -68,7 +76,7 @@ marker as the alternative it thinks wins. Neither task owns the decision, so it 
   required to already know where the first home is.
 - **Findable without git.** Per point 1 above. A marker read by a filesystem path satisfies this; a
   mechanism that depends on being in a repository does not.
-- **Scoped to the project, not the machine** — the part of `019:47-52` that is not in dispute. Two
+- **Scoped to the project, not the machine** — the part of `019:74-80` that is not in dispute. Two
   projects on one machine must be able to answer differently with no reconfiguration between them.
   Whether a user-level *default* may sit underneath a project's answer is `019`'s open question, not
   this task's; nothing here should foreclose it.
