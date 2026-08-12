@@ -49,7 +49,7 @@ The rule that fell out of that, and it is the design rule for every case here:
 > Grade the things a capable model has no way to guess. Conventions, cross-file consequences, and
 > project-specific procedure — not judgment calls it would make correctly anyway.
 
-The sweep case is the clean example: **0.50 → 1.00**. Nobody infers "go rewrite the `blocked-by:`
+The sweep case is the clean example: **0.55 → 1.00**. Nobody infers "go rewrite the `blocked-by:`
 paths in other files" from "wrap up task 012." The baseline missed the sweep in all three runs.
 
 **Predicting which half will discriminate is harder than it looks, and the suite is what corrects
@@ -162,7 +162,7 @@ strike carry a *reason*; was the unblocked task *surfaced*).
 
 ## Cases
 
-3 runs per arm, CLI 2.1.220, skill 0.4.3. Whole suite: **$4.52, 12m09s**.
+3 runs per arm, CLI 2.1.221, skill 0.7.0. Whole suite: **$5.29, 15m13s**.
 
 **That dollar figure is a measurement, not a price list, and this is the only place it appears.**
 It is what one run's tokens priced out to at API rates, under the CLI and skill versions named
@@ -180,13 +180,21 @@ used it to argue for skipping a run.
 
 | Case | What the baseline gets wrong | Without | With | Δ |
 |------|------------------------------|---------|------|---|
-| `reverse-dependency-sweep` | never rewrites the dependents' `blocked-by:` paths (3/3); moves the newly-unblocked task instead of surfacing it (3/3); fails to mention it at all (1/3) | 0.50 | 1.00 | **+0.50** |
-| `done-when-reconciliation` | leaves a `- [ ]` criterion unresolved and closes anyway (3/3); never commits the move (3/3) | 0.88 | 1.00 | **+0.115** |
+| `reverse-dependency-sweep` | never rewrites the dependents' `blocked-by:` paths (3/3); moves the newly-unblocked task instead of surfacing it (3/3) | 0.55 | 1.00 | **+0.45** |
+| `done-when-reconciliation` | leaves a `- [ ]` criterion unresolved and closes anyway (3/3); never commits the move (3/3); ticks the dropped criterion instead of striking it (1/3) | 0.81 | 1.00 | **+0.19** |
 
 The plugin arm scored **1.00 on every run of both cases** — no variance — so the default
-`--threshold 1.0` is a usable gate rather than a source of flakes. The baseline arm was nearly as
-steady (0.55 / 0.40 / 0.55 and 0.88 / 0.88 / 0.88), which is why 3 runs is enough to trust a delta
-this size.
+`--threshold 1.0` is a usable gate rather than a source of flakes. The baseline arm is steady on the
+sweep (0.55 / 0.55 / 0.55) and moves a little on reconciliation (0.86 / 0.71 / 0.86), which is still
+a wide enough margin that 3 runs is enough to trust a delta this size.
+
+⚠️ **`done-when-reconciliation`'s numbers are not comparable to the ones published before 0.7.0.**
+The two board graders were removed in 0.7.0, taking 5 points out of a 26-point rubric, so the same
+behaviour scores differently — the old **0.88 / +0.115** was correct against the old rubric and
+cannot be reproduced against this one. The table above is a fresh measurement, not a conversion.
+Note also that the strikethrough judgment is no longer unanimous in the baseline: it held 3/3 when
+first measured, and one of three runs ticked the dropped criterion this time. It is still ordinary
+good judgment rather than something the skill teaches, but it is not free.
 
 Re-measure when the skill changes materially. A delta that collapses means either the skill stopped
 teaching something or the case drifted into testing the model — and the second is the likelier of

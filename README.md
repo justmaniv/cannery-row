@@ -367,8 +367,8 @@ and a suite that does not control for it is measuring the model.
 
 | Case | Without the skill | With it |
 |------|------------------|---------|
-| Close a task whose dependents are waiting on it | **0.50** | **1.00** |
-| Close a task whose criteria didn't all come true | **0.88** | **1.00** |
+| Close a task whose dependents are waiting on it | **0.55** | **1.00** |
+| Close a task whose criteria didn't all come true | **0.81** | **1.00** |
 
 The gap is where the skill lives. Nobody infers *"go rewrite the `blocked-by:` paths in other
 files"* from "wrap up task 012" — so in all three baseline runs the dependents were left pointing
