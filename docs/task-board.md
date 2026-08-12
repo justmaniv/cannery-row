@@ -12,14 +12,14 @@ move — so this view can lag the tracker, and the tracker wins.
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**31 tasks** — 12 new · 0 prioritized · 1 wip · 1 blocked · 17 done.
+**32 tasks** — 12 new · 0 prioritized · 1 wip · 2 blocked · 17 done.
 
 WIP limit: within 3 per human owner.
 
-| new (12) | prioritized (0) | wip (1) | blocked (1) |
+| new (12) | prioritized (0) | wip (1) | blocked (2) |
 |---|---|---|---|
 | **[012](../tasks/new/012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | _nothing triaged_ | **[032](../tasks/wip/032-same-commit-regeneration-rule-is-too-chatty.md)** Regenerating the board in the same commit is too chatty fo…<br><sub>justmaniv · 2026-08-12</sub> | **[019](../tasks/blocked/019-user-cannot-opt-out-of-remote-operations.md)** A user can turn off remote and host operations even when a…<br><sub>justmaniv · 2026-08-11 · ⛔ condition</sub> |
-| **[013](../tasks/new/013-adopters-copy-of-the-generator-drifts.md)** The adopter's copy of the board generator can never be upd…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
+| **[013](../tasks/new/013-adopters-copy-of-the-generator-drifts.md)** The adopter's copy of the board generator can never be upd…<br><sub>justmaniv · 2026-08-07</sub> |  |  | **[027](../tasks/blocked/027-prior-coverage-sweep-is-scoped-so-it-cannot-prove-absence.md)** The prior-coverage sweep certifies an absence it never est…<br><sub>justmaniv · 2026-08-12 · ⛔ 029</sub> |
 | **[014](../tasks/new/014-eval-suite-covers-two-transitions.md)** Three of the five transitions worth testing have no eval c…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[015](../tasks/new/015-eval-deltas-pin-no-model.md)** The eval numbers have no model attached, so they expire wi…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[018](../tasks/new/018-capability-surface-is-undocumented.md)** Nobody can say what Cannery Row's feature set is, includin…<br><sub>justmaniv · 2026-08-09</sub> |  |  |  |
@@ -29,7 +29,7 @@ WIP limit: within 3 per human owner.
 | **[028](../tasks/new/028-a-shipped-version-went-untagged-as-010-said-it-would.md)** A shipped version went untagged, which is the one conditio…<br><sub>justmaniv · 2026-08-11</sub> |  |  |  |
 | **[029](../tasks/new/029-propagation-sweep-hardcodes-two-directories.md)** The searches the skill hands out look in two named directo…<br><sub>justmaniv · 2026-08-11</sub> |  |  |  |
 | **[030](../tasks/new/030-the-with-arm-regressed-on-the-grader-that-case-exists-for.md)** The with-skill arm ticked a criterion that never came true…<br><sub>justmaniv · 2026-08-11</sub> |  |  |  |
-| **[031](../tasks/new/031-a-project-cannot-say-where-else-to-look-for-work.md)** A project can tell this tool where else to look for its wo…<br><sub>justmaniv · 2026-08-11</sub> |  |  |  |
+| **[031](../tasks/new/031-a-project-cannot-say-where-else-to-look-for-work.md)** A project can tell this tool where else to look for its wo…<br><sub>justmaniv · 2026-08-12</sub> |  |  |  |
 
 ## Blocked-by graph
 
@@ -37,7 +37,10 @@ WIP limit: within 3 per human owner.
 graph LR
   X1["|"]
   T019["019 · user-cannot-opt-out-of-remote-operations"]
+  T029["029 · propagation-sweep-hardcodes-two-directories"]
+  T027["027 · prior-coverage-sweep-is-scoped-so-it-cannot-prove-absence"]
   X1 --> T019
+  T029 --> T027
   classDef satisfied fill:#EAF2EA,stroke:#3A7D44,color:#1F3D24;
   classDef external fill:#F4F1E8,stroke:#B58500,color:#5A4300;
   class X1 external
