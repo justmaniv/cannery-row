@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # One task in flight whose acceptance criteria did not all come true. Two were met; the
 # third was deliberately dropped. The interesting question is what happens to the third
-# box — and, separately, whether closing the task takes the generated board with it.
+# box.
 #
-# The board is here because a first pass of this case measured a delta of +0.05: the
-# model reaches strikethrough on its own, so reconciliation alone tests the model rather
-# than the skill. A projection nobody mentioned is the part that has to be *known*.
+# The board was added on a first pass that measured a delta of +0.05, on the theory that
+# a projection nobody mentioned is the part that has to be *known*. It never
+# discriminated — the baseline finds scripts/board.py and runs it 3/3 — and as of
+# 2026-08-12 the skill refreshes projections on demand and accepts a stale one, so
+# nothing asserts on the board any more. It stays in the scaffold to keep the repo
+# realistic, not because it is under test.
 #
 # No tasks/README.md, for the same reason as the sweep case: it describes the
 # reconciliation rule in prose, and handing that to the baseline arm would measure

@@ -2,7 +2,7 @@
 created: 2026-08-12
 updated: 2026-08-12
 completed:
-status: new
+status: wip
 owner: justmaniv
 blocked-by: ""
 links:
@@ -82,12 +82,48 @@ have helped. It was already free to run.
    - the "What's in the box" / generator rows reworded to match.
 4. **`tasks/README.md`** — the copy adopters put in their own repo. Same correction, since it is the
    file that actually reaches them.
-5. **`evals/done-when-reconciliation/case.yaml` grades the behaviour being removed** — [Verified]
-   `:145` (*"The move and its regenerated projection belong in one commit"*) and `:165` (*"The
-   generated board is regenerated and committed alongside the move"*). Left alone, the suite will
-   mark the corrected skill **wrong**. `evals/README.md:151` also lists *"the board was
-   regenerated"* among what a good run demonstrates. Rewrite the expectations to the on-demand
-   rule; do not delete the case to make it pass.
+5. **`evals/done-when-reconciliation/case.yaml` grades the behaviour being removed.** Rewrite the
+   expectations to the on-demand rule; do not delete the case to make it pass. ⚠️ The two line
+   numbers this section originally gave were wrong — see the correction note below for the lines
+   that actually score.
+
+## 2026-08-12 — corrections from the fresh-context read
+
+A subagent was handed this file with the falsification prompt from `CLAUDE.md`. It confirmed the
+`SKILL.md` section, `README.md:38`, `tasks/README.md:150-151`, the generator's structural refusal,
+`check-release.py`'s shipped-path list, the provenance in 005/007/009, and the 204-of-894 board-churn
+measurement. Five things it found wrong or missing, all of which change the work:
+
+1. **`case.yaml:145` and `:165` do not score anything.** `:145` is a *comment* above a
+   `committed-the-move` grader that only matches `git commit`; `:165` is `expected_outcome` prose,
+   and `check-evals.py`'s `REQUIRED_KEYS` doesn't include it. The graders that actually break are
+   **`:132-143`** — `board-shows-the-task-as-done` (file-target regex, **weight 3**) and
+   `board-no-longer-shows-it-in-wip` (**weight 2**). Left alone those are 5 weight-points asserting
+   behaviour the skill no longer requires.
+2. **`evals/README.md:151` was mischaracterized.** It is in the *cost* section, listing which
+   graders are free deterministic reads. The line that actually justifies the board graders is
+   **`:56-62`**: *"The board graders stayed anyway, because they assert something the skill
+   requires."* That justification is what this change removes. `case.yaml:9-15` and `:122-131` carry
+   the same claim.
+3. **`CLAUDE.md:85` states the rule** — *"Regenerate `docs/task-board.md` in the same commit as any
+   lane move."* Not in the list above. Left alone, every future session in this repo keeps doing the
+   thing the ruling removed.
+4. **`generate-task-board.py:377` emits the rule into every generated board** — the string
+   *"Move a file, regenerate, commit."*, which lands at `docs/task-board.md:10` and in every
+   adopter's board. "Changing `generate-task-board.py` is out of scope" was drawn around behaviour;
+   this is a literal that ships the deleted rule. In scope, and the board is regenerated with it.
+5. **This repo is itself in the red row.** `.github/workflows/ci.yml:41-42` runs
+   `generate-task-board.py --check` on every proposed change. The coupling table below names
+   `everything-has-a-price` and does not notice cannery-row. Resolved here by keeping *both* halves
+   for this repo — the gate stays, and `CLAUDE.md` keeps a project-level regenerate-on-move
+   instruction, now labelled as this project's answer to the trade rather than as an inherited skill
+   rule. That is the "yes / yes" row, chosen deliberately.
+
+Two figures in the measurement table could not be confirmed from either working tree and remain the
+ruling author's report: the 10s CI job and the 31–42s pipeline. The 204/894 count and the sub-second
+runtime both reproduced. One detail in the closing section is also understated: `everything-has-a-price`
+enforces board freshness at **three** points (`ci.yml`, `doc-checks-main.yml`, and a pre-commit hook
+per its `tasks/README.md:72`), not the single gate-7 row named below.
 
 ## ⚠️ The consequence to decide, not to discover
 
@@ -149,13 +185,20 @@ benefit there.
 - [ ] The README presents the CI `--check` as a **trade with two defensible answers**, not a blanket
       recommendation — and says explicitly that keeping the gate *without* the same-commit rule is
       the one combination strictly worse than either alternative.
-- [ ] `version` is bumped in **both** `.claude-plugin/*.json` — shipped skill content changed, and
-      without the bump `plugin update` reports "already at the latest version" and no adopter gets
-      this. `scripts/check-release.py` enforces it; do not rely on remembering.
-- [ ] `evals/done-when-reconciliation/case.yaml` `:145` and `:165` are rewritten to expect the
-      on-demand rule, and `evals/README.md:151` no longer lists board regeneration among what a
-      good run must demonstrate. The case is **updated, not deleted** — it grades the rest of the
-      `wip → done` arc.
+- [ ] `CLAUDE.md:85` no longer states the same-commit rule as inherited procedure — it states
+      cannery-row's own answer to the CI trade, so the repo lands in a defensible row rather than
+      the red one.
+- [ ] `generate-task-board.py` no longer emits *"Move a file, regenerate, commit."* into the board
+      it generates, and `docs/task-board.md` is regenerated. The generator's behaviour, `--check`
+      mode, and structural refusal are untouched.
+- [ ] `version` is bumped in **both** `.claude-plugin/*.json` **and** `CHANGELOG.md` carries a
+      `## [X.Y.Z]` heading for it — shipped skill content changed, and `check-release.py` fails on
+      either omission independently. Without the bump `plugin update` reports "already at the
+      latest version" and no adopter gets this.
+- [ ] The board graders in `evals/done-when-reconciliation/case.yaml` (`:132-143`) no longer score
+      regeneration, and the surrounding prose that justified them — `case.yaml:9-15`, `:122-131`,
+      `:145`, `:165`, and `evals/README.md:56-62` and `:151` — is corrected to the on-demand rule.
+      The case is **updated, not deleted**; it still grades the rest of the `wip → done` arc.
 - [ ] The eval suite runs green afterwards. ⚠️ `plugin eval` exits 0 silently when it fails to
       run at all — confirm it actually executed the cases rather than reading the exit code.
 - [ ] PR merged.

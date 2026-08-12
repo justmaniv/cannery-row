@@ -79,10 +79,16 @@ Every part of that earns its place, and the naked `git grep -l "NNN-slug"` does 
 
 With both, it reads the repository at any layout, still skips ignored trees such as dependency and
 build output, and exits 1 with no output rather than 2 with an error when there are no hits. The
-skill already uses `git grep` at `:390` (the projection check), so it is established idiom here
-rather than a new dependency — and `SKILL.md:368` already states *"Git is assumed throughout this
-skill."* Outside a repository it exits 128, which is the one behavior a replacement has to decide
-about deliberately rather than inherit.
+skill states *"Git is assumed throughout this skill"* (`SKILL.md:368`), so `git grep` is a
+dependency the skill already takes rather than a new one. Outside a repository it exits 128, which
+is the one behavior a replacement has to decide about deliberately rather than inherit.
+
+> ⚠️ **Corrected 2026-08-12 (task 032).** This paragraph originally argued that `git grep` was
+> *"established idiom here"* because the skill already used it at `SKILL.md:390`, in the projection
+> check. Task 032 deleted that section — the skill now regenerates projections on demand and
+> contains no `git grep` at all. The argument above was rewritten to rest on the "Git is assumed"
+> line, which survives. **The recommendation is unchanged**; only its supporting evidence moved. If
+> you are picking 029 up, do not go looking for the `:390` snippet.
 
 The same applies to the prior-coverage search: `git grep -il --untracked "TOPIC" -- :/` covers every
 named directory above plus the ones nobody named, replaces the dead second command outright, and

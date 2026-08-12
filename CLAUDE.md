@@ -82,7 +82,14 @@ coverage run -m unittest discover -s scripts -p '*_test.py' && coverage report  
   a hole with a green check over it.
 - **Task hygiene** is governed by the skill this repo ships — use `cannery-row:task-lifecycle` for
   every create/start/block/close. `tasks/README.md` documents layout for humans; the skill governs
-  operations. Regenerate `docs/task-board.md` in the same commit as any lane move.
+  operations.
+- **Regenerate `docs/task-board.md` in the same commit as any lane move — this repo's choice, not
+  the skill's rule.** The skill refreshes projections on demand and accepts a stale board in
+  between (task 032). CI here runs `generate-task-board.py --check` on every proposed change, and
+  a freshness gate without a regenerate-on-move habit fails *every* task-move change — the one
+  combination `README.md` calls strictly worse than either alternative. Cannery Row takes the
+  freshness side: the board is part of what this repo demonstrates, and its task volume is nowhere
+  near the level that made the rule too chatty elsewhere. **Change both halves or neither.**
 - **`main` is PR-only.** Open the PR, enable auto-merge, carry it through to merged.
 
 ## Picking up a task you did not write

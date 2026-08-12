@@ -11,7 +11,7 @@
       "name": "cannery-row",
       "source": "./",
       "description": "Task state as files, where the location is the status. Ships the task-lifecycle skill; the board generator and the conventions doc are fetched from the repository.",
-      "version": "0.6.0",
+      "version": "0.7.0",
       "license": "Apache-2.0",
       "homepage": "https://github.com/justmaniv/cannery-row",
       "author": {

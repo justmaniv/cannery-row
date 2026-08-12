@@ -57,9 +57,16 @@ you.** `done-when-reconciliation` was rewritten around a generated board that go
 move, on the theory that a projection nobody mentions has to be *known*. It does not discriminate
 either — the baseline finds `scripts/board.py`, works out what it is for, and runs it, 3 runs out
 of 3. What the skill actually supplies in that case turned out to be plain completeness: the
-baseline leaves a `- [ ]` box unresolved and never commits the move. The board graders stayed
-anyway, because they assert something the skill requires and a regression would surface there —
-but the comment above them now records the wrong prediction instead of quietly claiming credit.
+baseline leaves a `- [ ]` box unresolved and never commits the move.
+
+**And a non-discriminating grader is only as durable as the rule it asserts.** The board graders
+stayed for one reason — they asserted something the skill required, so a regression would surface
+there. On 2026-08-12 the skill stopped requiring it: a projection is now refreshed on demand, and a
+stale one between refreshes is explicitly fine. That left the graders scoring a behaviour that is
+neither required nor forbidden, which is noise wearing a weight, so they were removed. Worth
+recording as a rule: when a grader survives on *"the skill requires it"* rather than on measured
+delta, that justification is load-bearing, and a change to the skill has to revisit it. Nothing
+automated catches this — `check-evals.py` reads structure, not agreement with `SKILL.md`.
 
 ### The scaffolds deliberately omit `tasks/README.md`
 
@@ -148,7 +155,7 @@ happily pass when the agent deleted the file outright. Always pair a `not_contai
 positive `contains` on the same file, so a missing file fails something.
 
 **Cost follows directly:** only `llm` and `baseline` call a model. Every state assertion here — the
-frontmatter is synced, the path was rewritten, the box was struck, the board was regenerated — is a
+frontmatter is synced, the path was rewritten, the box was struck, the move was committed — is a
 free deterministic read. That is what keeps a behavioral suite cheap enough to be worth running, and
 it is why the paid graders are reserved for the two things that genuinely need judgment (did the
 strike carry a *reason*; was the unblocked task *surfaced*).

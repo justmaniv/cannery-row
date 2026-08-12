@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "cannery-row",
   "displayName": "Cannery Row",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Directory-based task tracking where a file's location is its status. Durable, per-task, git-versioned state that lives inside the repo it describes.",
   "author": {
     "name": "justmaniv",

@@ -8,11 +8,12 @@ description: >
 
   Measured Δ +0.115, and not from where it was expected. The strikethrough graders pass
   in *both* arms: judging that a dropped criterion should be struck rather than ticked is
-  ordinary good judgment, not something the skill teaches. The generated board was added
-  to this case on the theory that a projection nobody mentions would discriminate — it
-  does not either; the baseline finds `scripts/board.py` and runs it. What the skill
-  actually supplies here is completeness: the baseline leaves a `- [ ]` box unresolved
-  and never commits the move, 3 runs out of 3.
+  ordinary good judgment, not something the skill teaches. A generated board was added to
+  this case on the theory that a projection nobody mentions would discriminate — it did
+  not either; the baseline finds `scripts/board.py` and runs it. Those graders were
+  removed on 2026-08-12 when the skill stopped requiring regeneration on a move. What the
+  skill actually supplies here is completeness: the baseline leaves a `- [ ]` box
+  unresolved and never commits the move, 3 runs out of 3.
 
 tags: [transition, done, checklist]
 
@@ -119,31 +120,23 @@ graders:
       is left as an open `- [ ]` box, or if it was deleted from the checklist entirely.
     weight: 3
 
-  # ---- the projection nobody mentioned --------------------------------------------
-  # `docs/task-board.md` is generated from tasks/ and is committed stale the moment 023
-  # moves. Nothing in the prompt mentions it; the repo has to be *looked at*.
+  # ---- the projection nobody mentioned: removed 2026-08-12 ------------------------
+  # Two graders lived here — `board-shows-the-task-as-done` (weight 3) and
+  # `board-no-longer-shows-it-in-wip` (weight 2). They asserted that `docs/task-board.md`
+  # was regenerated as part of the move.
   #
-  # These two were added expecting them to carry the delta. They do not — the baseline
-  # passes them 3/3, because a capable model exploring the repo finds `scripts/board.py`
-  # and works out what it is for. Kept anyway: they assert something the skill requires
-  # and a regression would show up here. Recorded as a wrong prediction rather than
-  # quietly dropped, because "I expected this to discriminate and it didn't" is the
-  # measurement working.
-  - type: regex
-    name: board-shows-the-task-as-done
-    target: {source: file, path: docs/task-board.md}
-    pattern: '## done\n- 023-export-endpoint'
-    weight: 3
+  # They were added expecting them to carry the delta. They never did: the baseline
+  # passed them 3/3, because a capable model exploring the repo finds `scripts/board.py`
+  # and works out what it is for. They were kept anyway on one argument — that they
+  # assert something the skill requires — and that argument is now gone. The skill
+  # refreshes a projection **on demand** and explicitly accepts a stale one between
+  # refreshes, so a run that regenerates and a run that doesn't are both correct here.
+  # Scoring either way would grade noise, and grading noise is worse than not grading.
+  #
+  # The scaffold still ships the board and `scripts/board.py`. Nothing asserts on them,
+  # which is the point: the repo state stays realistic without the suite taking a
+  # position the skill no longer takes.
 
-  - type: regex
-    name: board-no-longer-shows-it-in-wip
-    target: {source: file, path: docs/task-board.md}
-    pattern: '## wip\n- 023-export-endpoint'
-    match: not_contains
-    weight: 2
-
-  # The move and its regenerated projection belong in one commit, so no commit in the
-  # history ever shows the tracker and its view disagreeing.
   - type: tool_used
     name: committed-the-move
     tool: Bash
@@ -162,4 +155,6 @@ graders:
 expected_outcome: >
   023 lands in done/ with frontmatter synced, the two met criteria ticked, and the CSV
   criterion struck through with the reason it was cut — never ticked, never silently
-  deleted. The generated board is regenerated and committed alongside the move.
+  deleted. The move is committed. Whether the generated board was refreshed is not part
+  of the outcome: the skill refreshes projections on demand and accepts a stale one in
+  between.
