@@ -102,9 +102,9 @@ rule is what made it fire continuously*. Take the rule away and:
   reverts to firing only when someone remembers to run the board — which is exactly the "structure
   over vigilance" trade this repository argues against elsewhere.
 
-So the README's on-demand instruction should be paired with a **recommendation to wire the `--check`
-into CI**, which is where the freshness guarantee should have lived all along. That is the honest
-version of this change: the obligation does not disappear, it moves from every commit to one gate.
+So the README's on-demand instruction has to say something about CI — but **not** a blanket
+"wire in `--check`". See the coupling below; that recommendation is only right for one of the two
+camps.
 
 ⚠️ Do not quietly widen this into re-litigating the structural gate itself. If the second bullet
 turns out to need its own answer, file it rather than folding it in.
@@ -114,8 +114,28 @@ turns out to need its own answer, file it rather than folding it in.
 - Changing `generate-task-board.py`. Its behaviour, its `--check` mode, and its structural refusal
   all stay exactly as they are. This is a docs-and-rule change.
 - The adopter-drift problem in [[013-adopters-copy-of-the-generator-drifts]] — related, separate.
-- The downstream sweep in `everything-has-a-price`: its gate-7 `--check` **stays**, so nothing
-  breaks there when this lands. Its `CLAUDE.md`/`tasks/README.md` wording is that repo's own task.
+- The downstream change in `everything-has-a-price` — but see the warning below; it is **not** a
+  no-op, and it is that repo's own task to file.
+
+## ⚠️ Adopters running the CI gate must change something, or every task-move PR goes red
+
+Stated because the first draft of this task got it wrong, and wrong in the direction that costs.
+A `--check` gate fails on a **stale** board. A task move makes the board stale. So the two halves
+are coupled:
+
+| Skill says regenerate | CI runs `--check` | Result |
+|---|---|---|
+| yes (today) | yes | Green. Chatty — the state being fixed. |
+| **no (after this)** | **yes** | 🔴 **Every task-move PR fails**, and the fix is to hand-run the generator — the same work, now discovered as a red build instead of prompted. Strictly worse than either alternative. |
+| no | no | Green. Board drifts until someone refreshes it — the intended end state. |
+| yes | no | Chatty, no guarantee. |
+
+**So the guidance splits.** `--check` in CI is right for a project that wants the freshness
+guarantee and will accept regenerating as part of a task move; a project optimising for low churn
+— the case that motivated this task — should not run it on every PR. Offer the trade, name which
+side each choice lands on, and let the adopter pick. `everything-has-a-price` is in the second camp
+and will need to drop or relax its gate-7 row; that is the change that actually delivers the
+benefit there.
 
 ## Done when
 
@@ -126,8 +146,9 @@ turns out to need its own answer, file it rather than folding it in.
 - [ ] `README.md` states the hand-generated-by-design rationale in terms of multi-developer churn —
       a reader can tell it is a decision, not an omission.
 - [ ] `tasks/README.md` carries the same correction, since that is the copy adopters take.
-- [ ] The README recommends wiring `generate-task-board.py --check` into CI as the freshness
-      guarantee that replaces the per-commit obligation.
+- [ ] The README presents the CI `--check` as a **trade with two defensible answers**, not a blanket
+      recommendation — and says explicitly that keeping the gate *without* the same-commit rule is
+      the one combination strictly worse than either alternative.
 - [ ] `version` is bumped in **both** `.claude-plugin/*.json` — shipped skill content changed, and
       without the bump `plugin update` reports "already at the latest version" and no adopter gets
       this. `scripts/check-release.py` enforces it; do not rely on remembering.
