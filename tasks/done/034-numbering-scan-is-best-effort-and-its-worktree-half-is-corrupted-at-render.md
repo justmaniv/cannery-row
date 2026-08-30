@@ -1,8 +1,8 @@
 ---
 created: 2026-08-30
 updated: 2026-08-30
-completed:
-status: wip
+completed: 2026-08-30
+status: done
 owner: justmaniv
 blocked-by: ""
 links:
@@ -102,20 +102,38 @@ business, and this skill assumes no host.
 
 ## Done when
 
-- [ ] The scan's worktree half prints one absolute path per worktree, verified in a repository
-      with at least two worktrees, and contains no `$` + digit
-- [ ] The failure is reproduced before the fix and shown gone after: an **uncommitted** task file
-      in a sibling worktree is absent from the pre-fix scan's numbering and present in the
-      post-fix scan's
-- [ ] The rest of `SKILL.md` is checked for bare positional tokens, and the result is stated
-      either way
-- [ ] **The rule is enforced, not just written** — a gate fails the build on a positional token in
-      a shipped file, proven discriminating against the previous release's text, and it does not
-      flag the forms measured to survive
-- [ ] The section states that the scan is best-effort and that a merge-time check is the
-      guarantee, **with the bound on what such a check does and does not buy**
-- [ ] `check-portability.py` passes on the changed shipped files
-- [ ] `version` bumped in both manifests with a matching `CHANGELOG.md` heading, and the
-      behavioral evals run before merge
-- [ ] Every document this change makes wrong is updated — or the docs checked are named here,
-      with why none needed it
+- [x] ✅ The scan's worktree half prints one absolute path per worktree — verified across two
+      worktrees — and contains no `$` at all, not merely no digit after one
+- [x] ✅ Reproduced before and gone after: an **uncommitted** `099-` task file in a sibling
+      worktree yields max `033` under the pre-fix form and `099` under the post-fix form
+- [x] ✅ The rest of `SKILL.md` was checked: **zero** bare positional tokens remain, repo-wide
+      across `skills/`. The gate below now asserts it on every build rather than leaving it to a
+      one-time grep
+- [x] ✅ **Enforced, not just written** — `scripts/check-skill-args.py`, blocking in `ci.yml`,
+      test-first (RED `9cc466a`, GREEN `7f9190f`), 96% covered including `main()`. Discriminating:
+      against `origin/main`'s skill it reports line 348 and exits 1; against this branch, exits 0.
+      It does not flag `${name}`, `"$var"`, `$(...)`, `$((...))` or `$4.52` — all measured
+      surviving substitution. It caught its own author mid-change, on a table header inside the
+      note explaining the hazard
+- [x] ⚠️ The section states the scan is best-effort and names a merge-time check — **as the
+      backstop, not "the guarantee"**, which is how this criterion was worded and it was wrong. A
+      fresh-context reader broke the first draft's bound: two open reviews are two unmerged
+      branches, so without a branch-must-be-current rule the second's stale pass is accepted and
+      both halves land. A tree-local check buys a **trigger**, not prevention. The section says so,
+      and names the two design choices that decide its reach
+- [x] ✅ `check-portability.py` passes — 4 shipped files, no stack-coupled vocabulary
+- [x] ✅ `version` 0.7.0 → 0.8.0 in **both** `.claude-plugin/*.json` with a matching `[0.8.0]`
+      heading and compare link; `check-release.py` green. Evals run against the final text before
+      merge: **both cases 1.00 with the plugin**, mean Δ **+0.30**, `840s`, `$5.41`, exit 0.
+      `evals/README.md` re-pinned to 0.8.0 with this measurement — and the narrowed
+      `done-when-reconciliation` delta (+0.19 → +0.14) noted as the *baseline* improving, since the
+      with-arm was 1.00 on 3/3 in both
+- [x] ✅ Corrected: `README.md` advertised *"collision-safe numbering across worktrees"* — the
+      exact claim this change withdraws; `evals/README.md`'s measurement header pinned skill 0.7.0;
+      `CHANGELOG.md` initially described softening an imperative that had not been touched, so the
+      imperative was actually softened; task 021's cause, its `[Inference]` label, and its two
+      references to 034 that named a lane and a relative path resolving to nothing. **Checked and
+      unchanged:** `CONTRIBUTING.md` and `CLAUDE.md` (the dev/release loops are untouched);
+      `docs/task-board.md` (regenerated per this repo's same-commit rule); `tasks/README.md` (layout
+      only — numbering is the skill's ground, not its). **021 is left open for its owner**, its
+      criteria now met by this merge, which is the owner's disposition to take, not ours.
