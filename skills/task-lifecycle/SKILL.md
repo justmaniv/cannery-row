@@ -1,6 +1,6 @@
 ---
 name: task-lifecycle
-description: Move tasks between status directories (new/prioritized/wip/blocked/done) with full frontmatter sync, "Done when" reconciliation, reverse blocked-by sweep, a propagation gate that carries a closure's changes and findings out to the documents and open tasks they affect, claim validation before starting a task you did not write, and collision-safe task numbering. Use whenever creating, starting, blocking, unblocking, or completing a task in a repository's `tasks/` directory.
+description: Move tasks between status directories (new/prioritized/wip/blocked/done) with full frontmatter sync, "Done when" reconciliation, reverse blocked-by sweep, a propagation gate that carries a closure's changes and findings out to the documents and open tasks they affect, claim validation before starting a task you did not write, and a best-effort task-numbering scan across every ref and worktree. Use whenever creating, starting, blocking, unblocking, or completing a task in a repository's `tasks/` directory.
 allowed-tools: Bash, Read, Edit
 ---
 
@@ -391,7 +391,7 @@ printf 'next task number: %03d\n' $(( 10#${next:-0} + 1 ))
 > `~/My`, which finds nothing — silently, again. `sed` takes the rest of the line, so the path
 > survives intact.
 
-### The scan is best-effort — a check at merge is the guarantee
+### The scan is best-effort — a check at merge is the backstop
 
 **The scan cannot see a number a concurrent session has decided on but has not committed
 anywhere yet.** Two sessions that both scan before either writes read the same max and both take

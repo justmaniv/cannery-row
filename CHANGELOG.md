@@ -25,6 +25,20 @@ release, with no docs-only commits mixed in.
 There is no `Unreleased` section, and that is deliberate: `check-release.py` requires an entry in
 the same change that moves the version, so an entry never exists before the version it names.
 
+## [0.8.1] — 2026-08-30
+
+### Fixed
+
+- **The skill's `description:` frontmatter still advertised "collision-safe task numbering"** — the
+  exact claim 0.8.0 withdrew. That string is what Claude reads when deciding whether to invoke the
+  skill at all, so a stale one is a silent mismatch between what the skill offers and what it does;
+  `0.7.0` and `0.6.0` both moved it for the same reason, and `0.8.0` missed it. It now says
+  *"a best-effort task-numbering scan across every ref and worktree"*.
+
+- **A subsection heading contradicted its own body.** *"a check at merge is the guarantee"* survived
+  into 0.8.0 above prose explaining that such a check buys a **trigger**, not a guarantee — the very
+  over-reading that section exists to prevent, restated as its title. Now *"is the backstop"*.
+
 ## [0.8.0] — 2026-08-30
 
 ### Fixed
@@ -377,6 +391,7 @@ Tagging it retroactively is an outward-facing act on the remote, so it is routed
 in passing — `tasks/new/028-a-shipped-version-went-untagged-as-010-said-it-would.md`, which is the
 escalation task 010 pre-wrote for exactly this condition.
 
+[0.8.1]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.8.0...cannery-row--v0.8.1
 [0.8.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.7.0...cannery-row--v0.8.0
 [0.7.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.6.0...cannery-row--v0.7.0
 [0.6.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.5.0...cannery-row--v0.6.0
