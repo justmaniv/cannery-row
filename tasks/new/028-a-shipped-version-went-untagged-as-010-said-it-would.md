@@ -1,6 +1,6 @@
 ---
 created: 2026-08-11
-updated: 2026-08-11
+updated: 2026-08-30
 completed:
 status: new
 owner: justmaniv
@@ -66,6 +66,53 @@ Two open questions for whoever picks this up:
   bump commit, and `CONTRIBUTING.md` warns that `claude plugin tag` tags `HEAD` instead. Checking
   *existence* is cheap; checking *placement* is the failure 010 actually warned about. Recommend
   starting with existence and saying in the change why placement was left.
+
+## ⚠️ Update 2026-08-30 — it is not one tag, it is three, and the step is being skipped every release
+
+**[Verified 2026-08-30]** `git ls-remote --tags origin` against the released versions in
+`CHANGELOG.md`:
+
+| Version | Changelog heading | Tag on the remote |
+|---|---|---|
+| `0.5.0` | ✅ | ✅ |
+| `0.5.1` | ✅ | ❌ — what this task was filed for |
+| `0.6.0` | ✅ | ❌ |
+| `0.7.0` | ✅ | ❌ |
+| `0.8.0` | ✅ | ✅ — tagged at merge |
+| `0.8.1` | ✅ | ✅ — tagged at merge |
+
+**Three consecutive releases shipped untagged, two of them *after* this task was filed.** That
+changes what this task is. It was written as a backfill — tag one commit that got missed — and the
+evidence now says the manual tagging step in `CONTRIBUTING.md` §4 is not a one-time slip: it is
+skipped by default and noticed by nobody, because nothing fails when it is.
+
+**Consequences that are live right now**, not hypothetical:
+
+- The compare links at the foot of `CHANGELOG.md` are dead for `0.6.0` and `0.7.0`. They resolve
+  against tags that do not exist, and the file's own preamble promises they are *"exactly what
+  shipped in that release"*.
+- `0.8.0`'s compare link works only because `0.7.0`'s tag absence was worked around: it compares
+  against `v0.7.0`, which will 404 until that tag is backfilled.
+
+⚠️ **The reasoning in `CONTRIBUTING.md` §"Why tagging is manual rather than CI" is still sound** —
+a tagging workflow needs `contents: write`, and a read-only token with no secrets is this repo's
+strongest security property. **The conclusion drawn from it is what the evidence now falsifies.**
+"Manual" was chosen on the assumption that a documented step gets run; three misses in a row say it
+does not. That is a fork this task should decide rather than inherit:
+
+| Option | Mechanism | Trade-off |
+|---|---|---|
+| **A — backfill and carry on** | Tag `0.5.1`, `0.6.0`, `0.7.0`; keep the manual step | Cheapest. ⚠️ Changes nothing about why they were missed — this is the third time |
+| **B — a gate, not a workflow** | A check that fails when the version in `plugin.json` has no matching tag reachable from the main branch | Keeps the read-only token: it *reads* tags, never writes one. ⚠️ Fires one release late — it reds the build *after* the untagged release merged, which is detection, not prevention |
+| **C — tagging workflow** | Automate it, grant `contents: write` | Cannot be forgotten. ⚠️ Spends the security property §"Why tagging is manual" was written to protect |
+
+**[Inference] B plus A.** B is the only one that keeps the posture *and* has a trigger, and its
+one-release lag is acceptable for something whose whole cost is a dead link. The recurrence is not
+a discipline problem to try harder at — it is the shape this repository already argues against, in
+`CONTRIBUTING.md`'s own words about gates that ran for months without being tested.
+
+Found while shipping `0.8.0`, whose tag was created at merge per §4 — which is what made the
+absence of the three before it visible.
 
 ## Done when
 
