@@ -6,7 +6,9 @@ assertion about this repository — which would test the content, not the gate. 
     python3 scripts/check_skill_args_test.py
 """
 
+import contextlib
 import importlib.util
+import io
 import pathlib
 import sys
 import tempfile
@@ -103,6 +105,57 @@ class Reporting(unittest.TestCase):
             findings, errors = gate.scan(pathlib.Path(root))
         self.assertEqual(findings, [])
         self.assertTrue(errors)
+
+
+def run_main(**overrides):
+    """Drive main() against a tempdir tree; return (exit code, stdout, stderr)."""
+    out, err = io.StringIO(), io.StringIO()
+    with tempfile.TemporaryDirectory() as root:
+        original = gate.REPO_ROOT
+        gate.REPO_ROOT = tree(root, **overrides)
+        try:
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                code = gate.main()
+        finally:
+            gate.REPO_ROOT = original
+    return code, out.getvalue(), err.getvalue()
+
+
+class ExitCodeIsTheGate(unittest.TestCase):
+    """A gate that reports without failing the build is a comment."""
+
+    def test_a_clean_tree_exits_zero_and_says_what_it_checked(self):
+        code, out, err = run_main()
+        self.assertEqual(code, 0)
+        self.assertIn(str(len(gate.SCANNED)), out)
+        self.assertEqual(err, "")
+
+    def test_a_positional_token_exits_one(self):
+        code, _, _ = run_main(**{SKILL: "awk '{print $2}'\n"})
+        self.assertEqual(code, 1)
+
+    def test_the_report_names_the_file_the_line_and_the_token(self):
+        code, out, _ = run_main(**{SKILL: "\n\nawk '{print $2}'\n"})
+        self.assertEqual(code, 1)
+        self.assertIn(f"{SKILL}:3", out)
+        self.assertIn("$2", out)
+
+    def test_the_report_suggests_a_rewrite_so_the_fix_is_obvious(self):
+        _, _, err = run_main(**{SKILL: "awk '{print $2}'\n"})
+        self.assertIn("sed", err)
+
+    def test_a_missing_scanned_file_fails_the_build_rather_than_passing_it(self):
+        out, err = io.StringIO(), io.StringIO()
+        with tempfile.TemporaryDirectory() as root:
+            original = gate.REPO_ROOT
+            gate.REPO_ROOT = pathlib.Path(root)
+            try:
+                with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                    code = gate.main()
+            finally:
+                gate.REPO_ROOT = original
+        self.assertEqual(code, 1)
+        self.assertIn("missing", err.getvalue())
 
 
 if __name__ == "__main__":

@@ -29,6 +29,13 @@ jobs:
       - name: portability gate
         run: python3 scripts/check-portability.py
 
+      - name: argument-substitution gate
+        # A `$` followed by a digit in a shipped file is replaced with one of the caller's
+        # argument words before Claude reads it, and the corrupted line is usually still
+        # valid — so the failure is silent. The numbering scan's worktree half shipped that
+        # way and never ran (task 034).
+        run: python3 scripts/check-skill-args.py
+
       - name: unit tests + coverage floor
         # Every gate in this pipeline enforces something. Until now none of them was tested,
         # so a carelessly edited regex would pass CI — CI *runs* the gates, it does not test
