@@ -1,12 +1,13 @@
 ---
 created: 2026-08-09
-updated: 2026-08-09
+updated: 2026-08-30
 completed:
 status: new
 owner: justmaniv
 blocked-by: ""
 links:
   - skills/task-lifecycle/SKILL.md
+  - tasks/done/034-numbering-scan-is-best-effort-and-its-worktree-half-is-corrupted-at-render.md
 ---
 
 # The numbering scan's worktree half silently scans nothing
@@ -38,6 +39,37 @@ by `2>/dev/null`. The intended field is `$2`:
 $ git worktree list --porcelain | awk '/^worktree /{print $2}'
 /Users/agentsmith/aiOS/cannery-row
 ```
+
+## ⚠️ Correction 2026-08-30 — right symptom, wrong cause; the fix shipped under 034
+
+**The symptom is real and reproduces exactly. The attribution to this file is wrong.** This task
+reports the shipped text as `awk '/^worktree /{print new}'`. It never was:
+`git log -S'print new' -- skills/task-lifecycle/SKILL.md` returns nothing, and the field-reference
+form has been in the file since the initial commit `f377e9a`.
+
+What actually happens is one render earlier. **Claude Code replaces a `$` immediately followed by
+a digit in a skill body with one of the caller's argument words**, whenever the skill is invoked
+with arguments — verified 2026-08-30 with three argument sets, where the same on-disk line arrived
+as `{print charlie}`, `{print three}`, and (with no arguments) intact. This task's author was
+reading a rendered copy from a session whose argument in that position was the word `new`, and
+copied it out as though it were the file.
+
+Everything downstream of that stands. The `od -c` evidence is correct, the blast radius claim is
+correct, and *"a documented safeguard that does not run is worse than a known gap, because it is
+trusted"* is the right conclusion — it was just true for a different reason, and a bigger one:
+the same corruption applies to **any** shipped line using the positional form, not to one typo.
+
+The code fix landed under
+[task 034](034-numbering-scan-is-best-effort-and-its-worktree-half-is-corrupted-at-render.md),
+which replaces the whole construct with `sed -n 's/^worktree //p'` — no `$` at all, so no future
+argument can reach it — and adds a note to the section saying why. That task also carries the
+end-to-end reproduction this file's second criterion asks for: an uncommitted `099-` task file in
+a sibling worktree is absent from the corrupted scan's max (`033`) and present in the fixed one's
+(`099`).
+
+**Left open deliberately, for its owner to dispose of.** Its criteria are now satisfied by another
+task's merge, which is a call for the owner rather than for the session that happened to trip over
+it. Nothing here has been ticked.
 
 ## Why it stayed invisible
 

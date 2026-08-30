@@ -25,6 +25,55 @@ release, with no docs-only commits mixed in.
 There is no `Unreleased` section, and that is deliberate: `check-release.py` requires an entry in
 the same change that moves the version, so an entry never exists before the version it names.
 
+## [0.8.0] — 2026-08-30
+
+### Fixed
+
+- **The numbering scan's worktree half has never run in a session that passed arguments**
+  (task 034). It shipped as an `awk` program printing field two, and **a `$` immediately followed
+  by a digit in a skill body is replaced with one of the caller's argument words before Claude
+  reads it.** Verified: with arguments `alpha bravo charlie delta` the line arrived as
+  `awk '/^worktree /{print charlie}'`; with no arguments it arrived intact. `${name}`, `"$var"`,
+  `$(...)` and `$((...))` are untouched — only the bare positional form.
+
+  **This changes what happens in your repository.** The corrupted line is valid shell: an
+  undefined `awk` variable prints an empty string, so the half emitted one blank line per
+  worktree instead of erroring, `find` matched nothing, and `2>/dev/null` swallowed it. It is the
+  half that catches a task file **created but not yet committed in a sibling worktree** — the one
+  case the committed-refs half structurally cannot cover, and the exact case the section exists
+  for. Measured end-to-end: an uncommitted `099-` file in a sibling worktree was invisible to the
+  corrupted scan (max `033`) and visible to the fixed one (max `099`).
+
+  The replacement is `sed -n 's/^worktree //p'`, which has no `$` at all, so no future argument
+  can reach it. A note in the section says why, and says no shipped line a reader is meant to run
+  may use the positional form.
+
+  Credit to task 021, which found the symptom in 2026-08-09 and reproduced it correctly. Its
+  diagnosis attributed the text to the file, and that part is wrong — `git log -S` shows the file
+  never contained it. Its author was reading a rendered copy from a session whose third argument
+  word happened to be the word they quoted. The `od -c` evidence stands; only the cause moved.
+
+### Changed
+
+- **The scan is now described as best-effort, with a merge-time check named as the guarantee**
+  (task 034). The section said *"Always compute the next number with this scan"* and offered
+  *"the loser renumbers before merge"* as the remedy, which presents a best-effort scan as a
+  control. **The scan cannot see a number a concurrent session has decided on but not committed
+  anywhere yet** — two sessions that both scan before either writes read the same max and both
+  take it, and scanning more carefully does not close a lost-update race. The remedy has no
+  trigger; it fires when a person notices.
+
+  Measured in an adopting repository where concurrent sessions are the default: three collisions
+  in six days. Twice the scan was run correctly and lost to a sibling's uncommitted file; once it
+  was skipped outright. Two of the three landed on the main branch under one number, one of them
+  unnoticed until a third session tripped over it.
+
+  The section now recommends an automated check on proposed changes that fails when a number
+  under `tasks/<lane>/` is used twice — **and bounds it**: such a check makes both halves of a
+  collision unable to *land*, not the collision impossible, because it runs against one tree and
+  is blind to one still split across two unproposed branches. The skill does not ship the check;
+  whether a project runs automated checks at all is its business.
+
 ## [0.7.0] — 2026-08-12
 
 ### Changed
@@ -305,6 +354,7 @@ Tagging it retroactively is an outward-facing act on the remote, so it is routed
 in passing — `tasks/new/028-a-shipped-version-went-untagged-as-010-said-it-would.md`, which is the
 escalation task 010 pre-wrote for exactly this condition.
 
+[0.8.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.7.0...cannery-row--v0.8.0
 [0.7.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.6.0...cannery-row--v0.7.0
 [0.6.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.5.0...cannery-row--v0.6.0
 [0.5.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.4.4...cannery-row--v0.5.0

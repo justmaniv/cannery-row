@@ -2,7 +2,7 @@
 created: 2026-08-30
 updated: 2026-08-30
 completed:
-status: new
+status: wip
 owner: justmaniv
 blocked-by: ""
 links:
