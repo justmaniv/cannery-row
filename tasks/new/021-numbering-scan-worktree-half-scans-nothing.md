@@ -43,16 +43,20 @@ $ git worktree list --porcelain | awk '/^worktree /{print $2}'
 ## ⚠️ Correction 2026-08-30 — right symptom, wrong cause; the fix shipped under 034
 
 **The symptom is real and reproduces exactly. The attribution to this file is wrong.** This task
-reports the shipped text as `awk '/^worktree /{print new}'`. It never was:
-`git log -S'print new' -- skills/task-lifecycle/SKILL.md` returns nothing, and the field-reference
-form has been in the file since the initial commit `f377e9a`.
+reports the shipped text as an `awk` program printing an undefined variable. It never was.
+`git log -S` alone would not settle it — a string added and removed inside one commit nets to zero
+and `-S` misses it — so every blob of that path across `git rev-list --all` was enumerated: ten
+distinct blobs, none containing the quoted text, nine carrying the field reference. `--follow`
+shows no rename; the path was created at `f377e9a` and never moved.
 
 What actually happens is one render earlier. **Claude Code replaces a `$` immediately followed by
 a digit in a skill body with one of the caller's argument words**, whenever the skill is invoked
 with arguments — verified 2026-08-30 with three argument sets, where the same on-disk line arrived
-as `{print charlie}`, `{print three}`, and (with no arguments) intact. This task's author was
-reading a rendered copy from a session whose argument in that position was the word `new`, and
-copied it out as though it were the file.
+as `{print charlie}`, `{print three}`, and (with no arguments) intact. *[Inference, high confidence]* this task's author was
+reading a rendered copy from a session whose argument at that index was the word they quoted, and
+copied it out as though it were the file. It fits the measured mechanism — which needs three or
+more argument words to fire — but cannot be proved, because only the current installed copy
+survives on disk.
 
 Everything downstream of that stands. The `od -c` evidence is correct, the blast radius claim is
 correct, and *"a documented safeguard that does not run is worse than a known gap, because it is
@@ -60,7 +64,7 @@ trusted"* is the right conclusion — it was just true for a different reason, a
 the same corruption applies to **any** shipped line using the positional form, not to one typo.
 
 The code fix landed under
-[task 034](034-numbering-scan-is-best-effort-and-its-worktree-half-is-corrupted-at-render.md),
+[task 034](../done/034-numbering-scan-is-best-effort-and-its-worktree-half-is-corrupted-at-render.md),
 which replaces the whole construct with `sed -n 's/^worktree //p'` — no `$` at all, so no future
 argument can reach it — and adds a note to the section saying why. That task also carries the
 end-to-end reproduction this file's second criterion asks for: an uncommitted `099-` task file in

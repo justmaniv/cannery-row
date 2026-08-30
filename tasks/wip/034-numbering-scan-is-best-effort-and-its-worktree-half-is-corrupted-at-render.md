@@ -42,27 +42,38 @@ the skill is invoked with arguments:
 
 | `args` at invocation | what arrives in context |
 |---|---|
-| `alpha bravo charlie delta` | `awk '/^worktree /{print charlie}'` |
-| `one two three` | `awk '/^worktree /{print three}'` |
-| *(none)* | `awk '/^worktree /{print $2}'` — intact |
+| `alpha bravo charlie delta` | `{print charlie}` — the **third** word |
+| `one two three` | `{print three}` |
+| `one two` | intact, raw arguments appended as a footer |
+| *(none)* | intact |
 
-`${name}`, `"$var"`, `$(...)` and `$((...))` all survive byte-identical; only the bare digit form
-is touched. **The corrupted line is valid shell** — an undefined `awk` variable prints an empty
+**The indexing is zero-based, and the substitution only fires when the caller passes enough words
+to reach the index.** That narrowness is why it survived: a two-word invocation renders correctly,
+and so does every description-triggered invocation with no arguments. `${name}`, `"$var"`,
+`$(...)` and `$((...))` all survive byte-identical; only the bare positional form is touched. **The corrupted line is valid shell** — an undefined `awk` variable prints an empty
 string, so the half prints one blank line per worktree instead of erroring. `find "/tasks" …`
 then matches nothing and `2>/dev/null` swallows it.
 
 So the half that exists to catch an **uncommitted sibling** — the one case the committed-refs
-half structurally cannot cover — has never run in any session that passed arguments. A documented
-safeguard that silently does nothing is worse than a known gap, because it is trusted.
+half structurally cannot cover — has never run in a session that passed three or more argument
+words. A documented safeguard that silently does nothing is worse than a known gap, because it is
+trusted.
+
+⚠️ **"Usually" is doing work in "usually valid shell."** An argument word carrying a quote or a
+brace breaks the single-quoted `awk` program loudly instead of quietly. The silent failure is the
+common case, not a property of the mechanism.
 
 ⚠️ **This supersedes the diagnosis in
 [task 021](021-numbering-scan-worktree-half-scans-nothing.md), which is wrong about the cause.**
-That task reports the shipped text as `awk '/^worktree /{print new}'`. It never was:
-`git log -S'print new' -- skills/task-lifecycle/SKILL.md` returns nothing, and `{print $2}` has
-been in the file since the initial commit. Its author was reading the **rendered** skill in a
-session whose third argument word was `new` — the substitution above, one render earlier. The
-`od -c` evidence in 021 is real and reproduces exactly; only the attribution to the file is
-wrong. 021 is left open for its owner to dispose of; the code fix is here.
+That task reports the shipped text as an `awk` program printing an undefined variable. It never
+was. `git log -S` alone would not settle this — a string added and removed inside one commit nets
+to zero and `-S` misses it — so **every blob of that path across `git rev-list --all` was
+enumerated**: ten distinct blobs, none containing the quoted text, nine carrying the field
+reference, the tenth being this change. `--follow` shows no rename. *[Inference, high confidence]*
+its author was reading the **rendered** skill in a session whose argument at that index was the
+word they quoted; that fits the measured mechanism exactly but cannot be proved, because only the
+current installed copy survives on disk. The `od -c` evidence in 021 is real and reproduces
+exactly; only the attribution to the file is wrong. 021 is left open for its owner to dispose of; the code fix is here.
 
 ## The fix
 
@@ -76,9 +87,13 @@ wrong. 021 is left open for its owner to dispose of; the code fix is here.
   returns the whole path. Anyone whose checkouts live under `~/My Projects/` has been running a
   half-scan that silently found nothing.
 - **Say the scan is best-effort**, name the race, and point at a merge-time check as the
-  guarantee — bounded honestly: such a check makes both halves of a collision unable to *land*;
-  it does not make the collision impossible, because it runs against one tree and is blind to one
-  still split across two unproposed branches.
+  backstop — bounded honestly. ⚠️ The first draft of this bound was wrong and a fresh-context
+  reader broke it: *"unmerged branches"* is not *"branches nobody has proposed"*. **Two open
+  reviews are two unmerged branches**, each passing against a tree the other's file was never in,
+  so without a branch-must-be-current rule the second's stale pass is accepted and lands. A
+  tree-local check therefore buys a **trigger**, not prevention. The same reader noted the
+  blindness is a property of *what the check reads*, not a law — a check that unions
+  `refs/heads refs/remotes`, as the scan itself does, would see a pushed half.
 - **Warn skill authors** about `$0`–`$9` in a skill body, since the next such line will fail the
   same silent way.
 
@@ -92,7 +107,11 @@ business, and this skill assumes no host.
 - [ ] The failure is reproduced before the fix and shown gone after: an **uncommitted** task file
       in a sibling worktree is absent from the pre-fix scan's numbering and present in the
       post-fix scan's
-- [ ] The rest of `SKILL.md` is checked for bare `$0`–`$9`, and the result is stated either way
+- [ ] The rest of `SKILL.md` is checked for bare positional tokens, and the result is stated
+      either way
+- [ ] **The rule is enforced, not just written** — a gate fails the build on a positional token in
+      a shipped file, proven discriminating against the previous release's text, and it does not
+      flag the forms measured to survive
 - [ ] The section states that the scan is best-effort and that a merge-time check is the
       guarantee, **with the bound on what such a check does and does not buy**
 - [ ] `check-portability.py` passes on the changed shipped files
