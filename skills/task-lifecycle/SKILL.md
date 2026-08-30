@@ -335,7 +335,7 @@ branches each read the same stale max, both grab the same "next" number, and the
 clash at merge. This is not hypothetical — it happens whenever work is split across
 worktrees (routine wherever parallel sessions each take a branch).
 
-**Always compute the next number with this scan** — it covers committed task files
+**Compute the next number with this scan** — it covers committed task files
 on every local + remote ref, *plus* working-tree files (including staged/untracked
 new ones) in every worktree:
 
@@ -345,19 +345,91 @@ new ones) in every worktree:
 next=$( {
   git for-each-ref --format='%(refname)' refs/heads refs/remotes 2>/dev/null \
     | while read -r ref; do git ls-tree -r --name-only "$ref" -- tasks/ 2>/dev/null; done
-  git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2}' \
+  git worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p' \
     | while read -r wt; do find "$wt/tasks" -type f -name '*.md' 2>/dev/null; done
 } | sed -E 's#.*/##' | grep -oE '^[0-9]{3}' | sort -n | tail -1 )
 printf 'next task number: %03d\n' $(( 10#${next:-0} + 1 ))
 ```
 
 - Run it from anywhere in the repo — it scans **all** worktrees and refs, not the cwd.
-- `git ls-tree` reads each ref's committed tree; the `find` over `git worktree list`
+- `git ls-tree` reads each ref's committed tree; the `sed` over `git worktree list`
   paths catches numbers created-but-not-yet-committed in a sibling worktree.
 - Creating several tasks at once? Increment locally from that base; don't re-scan between them.
 - Collide anyway (a branch landed after you scanned)? The loser **renumbers via
-  `git mv` before merge** — task numbers carry no meaning, so yielding a number is free.
+  `git mv` before merge** — task numbers carry no meaning, so yielding a number is free. ⚠️ That
+  is a repair, not a control; see §"The scan is best-effort" below for why it needs a trigger.
 - Never reach into another session's worktree to renumber *its* task; renumber *yours*.
+
+> ⚠️ **Why that line uses `sed` and not an `awk` field reference.** A `$` immediately
+> followed by a digit — the positional form used by `awk` and by shell — is **replaced with one of
+> the caller's argument words** before Claude reads this file. Verified 2026-08-30, and the
+> boundary matters: the indexing is **zero-based**, and nothing is substituted when the caller
+> passes too few words to reach that position.
+>
+> | arguments at invocation | an on-disk field-two reference arrives as |
+> |---|---|
+> | `alpha bravo charlie delta` | `{print charlie}` — the **third** word |
+> | `one two three` | `{print three}` |
+> | `one two` | intact, with the raw arguments appended as a footer |
+> | *(none)* | intact |
+>
+> So the break is not "whenever arguments are passed" — it is whenever they reach the index. That
+> narrowness is why it hid: the common invocations render correctly. **The corrupted form is
+> usually still valid shell** — an undefined `awk` variable prints an empty string rather than
+> erroring, so the line emits one blank line per worktree, `find` matches nothing, and
+> `2>/dev/null` swallows it. (Only *usually*: an argument word containing a quote or brace breaks
+> the program loudly instead.) A silent half-scan is the worse outcome, because it is trusted.
+>
+> The half that goes quiet is the one that catches an **uncommitted sibling** — the case the
+> committed-refs half structurally cannot cover. `${name}`, `"$var"`, `$(...)` and `$((...))`
+> survive byte-identical; only the bare positional form is touched. **Nothing in a skill body that
+> a reader is meant to run may use it** — the `sed` above has no `$` at all, so no argument can
+> reach it.
+>
+> The field reference was also wrong for a second, unrelated reason: splitting on whitespace
+> truncates a worktree path **at its first space**. A worktree under `~/My Projects/` scanned as
+> `~/My`, which finds nothing — silently, again. `sed` takes the rest of the line, so the path
+> survives intact.
+
+### The scan is best-effort — a check at merge is the guarantee
+
+**The scan cannot see a number a concurrent session has decided on but has not committed
+anywhere yet.** Two sessions that both scan before either writes read the same max and both take
+it. That is a lost-update race, and running the scan more carefully does not close it.
+
+⚠️ **The remedy above has no trigger.** *"The loser renumbers before merge"* is a repair that
+fires when a person happens to notice. Measured in an adopting repository where concurrent
+sessions are the default: **three collisions in six days** — twice the scan was run, run
+correctly, and lost to a number a sibling had already decided on but not yet pushed; once it was
+skipped outright, one scan and then the next two numbers assumed. Two of the three reached the main branch under one number,
+and one of those went unnoticed until a third session tripped over it. Nothing complains,
+because a duplicate does not *break* anything: it makes every `blocked-by:` path, every `links:`
+entry and every bare *"task NNN"* in prose resolve to whichever of the two files the reader
+happens to open.
+
+**If the project runs automated checks on proposed changes, add one that fails when a number is
+used by more than one task file.** It is a few lines — collect the numbers, report any used
+twice — and it moves the failure from *"a person noticed"* to *"the build said no."* Two details
+decide whether it works:
+
+- **Compare across every lane, not within one.** The commonest collision is two sessions taking
+  the same number and one of them moving to a different lane. A per-lane check is blind to it.
+- **Decide what the check reads.** One that reads only its own working tree sees a duplicate once
+  both files sit on the same branch. One that also unions the other refs — the same
+  `for-each-ref refs/heads refs/remotes` as the scan above — sees a half that is merely pushed.
+
+⚠️ **Then bound the result honestly, because the natural over-reading is wrong.** A tree-local
+check does **not** make both halves unable to land. Two reviews open at once are two unmerged
+branches: each passes against a tree the other's file was never in, and unless the project also
+requires a branch to be current before merging, the second one's stale pass is accepted and lands
+on a main branch its check never saw. What the check reliably buys is a **trigger** — if it also
+runs on the main branch, the collision reddens a build by itself within minutes instead of waiting
+for a person. That is the property worth having, and it is not the same as prevention.
+
+So the scan stays what you run when *creating* a task; the check is the backstop for when it lost,
+or was never run at all. This skill ships neither — whether a project runs automated checks, and
+what they read, is the project's business. A project with no check at all is relying on the loser
+noticing.
 
 ---
 

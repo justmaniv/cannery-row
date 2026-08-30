@@ -25,6 +25,78 @@ release, with no docs-only commits mixed in.
 There is no `Unreleased` section, and that is deliberate: `check-release.py` requires an entry in
 the same change that moves the version, so an entry never exists before the version it names.
 
+## [0.8.0] — 2026-08-30
+
+### Fixed
+
+- **The numbering scan's worktree half is corrupted before Claude reads it** (task 034). It
+  shipped as an `awk` program printing field two, and **a `$` immediately followed by a digit in a
+  skill body is replaced with one of the caller's argument words.** Verified: with the arguments
+  `alpha bravo charlie delta` the line arrived as `awk '/^worktree /{print charlie}'` — the
+  **third** word, so the indexing is zero-based. With `one two`, or with no arguments at all, it
+  arrived intact. `${name}`, `"$var"`, `$(...)` and `$((...))` are untouched — only the bare
+  positional form.
+
+  **The break needs the caller to pass enough words to reach the index**, which is exactly why it
+  hid: a two-word invocation, and any invocation the model makes from the skill's description with
+  no arguments, render the line correctly.
+
+  **This changes what happens in your repository.** The corrupted line is valid shell: an
+  undefined `awk` variable prints an empty string, so the half emitted one blank line per
+  worktree instead of erroring, `find` matched nothing, and `2>/dev/null` swallowed it. It is the
+  half that catches a task file **created but not yet committed in a sibling worktree** — the one
+  case the committed-refs half structurally cannot cover, and the exact case the section exists
+  for. Measured end-to-end: an uncommitted `099-` file in a sibling worktree was invisible to the
+  corrupted scan (max `033`) and visible to the fixed one (max `099`).
+
+  **A second defect in the same line, independent of the substitution:** splitting on whitespace
+  truncates a worktree path at its first space, so a worktree under `~/My Projects/` scanned as
+  `~/My` and found nothing. Verified against a worktree named `a path with spaces` — the field
+  form returns `…/a`, the replacement returns the whole path.
+
+  The replacement is `sed -n 's/^worktree //p'`, which has no `$` at all (so no future argument
+  can reach it) and takes the rest of the line (so a path with spaces survives). A note in the section says why, and says no shipped line a reader is meant to run
+  may use the positional form.
+
+  Credit to task 021, which found the symptom in 2026-08-09 and reproduced it correctly. Its
+  diagnosis attributed the text to the file, and that part is wrong: every blob of that path
+  across `rev-list --all` was enumerated, and none contains the quoted text — nine carry the field
+  reference, the tenth is this change. *[Inference]* its author was reading a rendered copy from a
+  session whose argument at that index happened to be the word they quoted; that fits the measured
+  mechanism but cannot be proved, since only the current installed copy survives on disk. The
+  `od -c` evidence stands regardless; only the cause moved.
+
+- **A gate now enforces the positional-token rule** (task 034). `scripts/check-skill-args.py`
+  fails the build when a shipped file uses a `$` followed by a digit, wired blocking in `ci.yml`.
+  Run against the previous release's skill it reports line 348 and exits 1. The allow-list is
+  load-bearing — `${name}`, `"$var"`, `$(...)`, `$((...))` and a currency amount like `$4.52` all
+  survive substitution, so flagging them would train people to ignore the gate.
+
+### Changed
+
+- **The scan is now described as best-effort, with a merge-time check named as the backstop**
+  (task 034). The section presented the scan as the control and *"the loser renumbers before
+  merge"* as the remedy. Both still stand — they are still what you do — but the imperative is
+  softened, the renumber bullet now points at the caveat, and a new subsection says why neither is
+  a guarantee. **The scan cannot see a number a concurrent session has decided on but not committed
+  anywhere yet** — two sessions that both scan before either writes read the same max and both
+  take it, and scanning more carefully does not close a lost-update race. The remedy has no
+  trigger; it fires when a person notices.
+
+  Measured in an adopting repository where concurrent sessions are the default: three collisions
+  in six days. Twice the scan was run correctly and lost to a sibling's uncommitted file; once it
+  was skipped outright. Two of the three landed on the main branch under one number, one of them
+  unnoticed until a third session tripped over it.
+
+  The section now recommends an automated check that fails when a number is used by more than one
+  task file, names the two details that decide whether it works (compare **across** lanes, not
+  within one; decide whether it reads only its own tree or unions the other refs), and **bounds
+  the result**. The bound is the part that gets over-read: a tree-local check does *not* make both
+  halves unable to land — two open reviews are two unmerged branches, and without a
+  branch-must-be-current rule the second one's stale pass is accepted. What such a check reliably
+  buys is a **trigger**, not prevention. The skill ships neither check; whether a project runs
+  automated checks at all is its business.
+
 ## [0.7.0] — 2026-08-12
 
 ### Changed
@@ -305,6 +377,7 @@ Tagging it retroactively is an outward-facing act on the remote, so it is routed
 in passing — `tasks/new/028-a-shipped-version-went-untagged-as-010-said-it-would.md`, which is the
 escalation task 010 pre-wrote for exactly this condition.
 
+[0.8.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.7.0...cannery-row--v0.8.0
 [0.7.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.6.0...cannery-row--v0.7.0
 [0.6.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.5.0...cannery-row--v0.6.0
 [0.5.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.4.4...cannery-row--v0.5.0

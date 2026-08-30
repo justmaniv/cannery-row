@@ -327,7 +327,7 @@ what the skill is for.
 
 | | |
 |---|---|
-| `skills/task-lifecycle/SKILL.md` | The operational procedure — transitions, frontmatter invariants, the reverse `blocked-by` sweep, collision-safe numbering across worktrees, a claim-validation step before starting a task you didn't write, and a propagation gate at close that names the documents and open tasks the work made wrong — and routes them, rather than obliging you to fix every one. This is the substance. |
+| `skills/task-lifecycle/SKILL.md` | The operational procedure — transitions, frontmatter invariants, the reverse `blocked-by` sweep, a numbering scan across every ref and worktree that is honest about being best-effort (no scan sees a number a concurrent session has decided on but not committed), a claim-validation step before starting a task you didn't write, and a propagation gate at close that names the documents and open tasks the work made wrong — and routes them, rather than obliging you to fix every one. This is the substance. |
 | `tasks/README.md` | The human-readable conventions. Copy it into your repo. |
 | `scripts/generate-task-board.py` | Generates `docs/task-board.md` — lanes in flow order, the blocker graph as Mermaid, a WIP-limit check. Pure projection; the files stay the source of truth. `--check` for CI. Also the structural gate: it refuses to build a board from a task missing its H1 or its `## Done when`. |
 | `scripts/check-portability.py` | Fails if any shipped file names a language, vendor, or planning cadence. See below. |

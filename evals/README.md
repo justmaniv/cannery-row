@@ -162,7 +162,7 @@ strike carry a *reason*; was the unblocked task *surfaced*).
 
 ## Cases
 
-3 runs per arm, CLI 2.1.221, skill 0.7.0. Whole suite: **$5.29, 15m13s**.
+3 runs per arm, skill 0.8.0. Whole suite: **$5.41, 14m00s**.
 
 **That dollar figure is a measurement, not a price list, and this is the only place it appears.**
 It is what one run's tokens priced out to at API rates, under the CLI and skill versions named
@@ -181,7 +181,14 @@ used it to argue for skipping a run.
 | Case | What the baseline gets wrong | Without | With | Δ |
 |------|------------------------------|---------|------|---|
 | `reverse-dependency-sweep` | never rewrites the dependents' `blocked-by:` paths (3/3); moves the newly-unblocked task instead of surfacing it (3/3) | 0.55 | 1.00 | **+0.45** |
-| `done-when-reconciliation` | leaves a `- [ ]` criterion unresolved and closes anyway (3/3); never commits the move (3/3); ticks the dropped criterion instead of striking it (1/3) | 0.81 | 1.00 | **+0.19** |
+| `done-when-reconciliation` | leaves a `- [ ]` criterion unresolved and closes anyway (3/3); never commits the move (3/3); ticks the dropped criterion instead of striking it (1/3) | 0.86 | 1.00 | **+0.14** |
+
+⚠️ **The `done-when-reconciliation` delta narrowed from +0.19 to +0.14 at 0.8.0, and that is the
+baseline moving, not the skill.** The plugin arm scored 1.00 on 3/3 in both measurements; the
+*without* arm improved from 0.81 to 0.86. A delta measured against an unpinned baseline drifts as
+the model does, which is what `tasks/new/015-eval-deltas-pin-no-model.md` is about — read a
+narrowing delta as "the baseline caught up on one assertion" until something shows the with-arm
+regressed.
 
 The plugin arm scored **1.00 on every run of both cases** — no variance — so the default
 `--threshold 1.0` is a usable gate rather than a source of flakes. The baseline arm is steady on the
