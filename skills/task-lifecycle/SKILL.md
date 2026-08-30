@@ -372,6 +372,11 @@ printf 'next task number: %03d\n' $(( 10#${next:-0} + 1 ))
 > and `$((...))` survive byte-identical; only the bare positional form is touched. **Nothing in
 > a skill body that a reader is meant to run may use it** — the `sed` above has no `$` at all,
 > so no argument can reach it.
+>
+> The field reference was also wrong for a second, unrelated reason: splitting on whitespace
+> truncates a worktree path **at its first space**. A worktree under `~/My Projects/` scanned as
+> `~/My`, which finds nothing — silently, again. `sed` takes the rest of the line, so the path
+> survives intact.
 
 ### The scan is best-effort — a check at merge is the guarantee
 

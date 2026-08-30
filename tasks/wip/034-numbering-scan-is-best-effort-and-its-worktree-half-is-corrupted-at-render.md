@@ -70,6 +70,11 @@ wrong. 021 is left open for its owner to dispose of; the code fix is here.
   `awk`. Verified across two worktrees, and end-to-end on the failure it exists to catch — a task
   file created and left **uncommitted** in a sibling worktree is absent from the corrupted scan's
   max (`033`) and present in the fixed scan's (`099`).
+- **It also fixes a second defect nobody had noticed**, present even with no substitution:
+  splitting on whitespace truncates a worktree path at its first space. Verified against a
+  worktree literally named `a path with spaces` — the field form returns `…/a`, the replacement
+  returns the whole path. Anyone whose checkouts live under `~/My Projects/` has been running a
+  half-scan that silently found nothing.
 - **Say the scan is best-effort**, name the race, and point at a merge-time check as the
   guarantee — bounded honestly: such a check makes both halves of a collision unable to *land*;
   it does not make the collision impossible, because it runs against one tree and is blind to one

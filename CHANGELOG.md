@@ -44,8 +44,13 @@ the same change that moves the version, so an entry never exists before the vers
   for. Measured end-to-end: an uncommitted `099-` file in a sibling worktree was invisible to the
   corrupted scan (max `033`) and visible to the fixed one (max `099`).
 
-  The replacement is `sed -n 's/^worktree //p'`, which has no `$` at all, so no future argument
-  can reach it. A note in the section says why, and says no shipped line a reader is meant to run
+  **A second defect in the same line, independent of the substitution:** splitting on whitespace
+  truncates a worktree path at its first space, so a worktree under `~/My Projects/` scanned as
+  `~/My` and found nothing. Verified against a worktree named `a path with spaces` — the field
+  form returns `…/a`, the replacement returns the whole path.
+
+  The replacement is `sed -n 's/^worktree //p'`, which has no `$` at all (so no future argument
+  can reach it) and takes the rest of the line (so a path with spaces survives). A note in the section says why, and says no shipped line a reader is meant to run
   may use the positional form.
 
   Credit to task 021, which found the symptom in 2026-08-09 and reproduced it correctly. Its
