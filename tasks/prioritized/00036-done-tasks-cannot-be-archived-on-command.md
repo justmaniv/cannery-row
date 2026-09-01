@@ -10,8 +10,8 @@ links:
   - tasks/README.md
   - scripts/generate-task-board.py
   - scripts/check-skill-args.py
-  - tasks/new/013-adopters-copy-of-the-generator-drifts.md
-  - tasks/wip/035-task-numbers-are-capped-at-three-digits-and-gates-go-blind-past-999.md
+  - tasks/new/00013-adopters-copy-of-the-generator-drifts.md
+  - tasks/done/00035-task-numbers-are-capped-at-three-digits-and-gates-go-blind-past-999.md
 ---
 
 # Completed tasks accumulate in `done/` forever, with no way to shelve the old ones on command
@@ -181,7 +181,7 @@ decision to take deliberately:
 
 - **A — script + a `SKILL.md` section that invokes it.** Deterministic, testable, and `scripts/` is
   inside the shipped boundary so adopters receive it. But it inherits
-  [[013-adopters-copy-of-the-generator-drifts]] — the open problem that an adopter's copy of a
+  [[00013-adopters-copy-of-the-generator-drifts]] — the open problem that an adopter's copy of a
   shipped script cannot be updated — and hard-codes a path into prose that is otherwise
   runtime-agnostic.
 - **B — procedure in `SKILL.md` only**, as every other operation here is written, with the date
@@ -203,9 +203,23 @@ that moves files in bulk with no per-file human decision behind it.
 
 ## Interaction with task 035
 
-If archiving lands first, 035's phase-2 rename must cover `tasks/done-archived/`; if 035 lands first, the
-archive operation must emit `%05d`-padded names. Not a blocker either way — whichever goes second
-inherits the obligation, and it is cheap to miss.
+**035 landed first (2026-09-01, `0.9.0`), and it changed this obligation rather than settling it.**
+The archive operation must **not** hardcode a width — no shipped file does any more. `SKILL.md` and
+`generate-task-board.py` both read the width off what is already there, because they install into
+repositories that chose different ones. An archive step that emits `%05d` would hand a three-digit
+adopter `00042-…` beside their `042-…`, which is the mixed-width state 035 exists to prevent.
+
+Archiving **renames nothing**, so the correct behaviour is simply to carry each filename across
+unchanged. The obligation is only that nothing in the new code reconstructs a name from its number.
+
+Two things 035 already handles, so this task does not have to:
+
+- **The numbering scan reaches an archive lane for free.** Its committed half is
+  `git ls-tree -r … -- tasks/` and its worktree half is `find "$wt/tasks" -type f -name '*.md'` —
+  both recurse, neither enumerates lanes. A new directory under `tasks/` is scanned on arrival.
+- **This repo's own files are `%05d` now**, so a rename step here would find nothing to do.
+
+`generate-task-board.py`'s `LANES` tuple *does* enumerate lanes and would need the new one.
 
 ## Done when
 
@@ -261,7 +275,9 @@ for a deliverable that is itself a spec. Six claims in the first draft were wron
   thing here that scales badly.
 - **"Archived numbers stop being reserved" was overstated**, and the draft contradicted itself two
   paragraphs later. The allocator walks `archive/` and stays correct; only the cross-branch detector
-  goes blind. The `0042` example was also impossible under a `\d{3}` pattern.
+  goes blind. The `0042` example was also impossible under the `\d{3}` pattern of the time — it is possible
+  now (035 relaxed it to `{3,}` in `0.8.2`), in a four-digit adopter, so the example stands where
+  the claim around it did not.
 - **"SKILL.md instructs Claude to run the script" described a precedent that does not exist** —
   `SKILL.md` invokes no repo script at all. This is the skill's first script dependency, so it is
   now written as an open fork with a recommendation, not a settled convention.

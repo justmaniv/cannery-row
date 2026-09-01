@@ -7,9 +7,9 @@ owner: justmaniv
 blocked-by: ""
 links:
   - skills/task-lifecycle/SKILL.md
-  - tasks/done/024-validation-is-not-independent-review.md
-  - tasks/done/016-two-pass-claim-is-unmeasured.md
-  - tasks/new/014-eval-suite-covers-two-transitions.md
+  - tasks/done/00024-validation-is-not-independent-review.md
+  - tasks/done/00016-two-pass-claim-is-unmeasured.md
+  - tasks/new/00014-eval-suite-covers-two-transitions.md
   - evals/README.md
   - CHANGELOG.md
 ---
@@ -22,7 +22,7 @@ links:
 to confirm the task's claims, gives it two greps, and lists four outcomes. It does not say what the
 step fails to establish, and the reading instruction it does give is framed as confirmation.
 
-`tasks/done/024-*` records a field case where it passed a task containing a fabricated mechanism: the
+`tasks/done/00024-*` records a field case where it passed a task containing a fabricated mechanism: the
 cited test existed and asserted the cited thing, but the *way* the task said it worked ("injects a
 User-Agent header") was invented — the fixture seeds a database column with a raw `INSERT`. The
 false mechanism had already reached three sibling tasks, one as a "Done when" criterion.
@@ -49,7 +49,7 @@ skill's share may be two sentences.
   `.claude-plugin/*.json` and a `CHANGELOG.md` heading, or `check-release.py` fails the build.
 - The section it touches has no eval case. Whether one is worth authoring here — scaffold a task
   with a true citation and a false mechanism, grade whether the pickup traces it — is the open
-  question. Answer it out loud either way, and answer it against `tasks/new/014-*`, which already
+  question. Answer it out loud either way, and answer it against `tasks/new/00014-*`, which already
   specs an **Overtaken-by-events** case over the *other* half of this same section.
 
 ## The fork
@@ -74,16 +74,16 @@ wrong; the shape of the work is unchanged, but two of them would have produced a
   the task."* The defect is that the framing is confirming, which this file's own next bullet says.
   Sentence corrected above.
 - **"The one behavior the eval suite does *not* cover"** — false. The suite has two cases of the
-  ~seven behaviors the skill teaches; nearly everything is uncovered. And `tasks/new/014-*` already
+  ~seven behaviors the skill teaches; nearly everything is uncovered. And `tasks/new/00014-*` already
   specs an **Overtaken-by-events** case covering the grep half of this very section. Both added to
   `links:`; the eval question has to be answered against 014, not in isolation.
-- **"`tasks/done/016-*` is the precedent for deciding it is not worth the run hours"** — inverted.
+- **"`tasks/done/00016-*` is the precedent for deciding it is not worth the run hours"** — inverted.
   016 declined the **session-topology** axis, which the harness may not be able to express at all.
   Its Option 3 is precisely the false-premise case contemplated here, and 016 *recommended* it:
   *"worth doing either way — the false-premise case is the sharpest single thing in this whole
   area."* A decision not to author a case here must argue against 016, not claim its support.
 
-One detail this file also under-states: the adversarial pass in `tasks/done/024-*` falsified **four**
+One detail this file also under-states: the adversarial pass in `tasks/done/00024-*` falsified **four**
 claims, not only the header one.
 
 ## Done when

@@ -367,15 +367,27 @@ and a suite that does not control for it is measuring the model.
 
 | Case | Without the skill | With it |
 |------|------------------|---------|
+| Number a new task when the highest number is on another branch | **0.29** | **1.00** |
 | Close a task whose dependents are waiting on it | **0.55** | **1.00** |
-| Close a task whose criteria didn't all come true | **0.81** | **1.00** |
+| Close a task whose criteria didn't all come true | **0.86** | **1.00** |
 
-The gap is where the skill lives. Nobody infers *"go rewrite the `blocked-by:` paths in other
-files"* from "wrap up task 012" — so in all three baseline runs the dependents were left pointing
-at a path that no longer exists, which is exactly the silent rot the sweep exists to prevent. The
-second case scores much closer, because striking a dropped criterion instead of ticking it is
-ordinary good judgment and needs no teaching; what the baseline actually missed there was smaller
-and duller — it left a criterion unresolved and never committed the move.
+The gap is where the skill lives, and the first row is the starkest. Its scaffold has `0044`
+committed on a branch that is not checked out, so a working-tree `ls` reads `0043` and takes `0044`
+— a number already in use. **The baseline took `0044` in three runs out of three.** Nothing
+complains when that happens: a duplicate number does not break a link, it makes every
+`blocked-by:` path and every bare *"task 44"* resolve to whichever of the two files you open first.
+
+Nobody infers *"go rewrite the `blocked-by:` paths in other files"* from "wrap up task 012" either
+— so in all three baseline runs of the second case the dependents were left pointing at a path that
+no longer exists. The third scores closest, because striking a dropped criterion instead of ticking
+it is ordinary good judgment and needs no teaching; what the baseline missed there was smaller and
+duller — it left a criterion unresolved and never committed the move.
+
+⚠️ **These are measurements, not properties.** They were taken on one CLI build against an unnamed
+default model, and a delta that narrows can mean the baseline model improved rather than the skill
+regressing — which is what happened to the third row, 0.81 → 0.86 with the plugin arm unmoved at
+1.00. `evals/README.md` records each run's conditions; `tasks/new/00015-*` is the open question of
+pinning them.
 
 Writing the first two cases immediately found a contradiction in the skill — invariant 6 said a
 closed blocker's reference could be *cleared*, the sweep procedure said *rewrite it* — and Claude
@@ -402,7 +414,7 @@ One rough edge, disclosed rather than discovered: if your repository *has* a rem
 pushes on every lane move, and there is currently no way to say you'd rather it didn't. For some
 projects that cadence is the point; for others it's chatty. A local-only repository is unaffected —
 the commit is the whole step there, by design. Tracked in
-[`tasks/blocked/019-user-cannot-opt-out-of-remote-operations.md`](tasks/blocked/019-user-cannot-opt-out-of-remote-operations.md).
+[`tasks/blocked/00019-user-cannot-opt-out-of-remote-operations.md`](tasks/blocked/00019-user-cannot-opt-out-of-remote-operations.md).
 
 ## Contributing
 

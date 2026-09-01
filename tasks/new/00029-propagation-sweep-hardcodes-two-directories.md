@@ -7,9 +7,9 @@ owner: justmaniv
 blocked-by: ""
 links:
   - skills/task-lifecycle/SKILL.md
-  - tasks/done/020-task-template-has-no-docs-criterion.md
-  - tasks/new/022-task-root-is-hardcoded-to-repo-root.md
-  - tasks/blocked/019-user-cannot-opt-out-of-remote-operations.md
+  - tasks/done/00020-task-template-has-no-docs-criterion.md
+  - tasks/new/00022-task-root-is-hardcoded-to-repo-root.md
+  - tasks/blocked/00019-user-cannot-opt-out-of-remote-operations.md
 ---
 
 # The searches the skill hands out look in two named directories, and one of them may not exist

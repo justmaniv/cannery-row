@@ -65,7 +65,7 @@ is the part that makes it stay fixed.
 ⚠️ **This is a skill change, so the full release ritual applies:** bump `version` in **both**
 `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`, add the matching `CHANGELOG.md`
 heading, and run the behavioral evals before merging. `check-release.py` fails the build without the
-bump — see `tasks/done/003-*` for what a merged fix with no bump costs.
+bump — see `tasks/done/00003-*` for what a merged fix with no bump costs.
 
 Also decide whether the skill should assume **git** at all. Lane moves and the board work on a plain
 directory tree; git is what makes the history story true. That is a bigger question than this task

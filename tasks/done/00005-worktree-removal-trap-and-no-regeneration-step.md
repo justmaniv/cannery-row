@@ -50,7 +50,7 @@ view disagree. No-op where a project has no projection.
 ## Not reproduced
 
 The overtaken-by-events check was not exercised — that run only created a task, never pulled a stale
-one. Still unverified by anyone but the author. `tasks/new/004-author-eval-suite-for-the-skill.md`
+one. Still unverified by anyone but the author. `tasks/new/00004-author-eval-suite-for-the-skill.md`
 covers it.
 
 ## Also confirmed working

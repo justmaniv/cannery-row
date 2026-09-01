@@ -9,7 +9,7 @@ links:
   - CHANGELOG.md
   - CONTRIBUTING.md
   - scripts/check-release.py
-  - tasks/done/010-releases-have-no-tags.md
+  - tasks/done/00010-releases-have-no-tags.md
 ---
 
 # An adopter who updates cannot find out what changed
@@ -30,7 +30,7 @@ should not require `git log`.
 
 ## What this was blocked on — cleared 2026-08-07
 
-**[[010-releases-have-no-tags]]** — a changelog's entries anchor to released versions, and at the
+**[[00010-releases-have-no-tags]]** — a changelog's entries anchor to released versions, and at the
 time no version corresponded to anything you could check out. Writing the entries first would have
 meant writing `## 0.4.2` next to a version that cannot be located, which is the stale-pointer
 problem this project keeps arguing against. Tag first, then the changelog has something to point at.

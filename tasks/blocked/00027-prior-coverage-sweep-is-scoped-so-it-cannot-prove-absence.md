@@ -4,11 +4,11 @@ updated: 2026-08-12
 completed:
 status: blocked
 owner: justmaniv
-blocked-by: "tasks/new/029-propagation-sweep-hardcodes-two-directories.md"
+blocked-by: "tasks/new/00029-propagation-sweep-hardcodes-two-directories.md"
 links:
   - skills/task-lifecycle/SKILL.md
-  - tasks/new/029-propagation-sweep-hardcodes-two-directories.md
-  - tasks/new/031-a-project-cannot-say-where-else-to-look-for-work.md
+  - tasks/new/00029-propagation-sweep-hardcodes-two-directories.md
+  - tasks/new/00031-a-project-cannot-say-where-else-to-look-for-work.md
 ---
 
 # The prior-coverage sweep certifies an absence it never established — fix the rationale, not just the command

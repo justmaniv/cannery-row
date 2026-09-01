@@ -5,12 +5,12 @@ completed: ""
 status: blocked
 owner: justmaniv
 blocked-by: |
-  tasks/done/017-skill-assumes-a-remote-exists.md
-  tasks/new/031-a-project-cannot-say-where-else-to-look-for-work.md
+  tasks/done/00017-skill-assumes-a-remote-exists.md
+  tasks/new/00031-a-project-cannot-say-where-else-to-look-for-work.md
 links:
   - skills/task-lifecycle/SKILL.md
-  - tasks/done/017-skill-assumes-a-remote-exists.md
-  - tasks/new/031-a-project-cannot-say-where-else-to-look-for-work.md
+  - tasks/done/00017-skill-assumes-a-remote-exists.md
+  - tasks/new/00031-a-project-cannot-say-where-else-to-look-for-work.md
 ---
 
 # A user can turn off remote and host operations even when a remote exists

@@ -6,7 +6,7 @@ status: new
 owner: justmaniv
 blocked-by: ""
 links:
-  - tasks/done/009-adopters-cannot-run-the-board-or-the-gate.md
+  - tasks/done/00009-adopters-cannot-run-the-board-or-the-gate.md
   - tasks/README.md
   - scripts/generate-task-board.py
 ---
@@ -25,7 +25,7 @@ nothing tells *us* that adopters are running a generator from three versions ago
 explicitly "theirs to keep and edit", which is the right call — but "yours to edit" and "no way to
 find out what you're missing" are different properties, and only the first was decided.
 
-This is the same shape as the defect that produced [[003-pinned-version-silently-withheld-the-fix]]:
+This is the same shape as the defect that produced [[00003-pinned-version-silently-withheld-the-fix]]:
 a fix lands upstream, both ends look healthy, and it reaches nobody.
 
 ## Why it bites during a trial

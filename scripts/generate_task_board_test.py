@@ -31,6 +31,7 @@ def task(number=100, lane="new", title=None, owner="smiley", updated="2026-08-01
          completed="", blockers=(), done_when_items=1):
     return gen.Task(
         number=number,
+        prefix=f"{number:03d}",
         slug=f"task-{number}",
         lane=lane,
         title=title if title is not None else f"Task {number}",
@@ -68,6 +69,56 @@ class Frontmatter(unittest.TestCase):
     def test_h1_title_extracted(self):
         _, title = gen.parse_task("---\nstatus: new\n---\n\n# Real title here\n\nbody\n")
         self.assertEqual(title, "Real title here")
+
+
+class NumbersRenderAtTheWidthTheirFilenameCarries(unittest.TestCase):
+    """The generator ships to repositories that have chosen different prefix widths, so a hardcoded
+    one prints a number that does not match the file it links to -- in a padded tree with `:03d`,
+    and in every three-digit tree if that were changed to `:05d`. The width is not this file's to
+    choose; the filename already carries it."""
+
+    def render(self, root, *files):
+        for lane, name, body in files:
+            write_task(root, lane, name, body)
+        return gen.load_tasks(pathlib.Path(root))
+
+    def test_a_card_links_the_number_its_filename_carries(self):
+        with tempfile.TemporaryDirectory() as root:
+            tasks = self.render(root, ("new", "00036-padded.md", "---\nowner: smiley\n---\n\n# Padded\n"))
+            self.assertIn("[00036](../tasks/new/00036-padded.md)", gen.render_board_columns(tasks))
+
+    def test_a_three_digit_tree_is_not_padded_out(self):
+        with tempfile.TemporaryDirectory() as root:
+            tasks = self.render(root, ("new", "036-plain.md", "---\nowner: smiley\n---\n\n# Plain\n"))
+            self.assertIn("[036](../tasks/new/036-plain.md)", gen.render_board_columns(tasks))
+
+    def test_the_done_table_links_the_number_its_filename_carries(self):
+        with tempfile.TemporaryDirectory() as root:
+            tasks = self.render(root, ("done", "00036-shipped.md",
+                                       "---\nowner: smiley\ncompleted: 2026-06-01\n---\n\n# Shipped\n"))
+            self.assertIn("[00036](../tasks/done/00036-shipped.md)", gen.render_done(tasks))
+
+    def test_a_blocker_marker_carries_the_padded_number(self):
+        with tempfile.TemporaryDirectory() as root:
+            tasks = self.render(
+                root,
+                ("new", "00007-blocker.md", "---\nowner: smiley\n---\n\n# Blocker\n"),
+                ("blocked", "00036-waiting.md",
+                 "---\nowner: smiley\nblocked-by: \"tasks/new/00007-blocker.md\"\n---\n\n# Waiting\n"),
+            )
+            self.assertIn("⛔ 00007", gen.render_board_columns(tasks))
+
+    def test_a_mermaid_label_carries_the_padded_number(self):
+        with tempfile.TemporaryDirectory() as root:
+            tasks = self.render(
+                root,
+                ("new", "00007-blocker.md", "---\nowner: smiley\n---\n\n# Blocker\n"),
+                ("blocked", "00036-waiting.md",
+                 "---\nowner: smiley\nblocked-by: \"tasks/new/00007-blocker.md\"\n---\n\n# Waiting\n"),
+            )
+            mermaid = gen.render_blocked_graph(tasks)
+            self.assertIn("00007 · blocker", mermaid)
+            self.assertIn("00036 · waiting", mermaid)
 
 
 class BlockerClassification(unittest.TestCase):
@@ -180,7 +231,13 @@ class BoardColumns(unittest.TestCase):
         self.assertIn("wip (0)", md.splitlines()[0])
 
     def test_prioritized_column_keeps_file_order_top_to_bottom(self):
-        # prioritized/ ordering is meaningful (triage-criteria.md) — never re-sorted.
+        # The renderer imposes no order of its own — it lays out the list it is handed.
+        # `load_tasks` supplies lexical filename order (`sorted(lane_dir.iterdir())`), which equals
+        # numeric order only while every prefix is the same width. That is the property padding
+        # buys, and it is why the sort there is left alone rather than made numeric: uniform width
+        # makes it correct, and a numeric sort here would hide a tree that had gone mixed.
+        # (The citation that stood here named a working-agreement doc that exists in no repository
+        # this ships to — the leaked upstream reference tasks/done/001 removed from the output.)
         md = gen.render_board_columns(
             [task(number=n, lane="prioritized") for n in (300, 101, 205)]
         )
@@ -289,15 +346,17 @@ class BlockedByGraph(unittest.TestCase):
     def test_edge_points_from_blocker_to_dependent(self):
         tasks = [task(number=97), task(number=80, blockers=["tasks/new/097-confirm.md"])]
         mermaid = gen.render_blocked_graph(tasks)
-        self.assertIn("T097 --> T080", mermaid)
+        # Node ids are unpadded: they are identity, not display. The padded form is asserted on
+        # the label in NumbersRenderAtTheWidthTheirFilenameCarries.
+        self.assertIn("T97 --> T80", mermaid)
 
     def test_done_blockers_are_marked_satisfied(self):
         # A live task still pointing at a closed blocker is a stale-board signal worth seeing.
         tasks = [task(number=99, lane="done", completed="2026-07-01"),
                  task(number=80, blockers=["tasks/done/099-x.md"])]
         mermaid = gen.render_blocked_graph(tasks)
-        self.assertIn("T099 --> T080", mermaid)
-        self.assertIn("class T099 satisfied", mermaid)
+        self.assertIn("T99 --> T80", mermaid)
+        self.assertIn("class T99 satisfied", mermaid)
 
     def test_prose_blocker_becomes_an_external_node(self):
         tasks = [task(number=291, lane="blocked", blockers=["incorporation decision deferred 2026-07-29"])]

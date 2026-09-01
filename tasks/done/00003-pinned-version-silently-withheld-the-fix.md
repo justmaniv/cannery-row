@@ -8,7 +8,7 @@ blocked-by: ""
 links:
   - .claude-plugin/plugin.json
   - scripts/check-release.py
-  - tasks/done/001-generated-board-leaked-upstream-links.md
+  - tasks/done/00001-generated-board-leaked-upstream-links.md
 ---
 
 # A pinned version withheld the fix, and reported success while doing it

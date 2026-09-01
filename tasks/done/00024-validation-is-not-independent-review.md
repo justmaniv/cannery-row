@@ -8,8 +8,8 @@ blocked-by: ""
 links:
   - README.md
   - skills/task-lifecycle/SKILL.md
-  - tasks/done/016-two-pass-claim-is-unmeasured.md
-  - tasks/done/025-skill-does-not-say-where-its-own-check-stops.md
+  - tasks/done/00016-two-pass-claim-is-unmeasured.md
+  - tasks/done/00025-skill-does-not-say-where-its-own-check-stops.md
 ---
 
 # The README says independence comes free; a field report says it does not
@@ -57,18 +57,18 @@ true and is the project's whole argument. **"Free" is the over-claim.** Independ
 from a cold session, not automatic — it survives only as long as the reader gets to the code before
 the argument, and the pickup step as written does not guarantee that.
 
-This is not the same gap as `tasks/done/016-*`. That one was about the two-pass claim being
+This is not the same gap as `tasks/done/00016-*`. That one was about the two-pass claim being
 *unmeasured*, and was closed by labelling it an opinion. This is about the claim being *qualified*:
 one of the two benefits the opener sells has a stated failure mode and a known escalation.
 
 ## Scope
 
 - **README only.** Whether `SKILL.md` should carry the falsification framing and the escalation
-  trigger is `tasks/new/025-*` — it needs a version bump and a decision about eval coverage, and
+  trigger is `tasks/new/00025-*` — it needs a version bump and a decision about eval coverage, and
   neither belongs in a docs change.
 - **The skill does not own pair review.** It should say where its own step stops; it should not ship
   a review mechanism. The consumer's rule is the consumer's.
-- **Not a rewrite of the opinions section.** `tasks/new/018-*` already notes the README is long. One
+- **Not a rewrite of the opinions section.** `tasks/new/00018-*` already notes the README is long. One
   bullet and one subsection, not a new chapter.
 
 ## Done when
@@ -94,9 +94,9 @@ one of the two benefits the opener sells has a stated failure mode and a known e
 ## What was deliberately not done
 
 **The skill was not changed.** The prose that shipped is `README.md` only; `SKILL.md` still teaches
-the validation step with no stop line and with confirming framing. That is `tasks/new/025-*`, held
+the validation step with no stop line and with confirming framing. That is `tasks/new/00025-*`, held
 separate because it crosses the version-bump boundary and reopens the eval-coverage question that
-`tasks/done/016-*` answered once already. A reader who runs the skill and never opens the README
+`tasks/done/00016-*` answered once already. A reader who runs the skill and never opens the README
 therefore does not yet get this caveat — which is exactly the argument 025 has to settle.
 
 > **Correction, 2026-08-09** (while executing 025): *"the question `016-*` answered once already"*

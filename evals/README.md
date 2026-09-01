@@ -90,7 +90,7 @@ small," and separating a topology effect from ordinary run variance would take c
 
 So it stays an argument with one worked example behind it, and the README says so in those words.
 Recorded here so the omission reads as a decision rather than an oversight someone later tries to
-fix. Decided 2026-08-08; see `tasks/done/016-two-pass-claim-is-unmeasured.md` for the four options
+fix. Decided 2026-08-08; see `tasks/done/00016-two-pass-claim-is-unmeasured.md` for the four options
 weighed.
 
 ### No case for "where the check stops", and it is not 016's reason
@@ -106,7 +106,7 @@ inexpressible; this case is single-session and sits on the existing `with-withou
 harness objection does not transfer. 016 in fact **recommended** the neighbouring case — *"scaffold a
 spec with a deliberately false premise, grade whether the cold session catches it before building"* —
 and called it *"the sharpest single thing in this whole area."* That one is still live and belongs
-with the three in `tasks/new/014-*`, one of which (**Overtaken-by-events**) already covers the other
+with the three in `tasks/new/00014-*`, one of which (**Overtaken-by-events**) already covers the other
 half of this same section. Nothing here kills it.
 
 What is unwritable is a case over the *mechanism* half, because the graders would have to assert one
@@ -124,10 +124,10 @@ The falsification framing that shipped in the same version has the same problem 
 no grader here distinguishes *"read the code"* from *"tried to break the claim"* except by the
 finding it produces, which is the first bullet again.
 
-The behavior does have evidence, from use rather than from a run: `tasks/done/024-*`, where a fresh
+The behavior does have evidence, from use rather than from a run: `tasks/done/00024-*`, where a fresh
 reader falsified four claims in a task that had already passed the four-minute check, one of them
 already propagated into a sibling's acceptance criteria. Decided 2026-08-09 while executing
-`tasks/done/025-*`.
+`tasks/done/00025-*`.
 
 ## Grader semantics — read this before adding a case
 
@@ -162,7 +162,44 @@ strike carry a *reason*; was the unblocked task *surfaced*).
 
 ## Cases
 
-3 runs per arm, skill 0.8.0. Whole suite: **$5.41, 14m00s**.
+3 runs per arm. Measured at skill 0.9.0, CLI 2.1.236: **$7.34, 20m09s**, mean Δ +0.43.
+
+| case | with | without | Δ |
+|---|---|---|---|
+| `numbering-scan-and-width` | 1.00 | 0.29 | **+0.71** |
+| `reverse-dependency-sweep` | 1.00 | 0.55 | +0.45 |
+| `done-when-reconciliation` | 1.00 | 0.86 | +0.14 |
+
+**That dollar figure is a measurement, not a price list, and this is the only place it appears.**
+It is what one run's tokens priced out to at API rates, under the CLI and skill versions named
+above — quoted here because a measurement with its conditions attached ages honestly. Whether it
+costs *you* money depends on how your session authenticates: on metered API access — an API key, or
+a cloud provider's model endpoint — it is roughly what you are charged; on a subscription it is not
+a separate bill.
+
+`done-when-reconciliation` reads Δ +0.14 against +0.19 at 0.8.0. **The `with` arm did not move — it
+is 1.00 in both.** The baseline rose from 0.81 to 0.86, on a different CLI build. A delta that
+narrows because the model got better is not a regression, and reading it as one is how a suite
+starts getting tuned to protect its own numbers.
+
+### `numbering-scan-and-width`, and the half of it that does not discriminate
+
+The only case over a *creation*, and the only one whose scaffold puts the answer where the working
+tree cannot see it: `0044` is committed on a branch that is not checked out, so an `ls` reads `0043`
+and takes `0044`. The baseline took `0044` in **3 runs of 3** — a guaranteed collision, every time,
+and the clearest measurement here of what the ref-scan is for. It also never committed the new task,
+3 of 3.
+
+**Its width half does not discriminate, and that is worth writing down rather than quietly keeping.**
+`matched-the-width-the-tree-uses` passed in **both** arms, 3 of 3: handed a four-digit tree, the
+model pads to four on its own. By this file's own design rule that grader is measuring the model.
+
+It stays for the reason the removed board graders did not: it is a **negative** assertion whose
+failure mode lives in the `with` arm. The skill and the board generator derive the number's width
+from the tree precisely so they do not impose one; if either regresses to a hardcoded width, this
+grader fails *with the plugin installed*, in a four-digit scaffold that is deliberately not this
+repository's five. That is a real regression guard, not a scoreboard — but it buys nothing in the
+delta, and a future reader weighing whether to keep paying for it should know that.
 
 **That dollar figure is a measurement, not a price list, and this is the only place it appears.**
 It is what one run's tokens priced out to at API rates, under the CLI and skill versions named
@@ -186,7 +223,7 @@ used it to argue for skipping a run.
 ⚠️ **The `done-when-reconciliation` delta narrowed from +0.19 to +0.14 at 0.8.0, and that is the
 baseline moving, not the skill.** The plugin arm scored 1.00 on 3/3 in both measurements; the
 *without* arm improved from 0.81 to 0.86. A delta measured against an unpinned baseline drifts as
-the model does, which is what `tasks/new/015-eval-deltas-pin-no-model.md` is about — read a
+the model does, which is what `tasks/new/00015-eval-deltas-pin-no-model.md` is about — read a
 narrowing delta as "the baseline caught up on one assertion" until something shows the with-arm
 regressed.
 

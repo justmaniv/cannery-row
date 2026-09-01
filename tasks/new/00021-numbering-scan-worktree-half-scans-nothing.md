@@ -7,7 +7,7 @@ owner: justmaniv
 blocked-by: ""
 links:
   - skills/task-lifecycle/SKILL.md
-  - tasks/done/034-numbering-scan-is-best-effort-and-its-worktree-half-is-corrupted-at-render.md
+  - tasks/done/00034-numbering-scan-is-best-effort-and-its-worktree-half-is-corrupted-at-render.md
 ---
 
 # The numbering scan's worktree half silently scans nothing

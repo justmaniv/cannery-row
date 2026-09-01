@@ -348,15 +348,25 @@ next=$( {
   git worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p' \
     | while read -r wt; do find "$wt/tasks" -type f -name '*.md' 2>/dev/null; done
 } | sed -E 's#.*/##' | grep -oE '^[0-9]{3,}' | sort -n | tail -1 )
-printf 'next task number: %03d\n' $(( 10#${next:-0} + 1 ))
+width=${#next}; [ "$width" -lt 3 ] && width=3
+printf 'next task number: %0*d\n' "$width" $(( 10#${next:-0} + 1 ))
 ```
 
 - Run it from anywhere in the repo — it scans **all** worktrees and refs, not the cwd.
-- **The prefix may be wider than three digits.** The reduction takes any run of three or more, so a
-  repository that has passed 999 scans correctly, and so does one that pads its numbers to a fixed
-  width for lexical ordering. `printf '%03d'` is a *minimum* width — it never truncates. An exact
-  `{3}` here does not error and does not skip the file: `grep -o` matches a **prefix**, so
-  `1000-b.md` reduces to `100` and the caller is handed `101`, a number already in use.
+- **The width comes from the repository, not from this file.** The reduction takes any run of
+  three or more digits and returns the maximum *with its padding intact*, so `${#next}` is the width
+  already in use and the new number matches it: a tree of `00738-…` yields `00739`, a tree of
+  `738-…` yields `739`. Three is the floor when there is nothing to read.
+
+  ⚠️ **Do not hardcode a width here.** This file is installed into repositories that have chosen
+  different ones, and a fixed width mints a mismatched number in every repository that chose
+  another — manufacturing the mixed-width state the padding rule exists to prevent. `%0*d` is a
+  *minimum* width, so it never truncates: at 999 the next number is `1000` whatever the padding
+  said. In a tree that is *already* mixed it takes the width of the highest number; make the tree
+  uniform rather than relying on that.
+- **An exact `{3}` in the reduction does not error and does not skip the file.** `grep -o` matches a
+  **prefix**, so `1000-b.md` reduces to `100` and the caller is handed `101`, a number already in
+  use, and `00035-b.md` reduces to `000` so every number collides. This shipped, and it was silent.
 - `git ls-tree` reads each ref's committed tree; the `sed` over `git worktree list`
   paths catches numbers created-but-not-yet-committed in a sibling worktree.
 - Creating several tasks at once? Increment locally from that base; don't re-scan between them.
