@@ -52,6 +52,13 @@ graders:
   # `45-` or `045-` in a four-wide tree. Not cosmetic: `ls`, the editor sidebar and
   # `git status` all sort lexically, so one short number puts the queue out of order and
   # no code change fixes it.
+  #
+  # ⚠️ Measured 2026-09-01: this passes in BOTH arms, 3 of 3 — handed a four-digit tree the
+  # model pads to four unprompted, so it contributes nothing to the delta. Kept anyway,
+  # because its failure mode is in the `with` arm: the skill and the generator derive the
+  # width from the tree so they do not impose one, and a regression to a hardcoded width
+  # fails here, in a scaffold deliberately not this repository's own width. Regression
+  # guard, not a scoreboard. See evals/README.md.
   - type: regex
     name: matched-the-width-the-tree-uses
     target: files

@@ -162,14 +162,44 @@ strike carry a *reason*; was the unblocked task *surfaced*).
 
 ## Cases
 
-3 runs per arm. Two cases at skill 0.8.0 measured **$5.41, 14m00s**; a third case was added in
-0.9.0, so expect roughly half again.
+3 runs per arm. Measured at skill 0.9.0, CLI 2.1.236: **$7.34, 20m09s**, mean Δ +0.43.
 
-`numbering-scan-and-width` is the only case that exercises a *creation*, and the only one whose
-scaffold puts the answer somewhere the working tree cannot see it: the highest number sits on a
-branch that is not checked out, so an `ls` reads 0043 and takes 0044, which is taken. Its second
-half is width — the tree is padded to four digits, deliberately not this repository's five, so a
-generator or a skill that hardcoded five would fail it rather than pass by coincidence.
+| case | with | without | Δ |
+|---|---|---|---|
+| `numbering-scan-and-width` | 1.00 | 0.29 | **+0.71** |
+| `reverse-dependency-sweep` | 1.00 | 0.55 | +0.45 |
+| `done-when-reconciliation` | 1.00 | 0.86 | +0.14 |
+
+**That dollar figure is a measurement, not a price list, and this is the only place it appears.**
+It is what one run's tokens priced out to at API rates, under the CLI and skill versions named
+above — quoted here because a measurement with its conditions attached ages honestly. Whether it
+costs *you* money depends on how your session authenticates: on metered API access — an API key, or
+a cloud provider's model endpoint — it is roughly what you are charged; on a subscription it is not
+a separate bill.
+
+`done-when-reconciliation` reads Δ +0.14 against +0.19 at 0.8.0. **The `with` arm did not move — it
+is 1.00 in both.** The baseline rose from 0.81 to 0.86, on a different CLI build. A delta that
+narrows because the model got better is not a regression, and reading it as one is how a suite
+starts getting tuned to protect its own numbers.
+
+### `numbering-scan-and-width`, and the half of it that does not discriminate
+
+The only case over a *creation*, and the only one whose scaffold puts the answer where the working
+tree cannot see it: `0044` is committed on a branch that is not checked out, so an `ls` reads `0043`
+and takes `0044`. The baseline took `0044` in **3 runs of 3** — a guaranteed collision, every time,
+and the clearest measurement here of what the ref-scan is for. It also never committed the new task,
+3 of 3.
+
+**Its width half does not discriminate, and that is worth writing down rather than quietly keeping.**
+`matched-the-width-the-tree-uses` passed in **both** arms, 3 of 3: handed a four-digit tree, the
+model pads to four on its own. By this file's own design rule that grader is measuring the model.
+
+It stays for the reason the removed board graders did not: it is a **negative** assertion whose
+failure mode lives in the `with` arm. The skill and the board generator derive the number's width
+from the tree precisely so they do not impose one; if either regresses to a hardcoded width, this
+grader fails *with the plugin installed*, in a four-digit scaffold that is deliberately not this
+repository's five. That is a real regression guard, not a scoreboard — but it buys nothing in the
+delta, and a future reader weighing whether to keep paying for it should know that.
 
 **That dollar figure is a measurement, not a price list, and this is the only place it appears.**
 It is what one run's tokens priced out to at API rates, under the CLI and skill versions named
