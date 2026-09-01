@@ -184,8 +184,22 @@ accepts both, so the tree is valid at every commit), then rename, then tighten i
   reason, do not preserve it.
 
 **Routed to `everything-has-a-price`, not done here:** its five gate patches, its
-`upstream-watch-run.py` generator fix, its 718-file rename, its `tasks/README.md:16`, and its 3024
-path + wiki-link citations. That repo has its own gates and its own PR-only main.
+`upstream-watch-run.py` generator fix, its rename, its `tasks/README.md:16`, and its path +
+wiki-link citations. That repo has its own gates and its own PR-only main.
+
+Filed 2026-09-01 as `everything-has-a-price` **task 740**,
+`tasks/new/740-task-numbers-run-out-at-999-and-five-gates-go-blind-past-it.md`
+(PR [Justhud/everything-has-a-price#1155](https://github.com/Justhud/everything-has-a-price/pull/1155)).
+Its own falsification read corrected nine claims inherited from or shared with this file — two are
+worth carrying back here:
+
+- **That repo's max prefix is 739, not the 737 this file states**, and was 739 at the time this
+  file was written. `tasks/new/738-*` and `tasks/new/739-*` were already tracked. The "262 numbers
+  left" figure above is therefore 260. Left in place above as written, and corrected here, because
+  the point of the ⚠️ under the citation table is exactly that these numbers move.
+- **`generate-task-board.py`'s width problem is not confined to this repo.** That repo ships its own
+  copy with seven `:03d` render sites, and its regexes are already `{3,}` — so after a rename it
+  does not go blind, it prints a number that no longer matches its filename, and no gate notices.
 
 ### The test is cheap, not new scaffolding
 
@@ -237,10 +251,10 @@ task filed there; no criterion below is satisfied by editing that repo from here
       uniform width it is correct, and changing it is a signal the task was widened past its scope
 - [ ] `version` bumped in both `.claude-plugin/*.json` with a matching `CHANGELOG.md` heading, once
       per phase (both phases touch shipped files)
-- [ ] The `everything-has-a-price` half is **routed, not applied from here** — a task exists in that
-      repo covering its **five** gate patches (11, 19, 20, 21, 24), its `upstream-watch-run.py`
-      generator fix, its 718-file rename, its `tasks/README.md:16`, and its ~3024 citations; this
-      file links it
+- [x] The `everything-has-a-price` half is **routed, not applied from here** — task 740 exists in
+      that repo covering its **five** gate patches (11, 19, 20, 21, 24), its `upstream-watch-run.py`
+      generator fix, its 721-file rename, its `tasks/README.md:16`, and its ~3027 citations; linked
+      above. Filed 2026-09-01, PR #1155, awaiting merge
 - [ ] Every document and open task this change makes wrong is updated, and anything the work turned
       up that nothing yet records is written down — or what was checked is named here, with why none
       of it needed changing
