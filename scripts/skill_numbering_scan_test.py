@@ -18,7 +18,6 @@ import unittest
 SKILL = pathlib.Path(__file__).resolve().parents[1] / "skills" / "task-lifecycle" / "SKILL.md"
 
 REDUCTION_RE = re.compile(r"(sed -E .*\bgrep -oE\b.*\bsort -n\b.*\btail -1)")
-SUCCESSOR_RE = re.compile(r"^(printf .*next task number.*)$", re.MULTILINE)
 
 
 def reduction() -> str:
@@ -29,10 +28,22 @@ def reduction() -> str:
 
 
 def successor() -> str:
-    """The line that prints the next number, given `next` holding the scanned max."""
-    found = SUCCESSOR_RE.findall(SKILL.read_text(encoding="utf-8"))
-    assert len(found) == 1, f"expected exactly one successor line in SKILL.md, found {len(found)}"
-    return found[0]
+    """Everything the scan block does *after* the reduction, given `next` holding the scanned max.
+
+    Taken as "the rest of the block" rather than by matching the `printf` line, so a successor that
+    grows a line -- deriving the width, say -- is still executed whole. Matching one known line
+    would silently drop the rest and grade a pipeline the skill does not ship.
+    """
+    lines = SKILL.read_text(encoding="utf-8").splitlines()
+    ends = [i for i, line in enumerate(lines) if REDUCTION_RE.search(line)]
+    assert len(ends) == 1, f"expected exactly one reduction pipeline in SKILL.md, found {len(ends)}"
+    tail = []
+    for line in lines[ends[0] + 1:]:
+        if line.startswith("```"):
+            break
+        tail.append(line)
+    assert tail, "the scan block ends at its reduction -- nothing prints the next number"
+    return "\n".join(tail)
 
 
 def run(script: str) -> str:
