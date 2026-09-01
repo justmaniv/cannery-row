@@ -66,14 +66,43 @@ not have to guess which is current.
 > 1. `status:` frontmatter value === directory the file is in.
 > 4. `completed:` is set if and only if the file is in `done/`.
 
-An archived task sits in `archive/` carrying `status: done` and a `completed:` date, violating both.
-`SKILL.md:27` — *"If you can't satisfy an invariant, stop and surface the conflict — don't move the
-file"* — so the invariants must be amended in the same change or every archive move is a standing
-violation.
+**Decided 2026-09-01: a new status `done-archived`, in a directory `done-archived/`.** Archive is a
+**lane, not a shelf** — this reverses the first draft's recommendation, and it is the better design.
 
-**Recommended:** archive is a *shelf, not a lane*. Amend 1 to except `archive/`, and 4 to read
-`done/` or `archive/`. Do not invent `status: archived` — it makes every existing consumer of
-`status:` wrong for no gain.
+- **Invariant 1 holds unamended.** `status: done-archived` in `done-archived/` satisfies
+  "status === directory" by construction. The shelf design needed an *exception clause* on an
+  invariant, and an exception is exactly the thing that rots.
+- **Invariant 4 still needs its one-line edit** — `completed:` set iff in `done/` **or**
+  `done-archived/`. Unchanged under any naming; `SKILL.md:27` requires it in the same change.
+- **Every lane list gains one correct entry** rather than a special case. The first draft's
+  objection — *"do not invent a status, it makes every consumer of `status:` wrong"* — was wrong for
+  this repo: `generate-task-board.py` never reads `status:` at all. The directory is the status;
+  `load_tasks` takes `lane` from the path. (Downstream is different — about six scripts in
+  `everything-has-a-price` do read the field, and they are on the routing list anyway.)
+
+### ⚠️ The one hazard the name introduces: `LIVE_LANES = LANES[:-1]`
+
+`generate-task-board.py:34` derives the board columns by a **positional slice** that assumes `done`
+is last. Append `done-archived` to `LANES` and `LIVE_LANES` silently becomes
+`("new", "prioritized", "wip", "blocked", "done")` — **`done` is promoted to a live board column.**
+Nothing errors; the board just grows a fifth column of closed work.
+
+Four more sites hard-code the string and need the same treatment:
+
+| line | code | effect if left |
+|---|---|---|
+| 34 | `LIVE_LANES = LANES[:-1]` | `done` becomes a live column |
+| 315 | `if t.lane == "done": continue` | archived tasks enter the mermaid graph as dependents |
+| 327 | `known.lane == "done"` | an archived blocker never marks as satisfied |
+| 398 | `by_lane["done"]` | the done table silently excludes archived tasks (may be wanted — decide) |
+
+Replace the slice with a terminal-lane set rather than a slice, so the next lane added cannot
+repeat this.
+
+**Verified safe:** `TASK_REF_RE` does **not** falsely prefix-match — `tasks/done-archived/042-x.md`
+returns `None`, because the alternation requires `/` immediately after `done`. And no
+`startswith("done")` or `glob("done*")` exists in either repo's scripts. The prefix hazard is
+confined to the five enumerated sites above.
 
 ### 2. Archived numbers leave the cross-branch collision *detector*, not the allocator
 
@@ -104,7 +133,7 @@ scan still catches it; the check that fires when the scan *lost* does not.
 ### 3. `blocked-by:` edges to archived tasks become prose conditions, silently
 
 `generate-task-board.py:60`'s `TASK_REF_RE` hard-codes the five lanes, so
-`tasks/archive/042-slug.md` does not match and `classify_blocker` (`:191-202`) falls through to
+`tasks/done-archived/042-slug.md` does not match and `classify_blocker` (`:191-202`) falls through to
 `("external", raw)`. Concretely, and no more dramatically than this: the node is emitted with the
 same shape as every other (`:344`) but carries the `external` CSS class — amber fill, and the legend
 says *"Amber = a condition, not a task."* The card meta shows `⛔ condition` instead of `⛔ NNN`, and
@@ -160,15 +189,15 @@ that moves files in bulk with no per-file human decision behind it.
 
 ## Interaction with task 035
 
-If archiving lands first, 035's phase-2 rename must cover `tasks/archive/`; if 035 lands first, the
+If archiving lands first, 035's phase-2 rename must cover `tasks/done-archived/`; if 035 lands first, the
 archive operation must emit `%05d`-padded names. Not a blocker either way — whichever goes second
 inherits the obligation, and it is cheap to miss.
 
 ## Done when
 
 - [ ] The invocation fork above is decided and recorded in this file before implementation starts
-- [ ] Tasks move from `done/` to `tasks/archive/` when `completed:` is more than N days old, N
-      defaulting to 14 and settable per call
+- [ ] Tasks move from `done/` to `tasks/done-archived/`, gaining `status: done-archived`, when
+      `completed:` is more than N days old — N defaulting to 14 and settable per call
 - [ ] Written test-first — a RED commit adding a failing test, then a GREEN commit — per
       `CONTRIBUTING.md`; tests assert the moved set, never merely that the code ran
 - [ ] A boundary test pins the comparison at exactly N days, so "more than 14" cannot drift to
@@ -176,13 +205,18 @@ inherits the obligation, and it is cheap to miss.
 - [ ] A `done/` task with empty or unparseable `completed:` is reported and **not** moved, with a
       test asserting it stays put
 - [ ] A dry-run mode lists what would move without moving it
-- [ ] `SKILL.md` invariants 1 and 4 are amended to admit `archive/`, and a section documents the
-      operation, its 14-day default, and the override
+- [ ] `SKILL.md` invariant 4 admits `done-archived/`; invariant 1 is confirmed to need **no**
+      amendment, with that reasoning recorded. `done-archived` is added to the lane list and the
+      transition is documented alongside the other transitions, with its 14-day default and override
+- [ ] `LIVE_LANES` no longer derives from a positional slice, and a test asserts `done` is absent
+      from the board columns after a sixth lane is added — the trap above, pinned so it cannot recur
+- [ ] The four hard-coded `"done"` sites (`:315`, `:327`, `:398`, plus the slice) each handle
+      `done-archived` deliberately, with a test per behavioral choice
 - [ ] **If a script was chosen:** it is added to `check-skill-args.py`'s `SCANNED` list, with a test
       asserting the list covers it
 - [ ] `tasks/README.md:11`'s "archive here for history" is rewritten so `done/` and `archive/` are
       distinguishable by a reader who was not here
-- [ ] `TASK_REF_RE` accepts `archive/`, with a test asserting a blocker pointing at an archived task
+- [ ] `TASK_REF_RE` accepts `done-archived/`, with a test asserting a blocker pointing at an archived task
       classifies as `("task", NNN)` and not as an external condition. Decide and record whether
       archived tasks load into the board at all — the edge must resolve either way
 - [ ] `structural_problems` is confirmed to still validate archived files, or deliberately scoped to
@@ -193,7 +227,7 @@ inherits the obligation, and it is cheap to miss.
 - [ ] The `everything-has-a-price` half is **routed, not applied from here** — a task exists there
       covering the five-lane tuple in `check-task-numbers.py`, `check-task-paths.py`,
       `check-doc-references.py`, `check-obligation-liveness.py` and `check-review-gate-landing.py`,
-      and this file links it
+      **and the ~six scripts there that read the `status:` field**, and this file links it
 - [ ] Every document and open task this change makes wrong is updated, and anything the work turned
       up that nothing yet records is written down — or what was checked is named here, with why none
       of it needed changing
@@ -222,3 +256,12 @@ for a deliverable that is itself a spec. Six claims in the first draft were wron
   `external` CSS class and a `⛔ condition` card marker.
 - **The missing-`completed:` case has zero instances** in either repo (19/19 and 594/594 populated).
   Reframed from surfacing existing corruption to a forward guard.
+
+**2026-09-01 (second pass)** — the archive design was decided by the requester as a new status
+`done-archived` in a `done-archived/` directory, reversing this file's original *"shelf, not a lane;
+do not invent a status"* recommendation. That recommendation was wrong on two counts: it required an
+exception clause on invariant 1 (the new design satisfies it unamended), and its stated objection —
+that a new status breaks consumers of `status:` — does not hold here, since `generate-task-board.py`
+never reads the field. Verifying the new design turned up the `LIVE_LANES = LANES[:-1]` positional
+slice, which silently promotes `done` to a live board column the moment a sixth lane is appended;
+that is now a criterion rather than a discovery waiting to happen.
