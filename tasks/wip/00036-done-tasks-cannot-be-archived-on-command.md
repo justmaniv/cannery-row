@@ -249,45 +249,55 @@ Two things 035 already handles, so this task does not have to:
 
 - [x] The invocation fork above is decided and recorded in this file before implementation starts
       — **option A, relocated to `skills/task-lifecycle/scripts/`**; see the Invocation section
-- [ ] Tasks move from `done/` to `tasks/done-archived/`, gaining `status: done-archived`, when
+- [x] Tasks move from `done/` to `tasks/done-archived/`, gaining `status: done-archived`, when
       `completed:` is more than N days old — N defaulting to 14 and settable per call
-- [ ] Written test-first — a RED commit adding a failing test, then a GREEN commit — per
+- [x] Written test-first — a RED commit adding a failing test, then a GREEN commit — per
       `CONTRIBUTING.md`; tests assert the moved set, never merely that the code ran
-- [ ] A boundary test pins the comparison at exactly N days, so "more than 14" cannot drift to
+- [x] A boundary test pins the comparison at exactly N days, so "more than 14" cannot drift to
       "at least 14" unnoticed
-- [ ] A `done/` task with empty or unparseable `completed:` is reported and **not** moved, with a
+- [x] A `done/` task with empty or unparseable `completed:` is reported and **not** moved, with a
       test asserting it stays put
-- [ ] A dry-run mode lists what would move without moving it
-- [ ] `SKILL.md` invariant 4 admits `done-archived/`; invariant 1 is confirmed to need **no**
+- [x] A dry-run mode lists what would move without moving it
+- [x] `SKILL.md` invariant 4 admits `done-archived/`; invariant 1 is confirmed to need **no**
       amendment, with that reasoning recorded. `done-archived` is added to the lane list and the
       transition is documented alongside the other transitions, with its 14-day default and override
-- [ ] `LIVE_LANES = LANES[:-2]`, and the suite is green — `test_header_columns_are_the_lanes_in_flow_order`
+- [x] `LIVE_LANES = LANES[:-2]`, and the suite is green — `test_header_columns_are_the_lanes_in_flow_order`
       (`generate_task_board_test.py:223`) already pins this, so no new test is needed for the slice itself
-- [ ] `:317`'s graph skip handles `done-archived` — an archived task must not enter the mermaid graph
+- [x] `:317`'s graph skip handles `done-archived` — an archived task must not enter the mermaid graph
       as a dependent — with a test, since nothing currently exercises the new lane
-- [ ] `:331` and `:402`'s behavior for archived tasks is decided and recorded, with a test per
-      behavioral choice. Note archived tasks are **not** invisible: `:384`'s `tally` iterates all of
-      `LANES`, so they appear in the header count whatever the tables do
-- [ ] The script is added to the `SCANNED` list in **both** `check-skill-args.py` and
+- [x] `:331` and `:402`'s behavior for archived tasks is decided and recorded, with a test per
+      behavioral choice. **Decided:** `:331` — an archived blocker renders **satisfied**, because
+      closed-then-shelved is still closed and rendering it otherwise shows a live task gated on
+      finished work. `:402` — archived tasks appear in **neither** table, but **do** stay in `:384`'s
+      header tally, because a total that silently shrank as work was shelved would misreport what
+      the tracker holds. Both hardcoded `== "done"` comparisons are replaced by `CLOSED_LANES`
+- [x] The script is added to the `SCANNED` list in **both** `check-skill-args.py` and
       `check-portability.py`, with a test per gate asserting the list covers it
-- [ ] `tasks/README.md:11`'s "archive here for history" is rewritten so `done/` and `done-archived/`
+- [x] `tasks/README.md:11`'s "archive here for history" is rewritten so `done/` and `done-archived/`
       are distinguishable by a reader who was not here
-- [ ] `marketplace.json`'s stale description — *"the board generator and the conventions doc are
+- [x] `marketplace.json`'s stale description — *"the board generator and the conventions doc are
       fetched from the repository"* — is corrected; `"source": "./"` ships the whole repo
-- [ ] `TASK_REF_RE` accepts `done-archived/`, with a test asserting a blocker pointing at an archived task
+- [x] `TASK_REF_RE` accepts `done-archived/`, with a test asserting a blocker pointing at an archived task
       classifies as `("task", NNN)` and not as an external condition. Decide and record whether
       archived tasks load into the board at all — the edge must resolve either way
-- [ ] `structural_problems` is confirmed to still validate archived files, or deliberately scoped to
-      exclude them, with the choice recorded — this is the failure surface archiving exists to bound
-- [ ] The scan is **verified** to reserve archived numbers by running it against a fixture archive,
+- [x] `structural_problems` is confirmed to still validate archived files, or deliberately scoped to
+      exclude them, with the choice recorded — this is the failure surface archiving exists to bound.
+      **Decided: scoped to exclude the archive lane**, and this is the one criterion that changes
+      whether the task achieves its own motivation. `load_tasks` now reaches `done-archived/`, so
+      without the skip every shelved file would still be validated on every generation forever and
+      archiving would buy nothing for the only thing that scales badly. `done/` and every live lane
+      stay checked, pinned by two companion tests written alongside the failing one
+- [x] The scan is **verified** to reserve archived numbers by running it against a fixture archive,
       not by reading it
-- [ ] `version` bumped in both `.claude-plugin/*.json` with a matching `CHANGELOG.md` heading
-- [ ] The `everything-has-a-price` half is **routed, not applied from here** — a task exists there
+- [x] `version` bumped in both `.claude-plugin/*.json` with a matching `CHANGELOG.md` heading
+- [x] The `everything-has-a-price` half is **routed, not applied from here** — a task exists there
       covering the five-lane tuple in `check-task-numbers.py`, `check-task-paths.py`,
       `check-doc-references.py`, `check-obligation-liveness.py` and `check-review-gate-landing.py`,
       **and `check-task-order.py`, the one script there that reads a task's `status:` field**, and
-      this file links it
-- [ ] Every document and open task this change makes wrong is updated, and anything the work turned
+      this file links it — [[743-five-lane-tuples-go-blind-to-the-new-archive-lane]], committed on
+      branch `task-743-archive-lane` in that repository and deliberately left **unpushed** for the
+      owner to carry to merge there rather than from this session
+- [x] Every document and open task this change makes wrong is updated, and anything the work turned
       up that nothing yet records is written down — or what was checked is named here, with why none
       of it needed changing
 
