@@ -1,6 +1,6 @@
 ---
 name: task-lifecycle
-description: Move tasks between status directories (new/prioritized/wip/blocked/done) with full frontmatter sync, "Done when" reconciliation, reverse blocked-by sweep, a propagation gate that carries a closure's changes and findings out to the documents and open tasks they affect, claim validation before starting a task you did not write, and a best-effort task-numbering scan across every ref and worktree. Use whenever creating, starting, blocking, unblocking, or completing a task in a repository's `tasks/` directory.
+description: Move tasks between status directories (new/prioritized/wip/blocked/done/done-archived) with full frontmatter sync, "Done when" reconciliation, reverse blocked-by sweep, a propagation gate that carries a closure's changes and findings out to the documents and open tasks they affect, claim validation before starting a task you did not write, and a best-effort task-numbering scan across every ref and worktree. Use whenever creating, starting, blocking, unblocking, or completing a task, or shelving old completed ones, in a repository's `tasks/` directory.
 allowed-tools: Bash, Read, Edit
 ---
 
@@ -17,7 +17,8 @@ This skill is the source of truth for the lifecycle procedure. Project `tasks/RE
 1. `status:` frontmatter value === directory the file is in.
 2. `updated:` is today's date on every transition or material edit.
 3. `created:` is set at file creation and **never** changes.
-4. `completed:` is set if and only if the file is in `done/`.
+4. `completed:` is set if and only if the file is in `done/` **or `done-archived/`**. Archiving shelves a closed task; it does not un-close it, and the date is what the archive operation itself reads.
+   - **Invariant 1 needs no amendment for the archive lane, by construction.** `status: done-archived` in `done-archived/` already satisfies "status === directory". A shelf *outside* the lane system would have needed an exception clause on invariant 1, and an exception is the thing that rots — which is why the archive is a lane.
 5. Every `- [ ]` in the "Done when" checklist is resolved (`- [x]` or `- ~~strikethrough~~ (reason)`) before a task moves to `done/`.
 6. No task sits in `blocked/` with every one of its blockers closed. A `blocked-by:` entry whose task has moved is **rewritten to the new path**, never deleted — the entry is the audit trail, and `status: blocked` over an empty `blocked-by:` is a task blocked by nothing. When the last blocker closes, surface the task for re-triage (see the sweep); it does not sit there.
 7. **The campsite is clean** before any task is reported `done` to the human — see the Clean-campsite gate in the `wip → done` procedure. "Done" is never claimed over a littered workspace.
@@ -63,6 +64,46 @@ All transitions are: (a) update frontmatter in place, (b) `git mv` the file, (c)
 6. **Run reverse-dependency sweep** (below).
 7. **Run the propagation gate** (next section) — carry outward what this closure made wrong and what it turned up.
 8. **Clean the campsite** (below) — the last thing before you report `done` to the human.
+
+### `done → done-archived` (shelving old closed work)
+
+`done/` grows monotonically and nothing ever leaves it. That costs nothing for a while and then
+it does: any structural check that validates the whole tracker pays for every file in it, so the
+price of closing work rises with the amount of work already closed. Shelving bounds that.
+
+**The archive is a lane, not a shelf.** A shelved task gets `status: done-archived` in
+`done-archived/`, so invariant 1 holds by construction and every consumer that enumerates lanes
+gains one correct entry instead of a special case. `completed:` stays (invariant 4).
+
+Run it from the repository root:
+
+```
+{skill-root}/scripts/archive-done-tasks.py --dry-run   # list what would move
+{skill-root}/scripts/archive-done-tasks.py             # shelve it
+{skill-root}/scripts/archive-done-tasks.py --days 30   # a different threshold
+```
+
+- **The default threshold is 14 days, and `--days N` overrides it per call.** Strictly *more*
+  than N days since `completed:` — at exactly N the task stays.
+- **Preview first.** This is the only lifecycle operation that moves files in bulk with no
+  per-file human decision behind it, so `--dry-run` is the habit, not the exception.
+- **Age comes from `completed:`, never from a file's modification time.** Modification times do
+  not survive a clone, so a rule that read them would shelve the entire tracker on a fresh
+  checkout.
+- **A task in `done/` with an empty or unreadable `completed:` is refused, reported, and left
+  where it is**, and the run exits non-zero. That is an invariant-4 breach that happened
+  somewhere upstream; shelving the file would bury the evidence. One refusal never stops the
+  rest of the run.
+- **Nothing is renamed.** Filenames cross unchanged, because the number width belongs to the
+  repository — see the numbering section.
+- **Commit the moves** like any other transition. The operation writes files; it does not commit.
+
+⚠️ **Shelved is not un-closed.** A `blocked-by:` entry pointing at an archived task is still
+satisfied, and the reverse-dependency sweep treats `done-archived/` exactly as it treats `done/`.
+If a projection of `tasks/` enumerates lanes, it needs the new one — otherwise an archived
+blocker silently reads as a prose condition rather than as closed work.
+
+---
 
 ---
 

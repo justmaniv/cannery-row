@@ -25,6 +25,51 @@ release, with no docs-only commits mixed in.
 There is no `Unreleased` section, and that is deliberate: `check-release.py` requires an entry in
 the same change that moves the version, so an entry never exists before the version it names.
 
+## [0.10.0] — 2026-09-01
+
+### Added
+
+- **An archive lane, and an operation that fills it** (task 036). `done/` grew monotonically and
+  nothing ever left it. That is free for a while and then it is not: any structural check that
+  validates the whole tracker pays for every file in it, so the price of closing work rises with
+  the amount of work already closed. `done-archived/` bounds that.
+
+  ```
+  {skill-root}/scripts/archive-done-tasks.py --dry-run   # list what would move
+  {skill-root}/scripts/archive-done-tasks.py             # shelve it
+  {skill-root}/scripts/archive-done-tasks.py --days 30   # a different threshold
+  ```
+
+  **The default is 14 days since `completed:`, strictly more than** — at exactly 14 the task
+  stays. Age is read from `completed:` and never from a file's modification time, because
+  modification times do not survive a clone and a rule that read them would shelve your entire
+  tracker on a fresh checkout. Nothing is renamed: filenames cross unchanged, so a repository at
+  three digits stays at three digits.
+
+  A task in `done/` with an empty or unreadable `completed:` is **refused, reported, and left where
+  it is**, and the run exits non-zero — that is an invariant-4 breach that happened somewhere
+  upstream, and shelving the file would bury the evidence. One refusal never stops the rest of the
+  run.
+
+  ⚠️ **This is the first operation in this skill that runs a script rather than describing a
+  procedure.** A bulk file move with a numeric threshold is the wrong thing to leave to prose. The
+  script ships beside `SKILL.md` and arrives with a plugin update like the skill itself.
+
+### Changed
+
+- **`done/` is no longer the archive; it is the recently-closed lane.** This reverses the stated
+  position in `tasks/README.md`, which read *"done/ — completed; archive here for history."* If you
+  never run the archive operation nothing about your repository changes — `done/` keeps everything,
+  exactly as before.
+- **Invariant 4 now reads "`completed:` is set if and only if the file is in `done/` **or**
+  `done-archived/`."** Shelving a task does not un-close it, and the date is what a later archive
+  run reads. Invariant 1 needed no amendment: `status: done-archived` in `done-archived/` already
+  satisfies "status === directory", which is why the archive is a lane rather than a shelf outside
+  the lane system — a shelf would have required an exception clause, and exceptions rot.
+- **A `blocked-by:` entry pointing at an archived task still resolves as closed work.** If you keep
+  your own projection of `tasks/`, it needs the new lane in whatever enumerates lanes — otherwise an
+  archived blocker reads as a prose condition instead of as a finished task.
+
 ## [0.9.0] — 2026-09-01
 
 ### Changed

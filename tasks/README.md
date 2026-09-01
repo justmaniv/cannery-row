@@ -8,13 +8,19 @@ tasks/
 ├── prioritized/  # triaged and ordered; pull from the top
 ├── wip/          # actively in progress (keep this small)
 ├── blocked/      # waiting on something — note the blocker in the file
-└── done/         # completed; archive here for history
+├── done/         # recently completed — the live record of what just shipped
+└── done-archived/ # shelved: closed long enough to stop being interesting
 ```
 
 ## Conventions
 
 - **Filename:** `NNN-short-kebab-slug.md` — the numeric prefix orders the queue within a directory. Pad every number in a project to the same width: the directory *is* the tracker, read with `ls`, in an editor sidebar and in `git status`, all of which sort lexically, and only a uniform width makes lexical order equal numeric order. Pick the width once and keep it — the skill reads it off the highest number already in the tree rather than imposing one, so nothing here has to agree with any other project. Numbering restarts per project; the numbers carry no meaning beyond ordering, so yielding one is free.
 - **Move, don't copy.** Status changes are `git mv` — git history preserves the journey. A task's whole life is `git log --follow` on one file, not a line that changed in a big shared file.
+- **`done/` is not the archive.** It holds recently-closed work; `done-archived/` holds the rest.
+  The split exists because every check that validates the whole tracker pays for every closed file
+  in it, so an unbounded `done/` makes closing work slowly more expensive. The skill's archive
+  operation moves anything closed more than 14 days ago, and takes a different threshold on
+  request. *(This reverses the earlier position, where `done/` was itself the archive.)*
 - **One task per file.** If a task spawns sub-tasks, link them; don't nest.
 - **`prioritized/` ordering:** put at the top whatever unblocks the most other work, then whatever reduces the most risk, then the smallest useful batch. Order is expressed by position in the directory listing (hence the numeric prefix), not by a priority field — there is nothing to keep in sync.
 - **WIP limit: 3 in `wip/` per human owner** — roughly one per concurrent session. Pull from the top of `prioritized/`. A task that stalls moves to `blocked/` *before* you pull the next one; that move is what keeps the limit honest rather than decorative.
@@ -27,8 +33,8 @@ tasks/
 ---
 created: YYYY-MM-DD       # set on creation, never changed
 updated: YYYY-MM-DD       # bumped on every status change or material edit
-completed: YYYY-MM-DD     # set when moved to done/; empty otherwise
-status: new               # must match the directory: new | prioritized | wip | blocked | done
+completed: YYYY-MM-DD     # set when moved to done/; kept when shelved; empty otherwise
+status: new               # must match the directory: new | prioritized | wip | blocked | done | done-archived
 owner: your-name
 blocked-by: ""            # optional; the blocking task's path, or a prose condition
 links:                    # optional

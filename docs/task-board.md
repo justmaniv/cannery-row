@@ -12,7 +12,7 @@ move — so this view can lag the tracker, and the tracker wins.
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**36 tasks** — 13 new · 0 prioritized · 1 wip · 2 blocked · 20 done.
+**36 tasks** — 13 new · 0 prioritized · 1 wip · 2 blocked · 20 done · 0 done-archived.
 
 WIP limit: within 3 per human owner.
 
