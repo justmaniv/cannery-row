@@ -38,6 +38,7 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 # different reasons, and a file added to one belongs in the other.
 SCANNED = [
     "skills/task-lifecycle/SKILL.md",
+    "skills/task-lifecycle/scripts/archive-done-tasks.py",
     "tasks/README.md",
     "scripts/generate-task-board.py",
     "docs/task-board.md",

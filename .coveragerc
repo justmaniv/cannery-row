@@ -5,9 +5,12 @@
 # Test files are omitted from the measurement so the number describes production code. Nothing
 # else is excluded. The three uncovered `sys.exit(main())` lines stay counted rather than
 # waved through with a pragma: a floor with carve-outs is a floor you stop trusting.
+# `source` names both script homes: the gates in `scripts/`, and the skill's own cargo under
+# `skills/`. A shipped script outside this list is measured by nothing and silently exempt from
+# the floor below — which is the same hole the floor exists to close.
 [run]
 branch = True
-source = scripts
+source = scripts, skills/task-lifecycle/scripts
 omit = */*_test.py
 
 [report]

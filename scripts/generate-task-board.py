@@ -29,9 +29,15 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 OUTPUT = REPO_ROOT / "docs" / "task-board.md"
 
-# Flow order. `done/` is last and is the only collapsed lane.
-LANES = ("new", "prioritized", "wip", "blocked", "done")
-LIVE_LANES = LANES[:-1]
+# Flow order. The two closed lanes are last: `done/` is recently closed and collapses to a
+# window, `done-archived/` is shelved and renders in neither table.
+LANES = ("new", "prioritized", "wip", "blocked", "done", "done-archived")
+# ⚠️ Positional, and it will re-break when a seventh lane is appended — deliberately. A named
+# tuple here would go quietly wrong instead; the slice reddens
+# `test_header_columns_are_the_lanes_in_flow_order`, which is the property worth having.
+LIVE_LANES = LANES[:-2]
+# A blocker in either lane is closed work. Only the first is still listed on the board.
+CLOSED_LANES = LANES[-2:]
 
 # `done/` is 270+ entries and grows monotonically; listing it in full is noise that would also
 # rewrite this file on every close. Count + a recent window is the signal.
@@ -57,7 +63,11 @@ AGENT_OWNERS = {"agent", "claude"}
 # (`098-feature-1.1-workspace-ci.md`) and underscored package names (`rand_core`). A
 # kebab-only charset drops those files with no error — a quietly wrong board.
 NAME_RE = re.compile(r"^(\d{3,})-([A-Za-z0-9._-]+)\.md$")
-TASK_REF_RE = re.compile(r"tasks/(?:new|prioritized|wip|blocked|done)/(\d{3,})-[A-Za-z0-9._-]+\.md")
+# `done-archived` precedes `done` in the alternation so the match does not depend on the engine
+# backtracking out of the shorter branch.
+TASK_REF_RE = re.compile(
+    r"tasks/(?:new|prioritized|wip|blocked|done-archived|done)/(\d{3,})-[A-Za-z0-9._-]+\.md"
+)
 
 # The body contract. Two elements, both load-bearing, neither previously checked:
 #   H1        — the card headline. Without it the board renders a blank card and exits 0.
@@ -314,7 +324,7 @@ def render_blocked_graph(tasks: list[Task]) -> str:
     external: list[str] = []
 
     for t in tasks:
-        if t.lane == "done":
+        if t.lane in CLOSED_LANES:
             continue
         # Node ids carry no width: they only have to be unique and to agree between the two
         # loops that emit them. Padding them would make the same task two nodes in a mixed tree.
@@ -328,7 +338,7 @@ def render_blocked_graph(tasks: list[Task]) -> str:
                 blocker = f"T{value}"
                 known = by_number.get(int(value))
                 labels[blocker] = f"{known.prefix if known else value} · {known.slug if known else 'missing'}"
-                if known is not None and known.lane == "done" and blocker not in satisfied:
+                if known is not None and known.lane in CLOSED_LANES and blocker not in satisfied:
                     satisfied.append(blocker)
             else:
                 blocker = f"X{len(external) + 1}"
