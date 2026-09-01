@@ -11,7 +11,7 @@ links:
   - scripts/generate-task-board.py
   - scripts/check-skill-args.py
   - tasks/new/013-adopters-copy-of-the-generator-drifts.md
-  - tasks/prioritized/035-task-numbers-are-capped-at-three-digits-and-gates-go-blind-past-999.md
+  - tasks/wip/035-task-numbers-are-capped-at-three-digits-and-gates-go-blind-past-999.md
 ---
 
 # Completed tasks accumulate in `done/` forever, with no way to shelve the old ones on command
