@@ -563,5 +563,124 @@ class LoadsBodyContract(unittest.TestCase):
         self.assertIsNone(loaded[8].done_when_items)
 
 
+class ArchiveLane(unittest.TestCase):
+    """The archive lane, added by task 036. Nothing else in this suite exercises it — a green
+    board suite says nothing about `done-archived` unless these tests are here."""
+
+    def test_archive_lane_is_the_last_lane(self):
+        self.assertEqual(gen.LANES[-1], "done-archived")
+        self.assertEqual(gen.LANES[-2], "done")
+
+    def test_live_lanes_excludes_both_closed_lanes(self):
+        """The positional slice `LANES[:-1]` promoted `done` to a live board column the moment a
+        sixth lane was appended. This pins the *meaning*, not the slice."""
+        self.assertEqual(gen.LIVE_LANES, ("new", "prioritized", "wip", "blocked"))
+        self.assertNotIn("done", gen.LIVE_LANES)
+        self.assertNotIn("done-archived", gen.LIVE_LANES)
+
+    def test_archived_task_loads_with_its_lane_from_the_directory(self):
+        with tempfile.TemporaryDirectory() as root:
+            write_task(root, "done-archived", "007-x.md", VALID_FM + "\n# T\n\n## Done when\n- [x] a\n")
+            loaded = gen.load_tasks(pathlib.Path(root))
+        self.assertEqual([t.lane for t in loaded], ["done-archived"])
+
+    def test_archived_task_is_not_a_board_column(self):
+        md = gen.render_board_columns([task(number=1, lane="done-archived")])
+        header = [c.strip() for c in md.splitlines()[0].strip().strip("|").split("|")]
+        self.assertEqual([h.split(" (")[0] for h in header], ["new", "prioritized", "wip", "blocked"])
+
+    def test_archived_task_is_not_in_the_recent_done_table(self):
+        """`render_done` is handed `by_lane["done"]` only, so the shelved pile must not appear in
+        the recent window — that window is what archiving exists to keep short."""
+        md = gen.render_board([task(number=1, lane="done-archived"), task(number=2, lane="done")])
+        self.assertIn("## done (1)", md)
+        self.assertNotIn("task-1", md)
+        self.assertIn("task-2", md)
+
+    def test_archived_task_still_counts_in_the_header_tally(self):
+        """Recorded choice: archived tasks leave both tables but stay in the total. A tally that
+        silently shrank as work was shelved would misreport how much the tracker holds."""
+        md = gen.render_board([task(number=1, lane="done-archived"), task(number=2, lane="new")])
+        self.assertIn("**2 tasks**", md)
+        self.assertIn("1 done-archived", md)
+
+
+class ArchivedBlockers(unittest.TestCase):
+    def test_task_ref_matches_the_archive_lane(self):
+        self.assertEqual(
+            gen.classify_blocker("tasks/done-archived/00042-slug.md"), ("task", 42)
+        )
+
+    def test_archived_blocker_is_not_an_external_condition(self):
+        kind, _ = gen.classify_blocker("tasks/done-archived/00042-slug.md")
+        self.assertEqual(kind, "task")
+
+    def test_archived_task_does_not_enter_the_graph_as_a_dependent(self):
+        """`if t.lane == "done": continue` skipped only one closed lane. An archived task with a
+        blocker would otherwise be drawn as live work waiting on something."""
+        md = gen.render_blocked_graph([
+            task(number=1, lane="done-archived", blockers=["tasks/new/002-task-2.md"]),
+            task(number=2, lane="new"),
+        ])
+        self.assertNotIn("T1", md)
+
+    def test_archived_blocker_renders_satisfied(self):
+        """Recorded choice: closed-then-archived is still closed. Leaving it unsatisfied would
+        render a live task as gated on work that is in fact finished. Asserted on the class line
+        for the blocker's own node — the word "satisfied" is in every graph's classdefs."""
+        md = gen.render_blocked_graph([
+            task(number=1, lane="new", blockers=["tasks/done-archived/002-task-2.md"]),
+            task(number=2, lane="done-archived"),
+        ])
+        self.assertIn("  class T2 satisfied", md)
+
+    def test_a_done_blocker_is_still_satisfied(self):
+        """The `done` arm of the same condition, so widening it to two lanes cannot drop one."""
+        md = gen.render_blocked_graph([
+            task(number=1, lane="new", blockers=["tasks/done/002-task-2.md"]),
+            task(number=2, lane="done"),
+        ])
+        self.assertIn("  class T2 satisfied", md)
+
+    def test_archived_blocker_is_labelled_by_number_not_condition(self):
+        md = gen.render_board_columns([
+            task(number=1, lane="new", blockers=["tasks/done-archived/002-task-2.md"]),
+        ])
+        self.assertNotIn("⛔ condition", md)
+        self.assertIn("⛔ 002", md)
+
+    def test_archived_task_does_not_enter_the_graph_as_a_blocker_label_of_last_resort(self):
+        """`load_tasks` must reach the archive lane, or a matching ref still resolves to
+        `by_number.get(...) -> None` and labels the node "missing"."""
+        md = gen.render_blocked_graph([
+            task(number=1, lane="new", blockers=["tasks/done-archived/002-task-2.md"]),
+            task(number=2, lane="done-archived"),
+        ])
+        self.assertNotIn("missing", md)
+
+
+class ArchiveBoundsTheValidationSurface(unittest.TestCase):
+    """The reason this lane exists. `structural_problems` runs over the whole tracker on every
+    generation and hard-fails the build on any violation, so its cost grows monotonically with
+    the number of closed tasks. If archived files stayed in that sweep, archiving would buy
+    nothing for the one thing that actually scales badly."""
+
+    def test_archived_files_are_not_structurally_validated(self):
+        self.assertEqual(structural_problems_for(lane="done-archived"), [])
+
+    def test_done_files_are_still_structurally_validated(self):
+        """The `done/` arm of the same sweep. Narrowing the scope must not narrow it twice —
+        `done/` is the live record of what just shipped, and it stays checked."""
+        self.assertEqual(len(structural_problems_for(lane="done")), 2)
+
+    def test_live_lanes_are_still_structurally_validated(self):
+        self.assertEqual(len(structural_problems_for(lane="wip")), 2)
+
+
+def structural_problems_for(lane):
+    """One task in `lane` breaching both properties: no H1, and no "Done when"."""
+    return gen.structural_problems([task(number=1, lane=lane, title="", done_when_items=None)])
+
+
 if __name__ == "__main__":
     unittest.main()

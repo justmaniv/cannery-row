@@ -40,6 +40,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 #   - This script necessarily contains every term it forbids.
 SCANNED = [
     "skills/task-lifecycle/SKILL.md",
+    "skills/task-lifecycle/scripts/archive-done-tasks.py",
     "tasks/README.md",
     "scripts/generate-task-board.py",
     # The board is scanned as well as its generator, and that is not redundancy. The first

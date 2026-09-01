@@ -203,5 +203,16 @@ class Cli(unittest.TestCase):
         self.assertIn("error:", err)
 
 
+class ArchiveScriptIsScanned(unittest.TestCase):
+    def test_the_archive_script_is_in_the_scanned_list(self):
+        """It ships beside SKILL.md, so it crosses into somebody else's repository. A shipped
+        file absent from this list is a file this gate is blind to."""
+        self.assertIn("skills/task-lifecycle/scripts/archive-done-tasks.py", gate.SCANNED)
+
+    def test_every_scanned_path_exists(self):
+        for rel in gate.SCANNED:
+            self.assertTrue((gate.REPO_ROOT / rel).is_file(), rel)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -2,7 +2,7 @@
 created: 2026-09-01
 updated: 2026-09-01
 completed:
-status: prioritized
+status: wip
 owner: justmaniv
 blocked-by: ""
 links:
@@ -10,6 +10,7 @@ links:
   - tasks/README.md
   - scripts/generate-task-board.py
   - scripts/check-skill-args.py
+  - scripts/check-portability.py
   - tasks/new/00013-adopters-copy-of-the-generator-drifts.md
   - tasks/done/00035-task-numbers-are-capped-at-three-digits-and-gates-go-blind-past-999.md
 ---
@@ -23,24 +24,24 @@ been closed long enough to stop being interesting. **Default 14 days, overridabl
 
 ## Build it here; the pain is downstream
 
-⚠️ **This repo does not have the problem.** `tasks/done/` holds **19 files** (2026-09-01).
-`everything-has-a-price` holds **594**. `generate-task-board.py:36` carries the comment
+⚠️ **This repo does not have the problem.** `tasks/done/` holds **20 files** (2026-09-01).
+`everything-has-a-price` holds **596**. `generate-task-board.py:36` carries the comment
 *"`done/` is 270+ entries and grows monotonically"* — that describes the adopter, not this
 repository, and it was already stale when measured.
 
-So do not motivate this on cannery-row's own ergonomics; a 19-file directory needs nothing. The
+So do not motivate this on cannery-row's own ergonomics; a 20-file directory needs nothing. The
 skill is the product, and its largest consumer is drowning. That is the whole argument, and it is
 enough.
 
 **Two motivations that do not survive contact:**
 
-- **Board noise — already solved.** `render_done` (`:278`) collapses the table to `DONE_RECENT = 12`
+- **Board noise — already solved.** `render_done` (`:280`) collapses the table to `DONE_RECENT = 12`
   (`:38`) with the note *"The full pile is `tasks/done/`; git history is its journey."*
   `render_board_columns` uses `LIVE_LANES`, and `render_blocked_graph` opens with
   `if t.lane == "done": continue`. Nothing in the rendering grows with `done/`.
-- **`ls` / `grep` ergonomics** — real, but weak at 19 files and not why this is worth building.
+- **`ls` / `grep` ergonomics** — real, but weak at 20 files and not why this is worth building.
 
-**One that does, and is not obvious:** `structural_problems` (`:151`) validates *every* done file on
+**One that does, and is not obvious:** `structural_problems` (`:152`) validates *every* done file on
 every generation and **hard-fails board generation** on a violation. That is a failure surface that
 grows monotonically with `done/`, on a gate this repo runs in CI on every proposed change. It is the
 one thing that genuinely scales badly, and archiving bounds it.
@@ -77,8 +78,9 @@ not have to guess which is current.
 - **Every lane list gains one correct entry** rather than a special case. The first draft's
   objection — *"do not invent a status, it makes every consumer of `status:` wrong"* — was wrong for
   this repo: `generate-task-board.py` never reads `status:` at all. The directory is the status;
-  `load_tasks` takes `lane` from the path. (Downstream is different — about six scripts in
-  `everything-has-a-price` do read the field, and they are on the routing list anyway.)
+  `load_tasks` takes `lane` from the path. (Downstream, exactly **one** non-test script reads a task's
+  `status:` — `check-task-order.py:81,:97`. The first draft said "about six"; the others read ADR,
+  upstream-watch, job or points status, which are unrelated fields.)
 
 ### The one hazard the name introduces — caught by CI, fixed in one character
 
@@ -91,10 +93,10 @@ Measured 2026-09-01 by patching a scratch copy and running `generate_task_board_
 
 | form | result |
 |---|---|
-| `LANES += ("done-archived",)`, slice left at `[:-1]` | `FAILED (failures=2, errors=14)` |
-| slice changed to `[:-2]` | `OK (70 tests)` |
+| `LANES += ("done-archived",)`, slice left at `[:-1]` | fails the suite (the header test below, plus `LANE_EMPTY` has no `"done"` key) |
+| slice changed to `[:-2]` | `OK (78 tests)` |
 
-`test_header_columns_are_the_lanes_in_flow_order` (`:150-153`) feeds `gen.LIVE_LANES` in and asserts
+`test_header_columns_are_the_lanes_in_flow_order` (`:223-226`) feeds `gen.LIVE_LANES` in and asserts
 the header against a hardcoded `["new", "prioritized", "wip", "blocked"]`, so the promoted column
 reddens the build. This is runtime-silent but **not** CI-silent — do not carry it as a hidden
 hazard. The slice stays positional and will re-break when a seventh lane is appended; that test
@@ -105,12 +107,12 @@ Four more sites hard-code the string and need the same treatment:
 | line | code | status after `[:-2]` |
 |---|---|---|
 | 34 | `LIVE_LANES = LANES[:-1]` | **fixed** by `[:-2]`; pinned by an existing test |
-| 315 | `if t.lane == "done": continue` | ⚠️ **still wrong** — an archived task is not skipped, so it enters the mermaid graph as a dependent. No test covers it |
-| 327 | `known.lane == "done"` | fine — an archived blocker simply never marks satisfied; decide whether that is wanted |
-| 398 | `by_lane["done"]` | fine — `by_lane` is built over all of `LANES`, so archived tasks render nowhere. Probably correct; record the choice |
+| 317 | `if t.lane == "done": continue` | ⚠️ **still wrong** — an archived task is not skipped, so it enters the mermaid graph as a dependent. No test covers it |
+| 331 | `known.lane == "done"` | fine — an archived blocker simply never marks satisfied; decide whether that is wanted |
+| 402 | `by_lane["done"]` | fine — `by_lane` is built over all of `LANES` (`:383`), so archived tasks miss both tables. ⚠️ But `:384`'s `tally` also iterates `LANES`, so they **do** appear in the header count and total. "Render nowhere" is not what the code does |
 
-⚠️ **A green suite does not mean the lane is done.** All 70 tests pass under `[:-2]` because nothing
-in the suite exercises a `done-archived` task at all. `:315` is wrong and untested — that gap is the
+⚠️ **A green suite does not mean the lane is done.** All 78 tests pass under `[:-2]` because nothing
+in the suite exercises a `done-archived` task at all. `:317` is wrong and untested — that gap is the
 work, not the slice.
 
 **Verified safe:** `TASK_REF_RE` does **not** falsely prefix-match — `tasks/done-archived/042-x.md`
@@ -140,21 +142,26 @@ LANES = ("new", "prioritized", "wip", "blocked", "done")
 task passes gate 20 — the cross-branch backstop that exists because the scan can lose a race. The
 scan still catches it; the check that fires when the scan *lost* does not.
 
-**Four more scripts in that repo carry the identical five-lane tuple** and need the same routing:
-`check-task-paths.py:55`, `check-doc-references.py:84`, `check-obligation-liveness.py:83`,
-`check-review-gate-landing.py:82`.
+**Three more scripts in that repo carry the identical five-lane tuple** and need the same routing:
+`check-doc-references.py:84`, `check-obligation-liveness.py:83`, `check-review-gate-landing.py:82`.
+
+`check-task-paths.py` is a **fourth site with a different shape** — it carries no five-lane tuple. Its
+lane enumeration is a regex at `:55`, `tasks/(new|prioritized|wip|blocked|done)/(\d{3}-[a-z0-9-]+\.md)`,
+so it needs an alternation edit rather than a tuple edit. (Its `\d{3}` is exact and its charset is
+`[a-z0-9-]+` — both narrower than cannery-row's `\d{3,}` / `[A-Za-z0-9._-]+`, which is a separate
+latent problem there, not this task's.) Its only tuple, at `:49`, is the four-lane `OPEN_LANES`.
 
 ### 3. `blocked-by:` edges to archived tasks become prose conditions, silently
 
 `generate-task-board.py:60`'s `TASK_REF_RE` hard-codes the five lanes, so
-`tasks/done-archived/042-slug.md` does not match and `classify_blocker` (`:191-202`) falls through to
+`tasks/done-archived/042-slug.md` does not match and `classify_blocker` (`:192-203`) falls through to
 `("external", raw)`. Concretely, and no more dramatically than this: the node is emitted with the
-same shape as every other (`:344`) but carries the `external` CSS class — amber fill, and the legend
+same shape as every other (`:346`) but carries the `external` CSS class — amber fill, and the legend
 says *"Amber = a condition, not a task."* The card meta shows `⛔ condition` instead of `⛔ NNN`, and
 the label is the raw path (untruncated; `EXTERNAL_LABEL_MAX = 60`). The `satisfied` list cannot
-rescue it — that is only appended when `kind == "task"`. Compounding: `load_tasks` (`:206-207`)
+rescue it — that is only appended when `kind == "task"`. Compounding: `load_tasks` (`:206`, loop at `:208`)
 iterates `LANES`, so even a matching ref would yield `by_number.get(...) → None` and the label
-`"NNN · missing"` (`:326`).
+`"NNN · missing"` (`:330`).
 
 Nothing errors. A live task gated on a closed-then-archived blocker renders as gated on a condition.
 
@@ -165,38 +172,55 @@ does not set it meaningfully, so mtime archives everything on a fresh checkout. 
 authoritative by invariant 4.
 
 **A `done/` task with no `completed:` date is a guard, not a live problem.** Measured 2026-09-01:
-**19/19** here and **594/594** downstream carry a non-empty `completed:`. Zero violations. Refuse to
+**20/20** here and **596/596** downstream carry a non-empty `completed:`. Zero violations. Refuse to
 archive such a file and report it — but write it as a guard against a future invariant-4 breach, not
 as cleanup of existing corruption, because there is none.
 
-### Invocation — an open fork, not a settled convention
+### Invocation — DECIDED 2026-09-01: option A, relocated
 
-⚠️ **There is no precedent to follow, and the first draft of this task asserted one.**
-`SKILL.md` invokes **no repo script anywhere** — `grep -n "scripts/\|python3" skills/task-lifecycle/SKILL.md`
-returns nothing. Its Bash is `git mv`, `grep`, and the inline numbering scan. There is no
-`$ARGUMENTS` marker either. The plugin ships no `commands/` directory and exactly one skill.
+**Decision: a bundled script, `skills/task-lifecycle/scripts/archive-done-tasks.py`, invoked from a
+new `SKILL.md` transition section.** Taken by the requester after checking the fork against
+published practice rather than against this repo's habits alone.
 
-So this change introduces the skill's **first** dependency on a shipped script, and that is a
-decision to take deliberately:
+The fork was real — `SKILL.md` invokes **no** repo script anywhere
+(`grep -n "scripts/\|python3" skills/task-lifecycle/SKILL.md` returns nothing), there is no
+`$ARGUMENTS` marker, and the plugin ships no `commands/` directory and exactly one skill. So this is
+still the skill's **first** script dependency. What settled it:
 
-- **A — script + a `SKILL.md` section that invokes it.** Deterministic, testable, and `scripts/` is
-  inside the shipped boundary so adopters receive it. But it inherits
-  [[00013-adopters-copy-of-the-generator-drifts]] — the open problem that an adopter's copy of a
-  shipped script cannot be updated — and hard-codes a path into prose that is otherwise
-  runtime-agnostic.
-- **B — procedure in `SKILL.md` only**, as every other operation here is written, with the date
-  arithmetic done by the model. No new dependency, consistent with the file, but no test can pin it
-  and the arithmetic is exactly what a model does unreliably.
+- **Bundling a script beside `SKILL.md` is the documented, demonstrated practice, not a deviation.**
+  Every Anthropic-published skill of this shape does it — `pdf`, `docx`, `xlsx`, `pptx` each ship a
+  `scripts/` directory of utilities. The stated split is prose for judgment and workflow, scripts for
+  deterministic operations: date arithmetic over a bulk file move is squarely the second.
+- **The first draft put the script in the wrong place, and that is what made option A look costly.**
+  Convention is `skills/<name>/scripts/`, referenced skill-relative — not this repo's root
+  `scripts/`, which holds gate tooling. Both of A's stated costs were artefacts of the wrong
+  location:
+  - *"hard-codes a path into runtime-agnostic prose"* — a skill-relative path names no repo, no host
+    and no language. It is exactly as portable as the rest of the file.
+  - *"inherits [[00013-adopters-copy-of-the-generator-drifts]]"* — it does **not**. 013 is about the
+    board generator, which an adopter hand-copies into their own repo because it has to match their
+    layout. A skill-bundled script travels with the skill and is replaced by `plugin update` on a
+    version bump. The drift mechanism does not apply.
+- **B was rejected** on the original ground, unchanged: no test can pin prose, and threshold
+  arithmetic is what a model does unreliably.
 
-**Recommend A**, on the grounds that a bulk file move with a numeric threshold is the wrong thing to
-leave to prose — but take the decision explicitly and record it, rather than inheriting it from this
-sentence.
+⚠️ **The first draft's claim about the shipped boundary was wrong in both directions.** It said
+`scripts/` ships to adopters *and* that `check-skill-args.py` "does not scan the shipped boundary."
+Measured 2026-09-01 by listing the installed plugin cache: `marketplace.json` declares
+`"source": "./"`, so installing copies **the whole repository** — `scripts/`, `tasks/`, `docs/`,
+`evals/` and all — into `~/.claude/plugins/cache/cannery-row/cannery-row/<version>/`. So the
+root `scripts/` does reach an adopter. But the four-file `SCANNED` list **is** this repo's
+*declared* boundary — `check-skill-args.py:36-38` defines it as *"what crosses into somebody else's
+repository or context"* — so the accurate statement is that the declaration is narrower than what
+actually ships. Also: `marketplace.json`'s description still says *"the board generator and the
+conventions doc are fetched from the repository."* That is stale, and this task should fix it.
 
-⚠️ **If A: add the new script to `check-skill-args.py`'s `SCANNED` list.** That gate does **not**
-scan the shipped boundary — `:41-46` is a hardcoded four-file whitelist (`SKILL.md`,
-`tasks/README.md`, `generate-task-board.py`, `docs/task-board.md`). A new script under `scripts/`
-ships to adopters while being invisible to it. Note also the pattern is narrower than "`$` then a
-digit": `POSITIONAL = re.compile(r"(?<![\w}$])\$(\d)(?![\d.])")` leaves `$14` and `$4.52` alone.
+⚠️ **Two `SCANNED` lists must gain the new script, not one.** The first draft named only
+`check-skill-args.py` and cited it at `:41-46`; it is at **`:39-44`**. `:41-46` is the line range of
+the *identical* list in `check-portability.py` (there `:39-50`, padded by an inline comment), whose
+own comment says the two are kept in step. Miss either and a shipped file goes unscanned by that
+gate. Note also `check-skill-args.py`'s pattern is narrower than "`$` then a digit":
+`POSITIONAL = re.compile(r"(?<![\w}$])\$(\d)(?![\d.])")` leaves `$14` and `$4.52` alone.
 
 **Default 14 days, overridable per call, plus `--dry-run`** — this is the one lifecycle operation
 that moves files in bulk with no per-file human decision behind it.
@@ -223,42 +247,57 @@ Two things 035 already handles, so this task does not have to:
 
 ## Done when
 
-- [ ] The invocation fork above is decided and recorded in this file before implementation starts
-- [ ] Tasks move from `done/` to `tasks/done-archived/`, gaining `status: done-archived`, when
+- [x] The invocation fork above is decided and recorded in this file before implementation starts
+      — **option A, relocated to `skills/task-lifecycle/scripts/`**; see the Invocation section
+- [x] Tasks move from `done/` to `tasks/done-archived/`, gaining `status: done-archived`, when
       `completed:` is more than N days old — N defaulting to 14 and settable per call
-- [ ] Written test-first — a RED commit adding a failing test, then a GREEN commit — per
+- [x] Written test-first — a RED commit adding a failing test, then a GREEN commit — per
       `CONTRIBUTING.md`; tests assert the moved set, never merely that the code ran
-- [ ] A boundary test pins the comparison at exactly N days, so "more than 14" cannot drift to
+- [x] A boundary test pins the comparison at exactly N days, so "more than 14" cannot drift to
       "at least 14" unnoticed
-- [ ] A `done/` task with empty or unparseable `completed:` is reported and **not** moved, with a
+- [x] A `done/` task with empty or unparseable `completed:` is reported and **not** moved, with a
       test asserting it stays put
-- [ ] A dry-run mode lists what would move without moving it
-- [ ] `SKILL.md` invariant 4 admits `done-archived/`; invariant 1 is confirmed to need **no**
+- [x] A dry-run mode lists what would move without moving it
+- [x] `SKILL.md` invariant 4 admits `done-archived/`; invariant 1 is confirmed to need **no**
       amendment, with that reasoning recorded. `done-archived` is added to the lane list and the
       transition is documented alongside the other transitions, with its 14-day default and override
-- [ ] `LIVE_LANES = LANES[:-2]`, and the suite is green — `test_header_columns_are_the_lanes_in_flow_order`
-      already pins this, so no new test is needed for the slice itself
-- [ ] `:315`'s graph skip handles `done-archived` — an archived task must not enter the mermaid graph
+- [x] `LIVE_LANES = LANES[:-2]`, and the suite is green — `test_header_columns_are_the_lanes_in_flow_order`
+      (`generate_task_board_test.py:223`) already pins this, so no new test is needed for the slice itself
+- [x] `:317`'s graph skip handles `done-archived` — an archived task must not enter the mermaid graph
       as a dependent — with a test, since nothing currently exercises the new lane
-- [ ] `:327` and `:398`'s behavior for archived tasks is decided and recorded (render nowhere is the
-      likely answer), with a test per behavioral choice
-- [ ] **If a script was chosen:** it is added to `check-skill-args.py`'s `SCANNED` list, with a test
-      asserting the list covers it
-- [ ] `tasks/README.md:11`'s "archive here for history" is rewritten so `done/` and `archive/` are
-      distinguishable by a reader who was not here
-- [ ] `TASK_REF_RE` accepts `done-archived/`, with a test asserting a blocker pointing at an archived task
+- [x] `:331` and `:402`'s behavior for archived tasks is decided and recorded, with a test per
+      behavioral choice. **Decided:** `:331` — an archived blocker renders **satisfied**, because
+      closed-then-shelved is still closed and rendering it otherwise shows a live task gated on
+      finished work. `:402` — archived tasks appear in **neither** table, but **do** stay in `:384`'s
+      header tally, because a total that silently shrank as work was shelved would misreport what
+      the tracker holds. Both hardcoded `== "done"` comparisons are replaced by `CLOSED_LANES`
+- [x] The script is added to the `SCANNED` list in **both** `check-skill-args.py` and
+      `check-portability.py`, with a test per gate asserting the list covers it
+- [x] `tasks/README.md:11`'s "archive here for history" is rewritten so `done/` and `done-archived/`
+      are distinguishable by a reader who was not here
+- [x] `marketplace.json`'s stale description — *"the board generator and the conventions doc are
+      fetched from the repository"* — is corrected; `"source": "./"` ships the whole repo
+- [x] `TASK_REF_RE` accepts `done-archived/`, with a test asserting a blocker pointing at an archived task
       classifies as `("task", NNN)` and not as an external condition. Decide and record whether
       archived tasks load into the board at all — the edge must resolve either way
-- [ ] `structural_problems` is confirmed to still validate archived files, or deliberately scoped to
-      exclude them, with the choice recorded — this is the failure surface archiving exists to bound
-- [ ] The scan is **verified** to reserve archived numbers by running it against a fixture archive,
+- [x] `structural_problems` is confirmed to still validate archived files, or deliberately scoped to
+      exclude them, with the choice recorded — this is the failure surface archiving exists to bound.
+      **Decided: scoped to exclude the archive lane**, and this is the one criterion that changes
+      whether the task achieves its own motivation. `load_tasks` now reaches `done-archived/`, so
+      without the skip every shelved file would still be validated on every generation forever and
+      archiving would buy nothing for the only thing that scales badly. `done/` and every live lane
+      stay checked, pinned by two companion tests written alongside the failing one
+- [x] The scan is **verified** to reserve archived numbers by running it against a fixture archive,
       not by reading it
-- [ ] `version` bumped in both `.claude-plugin/*.json` with a matching `CHANGELOG.md` heading
-- [ ] The `everything-has-a-price` half is **routed, not applied from here** — a task exists there
+- [x] `version` bumped in both `.claude-plugin/*.json` with a matching `CHANGELOG.md` heading
+- [x] The `everything-has-a-price` half is **routed, not applied from here** — a task exists there
       covering the five-lane tuple in `check-task-numbers.py`, `check-task-paths.py`,
       `check-doc-references.py`, `check-obligation-liveness.py` and `check-review-gate-landing.py`,
-      **and the ~six scripts there that read the `status:` field**, and this file links it
-- [ ] Every document and open task this change makes wrong is updated, and anything the work turned
+      **and `check-task-order.py`, the one script there that reads a task's `status:` field**, and
+      this file links it — [[743-five-lane-tuples-go-blind-to-the-new-archive-lane]], committed on
+      branch `task-743-archive-lane` in that repository and deliberately left **unpushed** for the
+      owner to carry to merge there rather than from this session
+- [x] Every document and open task this change makes wrong is updated, and anything the work turned
       up that nothing yet records is written down — or what was checked is named here, with why none
       of it needed changing
 
@@ -270,7 +309,7 @@ Two things 035 already handles, so this task does not have to:
 for a deliverable that is itself a spec. Six claims in the first draft were wrong or overstated:
 
 - **The motivation was wrong for this repo.** The draft argued filesystem ergonomics for
-  `tasks/done/` — which holds 19 files here. The 594-file directory is downstream. Rewritten to
+  `tasks/done/` — which holds 20 files here. The 596-file directory is downstream. Rewritten to
   motivate on the adopter and on `structural_problems`' growing failure surface, which is the only
   thing here that scales badly.
 - **"Archived numbers stop being reserved" was overstated**, and the draft contradicted itself two
@@ -286,7 +325,7 @@ for a deliverable that is itself a spec. Six claims in the first draft were wron
   also narrower than the draft claimed.
 - **"Rendered as an unsatisfiable node" was invented vocabulary.** The real behavior is an amber
   `external` CSS class and a `⛔ condition` card marker.
-- **The missing-`completed:` case has zero instances** in either repo (19/19 and 594/594 populated).
+- **The missing-`completed:` case has zero instances** in either repo (20/20 and 596/596 populated).
   Reframed from surfacing existing corruption to a forward guard.
 
 **2026-09-01 (second pass)** — the archive design was decided by the requester as a new status
@@ -303,3 +342,21 @@ by patching a scratch copy: the trap form fails the existing suite with 2 failur
 and `LIVE_LANES = LANES[:-2]` passes 70/70. It is runtime-silent but CI-loud, and the fix is one
 character — not the structural rewrite this file first prescribed. The real remaining gap is `:315`,
 which the green suite does not cover because no test exercises a `done-archived` task.
+
+**2026-09-01 (fourth pass)** — picked up for implementation. The mandated fresh-context falsification
+read found nine wrong claims, all corrected above; the pattern is that *mechanisms* held and
+*measurements* did not, which is the opposite of the failure this repo usually sees:
+
+- **Every count was stale.** `tasks/done/` is 20 files, not 19; downstream is 596, not 594; the board
+  suite is **78 tests**, not 70. The zero-violation `completed:` property survives at 20/20 and
+  596/596. Baseline measured on pickup: full `scripts/` suite 186 tests green, all five gates green.
+- **Every `generate-task-board.py` line number past ~150 was off**, by +1 to +4 inconsistently — so
+  not one stale snapshot. Corrected against a clean tree at HEAD.
+- **`test_header_columns_are_the_lanes_in_flow_order` is at `:223-226`, not `:150-153`** — off by 73
+  lines. The mechanism was right; `:150-153` is a different test entirely.
+- **`:402`'s "archived tasks render nowhere" was half wrong** — `:384`'s `tally` iterates all of
+  `LANES`, so archived tasks appear in the header count. That consequence was unrecorded.
+- **`check-task-paths.py:55` is a regex, not a five-lane tuple** — right routing target, different
+  edit. And **one** downstream script reads a task's `status:`, not "about six".
+- **The shipped-boundary claim was wrong in both directions**, and there are **two** `SCANNED` lists,
+  not one. See the Invocation section.
