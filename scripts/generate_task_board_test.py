@@ -70,6 +70,56 @@ class Frontmatter(unittest.TestCase):
         self.assertEqual(title, "Real title here")
 
 
+class NumbersRenderAtTheWidthTheirFilenameCarries(unittest.TestCase):
+    """The generator ships to repositories that have chosen different prefix widths, so a hardcoded
+    one prints a number that does not match the file it links to -- in a padded tree with `:03d`,
+    and in every three-digit tree if that were changed to `:05d`. The width is not this file's to
+    choose; the filename already carries it."""
+
+    def render(self, root, *files):
+        for lane, name, body in files:
+            write_task(root, lane, name, body)
+        return gen.load_tasks(pathlib.Path(root))
+
+    def test_a_card_links_the_number_its_filename_carries(self):
+        with tempfile.TemporaryDirectory() as root:
+            tasks = self.render(root, ("new", "00036-padded.md", "---\nowner: smiley\n---\n\n# Padded\n"))
+            self.assertIn("[00036](../tasks/new/00036-padded.md)", gen.render_board_columns(tasks))
+
+    def test_a_three_digit_tree_is_not_padded_out(self):
+        with tempfile.TemporaryDirectory() as root:
+            tasks = self.render(root, ("new", "036-plain.md", "---\nowner: smiley\n---\n\n# Plain\n"))
+            self.assertIn("[036](../tasks/new/036-plain.md)", gen.render_board_columns(tasks))
+
+    def test_the_done_table_links_the_number_its_filename_carries(self):
+        with tempfile.TemporaryDirectory() as root:
+            tasks = self.render(root, ("done", "00036-shipped.md",
+                                       "---\nowner: smiley\ncompleted: 2026-06-01\n---\n\n# Shipped\n"))
+            self.assertIn("[00036](../tasks/done/00036-shipped.md)", gen.render_done(tasks))
+
+    def test_a_blocker_marker_carries_the_padded_number(self):
+        with tempfile.TemporaryDirectory() as root:
+            tasks = self.render(
+                root,
+                ("new", "00007-blocker.md", "---\nowner: smiley\n---\n\n# Blocker\n"),
+                ("blocked", "00036-waiting.md",
+                 "---\nowner: smiley\nblocked-by: \"tasks/new/00007-blocker.md\"\n---\n\n# Waiting\n"),
+            )
+            self.assertIn("⛔ 00007", gen.render_board_columns(tasks))
+
+    def test_a_mermaid_label_carries_the_padded_number(self):
+        with tempfile.TemporaryDirectory() as root:
+            tasks = self.render(
+                root,
+                ("new", "00007-blocker.md", "---\nowner: smiley\n---\n\n# Blocker\n"),
+                ("blocked", "00036-waiting.md",
+                 "---\nowner: smiley\nblocked-by: \"tasks/new/00007-blocker.md\"\n---\n\n# Waiting\n"),
+            )
+            mermaid = gen.render_blocked_graph(tasks)
+            self.assertIn("00007 · blocker", mermaid)
+            self.assertIn("00036 · waiting", mermaid)
+
+
 class BlockerClassification(unittest.TestCase):
     def test_task_path_resolves_to_a_number(self):
         kind, value = gen.classify_blocker("tasks/done/099-reconcile-adr.md")
