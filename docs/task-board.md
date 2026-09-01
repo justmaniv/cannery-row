@@ -12,13 +12,13 @@ move — so this view can lag the tracker, and the tracker wins.
 Cards show `owner · last updated`, and `⛔` on a blocked task — a task number when another
 task gates it, `condition` when nothing but a judgement call does.
 
-**36 tasks** — 13 new · 1 prioritized · 1 wip · 2 blocked · 19 done.
+**36 tasks** — 13 new · 1 prioritized · 0 wip · 2 blocked · 20 done.
 
 WIP limit: within 3 per human owner.
 
-| new (13) | prioritized (1) | wip (1) | blocked (2) |
+| new (13) | prioritized (1) | wip (0) | blocked (2) |
 |---|---|---|---|
-| **[00012](../tasks/new/00012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | **[00036](../tasks/prioritized/00036-done-tasks-cannot-be-archived-on-command.md)** Completed tasks accumulate in `done/` forever, with no way…<br><sub>justmaniv · 2026-09-01</sub> | **[00035](../tasks/wip/00035-task-numbers-are-capped-at-three-digits-and-gates-go-blind-past-999.md)** Task numbers are capped at three digits, and the numbering…<br><sub>justmaniv · 2026-09-01</sub> | **[00019](../tasks/blocked/00019-user-cannot-opt-out-of-remote-operations.md)** A user can turn off remote and host operations even when a…<br><sub>justmaniv · 2026-08-11 · ⛔ condition</sub> |
+| **[00012](../tasks/new/00012-install-is-verified-once-by-hand.md)** Installability is the product, and it is checked once by h…<br><sub>justmaniv · 2026-08-07</sub> | **[00036](../tasks/prioritized/00036-done-tasks-cannot-be-archived-on-command.md)** Completed tasks accumulate in `done/` forever, with no way…<br><sub>justmaniv · 2026-09-01</sub> | _nothing pulled_ | **[00019](../tasks/blocked/00019-user-cannot-opt-out-of-remote-operations.md)** A user can turn off remote and host operations even when a…<br><sub>justmaniv · 2026-08-11 · ⛔ condition</sub> |
 | **[00013](../tasks/new/00013-adopters-copy-of-the-generator-drifts.md)** The adopter's copy of the board generator can never be upd…<br><sub>justmaniv · 2026-08-07</sub> |  |  | **[00027](../tasks/blocked/00027-prior-coverage-sweep-is-scoped-so-it-cannot-prove-absence.md)** The prior-coverage sweep certifies an absence it never est…<br><sub>justmaniv · 2026-08-12 · ⛔ 00029</sub> |
 | **[00014](../tasks/new/00014-eval-suite-covers-two-transitions.md)** Three of the five transitions worth testing have no eval c…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
 | **[00015](../tasks/new/00015-eval-deltas-pin-no-model.md)** The eval numbers have no model attached, so they expire wi…<br><sub>justmaniv · 2026-08-07</sub> |  |  |  |
@@ -49,12 +49,13 @@ graph LR
 
 Edge reads *blocker → blocked*. Green = blocker already closed (stale reference). Amber = a condition, not a task.
 
-## done (19)
+## done (20)
 
-Collapsed — the 12 most recently completed of 19. The full pile is `tasks/done/`; git history is its journey.
+Collapsed — the 12 most recently completed of 20. The full pile is `tasks/done/`; git history is its journey.
 
 | # | Task | Completed |
 |---|---|---|
+| [00035](../tasks/done/00035-task-numbers-are-capped-at-three-digits-and-gates-go-blind-past-999.md) | Task numbers are capped at three digits, and the numbering scan and five adopter gates fail silently past 999 | 2026-09-01 |
 | [00034](../tasks/done/00034-numbering-scan-is-best-effort-and-its-worktree-half-is-corrupted-at-render.md) | The numbering scan is presented as the safeguard, and its worktree half is corrupted before Claude reads it | 2026-08-30 |
 | [00032](../tasks/done/00032-same-commit-regeneration-rule-is-too-chatty.md) | Regenerating the board in the same commit is too chatty for a multi-session repo — make it on-demand | 2026-08-12 |
 | [00020](../tasks/done/00020-task-template-has-no-docs-criterion.md) | A closure's findings reach the docs and the open tasks they change, not just whoever remembers | 2026-08-11 |
@@ -66,4 +67,3 @@ Collapsed — the 12 most recently completed of 19. The full pile is `tasks/done
 | [00011](../tasks/done/00011-no-changelog.md) | An adopter who updates cannot find out what changed | 2026-08-07 |
 | [00010](../tasks/done/00010-releases-have-no-tags.md) | Eight versions have shipped and none of them is findable in git | 2026-08-07 |
 | [00009](../tasks/done/00009-adopters-cannot-run-the-board-or-the-gate.md) | An adopter following the README cannot run the board, or the gate that enforces the contract | 2026-08-07 |
-| [00008](../tasks/done/00008-the-gates-are-untested-and-coverage-is-ungated.md) | The gates that enforce everything are themselves untested, and nothing floors coverage | 2026-08-07 |

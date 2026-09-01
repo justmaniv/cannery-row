@@ -1,8 +1,8 @@
 ---
 created: 2026-09-01
 updated: 2026-09-01
-completed:
-status: wip
+completed: 2026-09-01
+status: done
 owner: justmaniv
 blocked-by: ""
 links:
@@ -282,15 +282,45 @@ task filed there; no criterion below is satisfied by editing that repo from here
 - [x] `generate-task-board.py:211`'s lexical sort is left in place with the reason recorded at
       `generate_task_board_test.py`'s lane-order test — under uniform width it is correct, and a
       numeric sort would *hide* a tree that had gone mixed
-- [ ] `version` bumped in both `.claude-plugin/*.json` with a matching `CHANGELOG.md` heading, once
-      per phase (both phases touch shipped files). Phase 1 shipped `0.8.2`
+- [x] `version` bumped in both `.claude-plugin/*.json` with a matching `CHANGELOG.md` heading, once
+      per phase (both phases touch shipped files). Phase 1 shipped `0.8.2`, phase 2 `0.9.0`
 - [x] The `everything-has-a-price` half is **routed, not applied from here** — task 740 exists in
       that repo covering its **five** gate patches (11, 19, 20, 21, 24), its `upstream-watch-run.py`
       generator fix, its 721-file rename, its `tasks/README.md:16`, and its ~3027 citations; linked
       above. Filed 2026-09-01, PR #1155, awaiting merge
-- [ ] Every document and open task this change makes wrong is updated, and anything the work turned
-      up that nothing yet records is written down — or what was checked is named here, with why none
-      of it needed changing
+- [x] Every document and open task this change makes wrong is updated, and anything the work turned
+      up that nothing yet records is written down. What was carried, and what was routed:
+
+      **Corrected because this change made it wrong:**
+      - `tasks/prioritized/00036-*` — said the archive operation must emit `%05d`. Now wrong for
+        this task's own reason; archiving renames nothing, so it must carry filenames across
+        unchanged. Also recorded there that the numbering scan reaches a new lane for free (both
+        halves recurse) while `generate-task-board.py`'s `LANES` tuple does not, and corrected its
+        own correction log: the `0042` example *was* impossible under `\d{3}`, and is reachable now.
+      - `README.md` — front-page delta table, all three rows re-measured.
+      - `evals/README.md` — cost, conditions, and the three deltas.
+      - `CLAUDE.md`, `tasks/README.md` — the width rule, and where this repo's own choice is recorded.
+
+      **Written down because nothing recorded it:**
+      - `generate_task_board_test.py`'s lane-order comment cited `working-agreement/triage-criteria.md`,
+        which exists in no repository this ships to — the leaked upstream reference
+        `tasks/done/00001-*` removed from the *output*, which survived in a comment. Its stated
+        reason was also not the mechanism. Both replaced.
+      - `tasks/new/00015-*` — the delta narrowing it predicted is now observed with numbers, plus
+        two hazards found while checking it: `evals/results/` is gitignored so no prior arms are
+        tracked, and the result file changed shape between CLI builds under the same schema version.
+      - `numbering-scan-and-width`'s width grader does not discriminate. Recorded in the case and
+        in `evals/README.md` rather than quietly kept.
+
+      **Routed, not fixed here:** the whole `everything-has-a-price` half — five gate patches, the
+      `upstream-watch-run.py` filer, its rename and its ~3027 citations — as task 740 there
+      (PR #1155). Its own falsification read corrected nine claims; two reflected back on this file
+      and are recorded above.
+
+      **Checked and needed nothing:** `CONTRIBUTING.md` (states the shipped boundary, not a width),
+      `tasks/new/00013-*`, `00021-*`, `00022-*` (cite the generator, the scan and `TASK_REF_RE`;
+      all still accurate), and `evals/*/scaffold.sh` (deliberately unpadded — they stand in for
+      adopters, and now exercise the width derivation).
 
 ---
 
