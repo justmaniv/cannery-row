@@ -36,8 +36,10 @@ LANES = ("new", "prioritized", "wip", "blocked", "done", "done-archived")
 # tuple here would go quietly wrong instead; the slice reddens
 # `test_header_columns_are_the_lanes_in_flow_order`, which is the property worth having.
 LIVE_LANES = LANES[:-2]
-# A blocker in either lane is closed work. Only the first is still listed on the board.
+# A blocker in either lane is closed work. Only the first is still listed on the board, and
+# only the first is still structurally validated.
 CLOSED_LANES = LANES[-2:]
+ARCHIVE_LANE = LANES[-1]
 
 # `done/` is 270+ entries and grows monotonically; listing it in full is noise that would also
 # rewrite this file on every close. Count + a recent window is the signal.
@@ -176,6 +178,12 @@ def structural_problems(tasks: list[Task]) -> list[str]:
     has just done the work and knows what it changed. Declined deliberately — not overlooked."""
     problems: list[str] = []
     for t in tasks:
+        # Shelved work leaves the sweep, and that is the point of the lane rather than a
+        # concession. This check costs one pass over every closed file on every generation, so
+        # its price grows monotonically with work already finished; bounding it is what the
+        # archive is *for*. `done/` stays checked — it is the live record of what just shipped.
+        if t.lane == ARCHIVE_LANE:
+            continue
         if not t.title.strip():
             problems.append(
                 f"{t.path}\n"
