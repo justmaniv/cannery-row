@@ -6,7 +6,7 @@ status: new
 owner: justmaniv
 blocked-by: ""
 links:
-  - tasks/done/004-author-eval-suite-for-the-skill.md
+  - tasks/done/00004-author-eval-suite-for-the-skill.md
   - evals/README.md
 ---
 

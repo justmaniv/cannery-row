@@ -8,8 +8,8 @@ blocked-by: ""
 links:
   - README.md
   - CLAUDE.md
-  - tasks/done/024-validation-is-not-independent-review.md
-  - tasks/done/025-skill-does-not-say-where-its-own-check-stops.md
+  - tasks/done/00024-validation-is-not-independent-review.md
+  - tasks/done/00025-skill-does-not-say-where-its-own-check-stops.md
 ---
 
 # The README recommends a second reader and gives nobody a way to have one
@@ -40,7 +40,7 @@ Two related defects in the same section, found while reading it back:
 - **This repo adopts it too.** `CLAUDE.md` here governs sessions working on the plugin, and this
   repo tracks its own work with the skill it ships. Recommending a rule publicly while not running
   it is the gap the project keeps closing elsewhere.
-- **Not `SKILL.md`.** Still `tasks/new/025-*` — and the boundary is now sharper: the skill states
+- **Not `SKILL.md`.** Still `tasks/new/00025-*` — and the boundary is now sharper: the skill states
   where its own check stops, the README carries the setup, and the skill never prescribes a review
   mechanism it does not ship.
 - **Not `tasks/README.md`.** It is inside the portability-scanned set and cannot name a host or an

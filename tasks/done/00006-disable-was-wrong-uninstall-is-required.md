@@ -7,7 +7,7 @@ owner: justmaniv
 blocked-by: ""
 links:
   - CONTRIBUTING.md
-  - tasks/done/003-pinned-version-silently-withheld-the-fix.md
+  - tasks/done/00003-pinned-version-silently-withheld-the-fix.md
 ---
 
 # CONTRIBUTING told you to disable the installed copy; disabling does not work
@@ -46,7 +46,7 @@ the next person recognizes it rather than debugging it.
 This is the third defect in this repository found by using the thing rather than reading it (001
 the board, 003 the pinned version, 006 this). All three passed every automated gate. The gates
 check form; only use checks behavior — which is the argument for
-`tasks/new/004-author-eval-suite-for-the-skill.md`, now made three times.
+`tasks/new/00004-author-eval-suite-for-the-skill.md`, now made three times.
 
 ## Done when
 

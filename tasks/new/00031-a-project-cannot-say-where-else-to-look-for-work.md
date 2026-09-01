@@ -8,9 +8,9 @@ blocked-by: ""
 links:
   - README.md
   - skills/task-lifecycle/SKILL.md
-  - tasks/blocked/019-user-cannot-opt-out-of-remote-operations.md
-  - tasks/new/022-task-root-is-hardcoded-to-repo-root.md
-  - tasks/new/029-propagation-sweep-hardcodes-two-directories.md
+  - tasks/blocked/00019-user-cannot-opt-out-of-remote-operations.md
+  - tasks/new/00022-task-root-is-hardcoded-to-repo-root.md
+  - tasks/new/00029-propagation-sweep-hardcodes-two-directories.md
 ---
 
 # A project can tell this tool where else to look for its work

@@ -8,9 +8,9 @@ blocked-by: ""
 links:
   - CLAUDE.md
   - README.md
-  - tasks/done/032-same-commit-regeneration-rule-is-too-chatty.md
-  - tasks/done/024-validation-is-not-independent-review.md
-  - tasks/done/026-the-second-reader-is-advice-not-a-rule.md
+  - tasks/done/00032-same-commit-regeneration-rule-is-too-chatty.md
+  - tasks/done/00024-validation-is-not-independent-review.md
+  - tasks/done/00026-the-second-reader-is-advice-not-a-rule.md
 ---
 
 # The mandated second reader runs with write access it does not need, and it corrupted a working tree

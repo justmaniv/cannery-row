@@ -6,8 +6,8 @@ status: new
 owner: justmaniv
 blocked-by: ""
 links:
-  - tasks/done/020-task-template-has-no-docs-criterion.md
-  - tasks/done/004-author-eval-suite-for-the-skill.md
+  - tasks/done/00020-task-template-has-no-docs-criterion.md
+  - tasks/done/00004-author-eval-suite-for-the-skill.md
   - evals/README.md
   - evals/done-when-reconciliation/case.yaml
 ---

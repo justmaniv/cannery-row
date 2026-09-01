@@ -9,7 +9,7 @@ would be testing the old copy while believing you were testing the new one.
 Worse, the release path is pinned: `version` in `.claude-plugin/plugin.json` is what tells an
 installed copy to update. Merging a fix without bumping it leaves every consumer on the old build
 while `plugin update` reports *"already at the latest version."* That happened here — see
-`tasks/done/003-pinned-version-silently-withheld-the-fix.md` — and CI now fails a shipped change
+`tasks/done/00003-pinned-version-silently-withheld-the-fix.md` — and CI now fails a shipped change
 with no bump.
 
 So there are two loops, and they are different: a **development** loop that runs your working tree
@@ -179,7 +179,7 @@ credentials. This repo holds no secrets, and that is its strongest security prop
 repo with no secrets and no self-hosted runner has essentially no attack surface worth exploiting.
 Adding an API key so a fork's pull request can trigger paid model calls trades that away for a
 check any contributor can run locally in four minutes. The workflow gates the form; you gate the
-behavior. Full reasoning in `tasks/done/004-author-eval-suite-for-the-skill.md`.
+behavior. Full reasoning in `tasks/done/00004-author-eval-suite-for-the-skill.md`.
 
 ## Release loop
 
@@ -244,7 +244,7 @@ permanently to save one command per release is a bad trade at this size.
 
 The counter-argument is real and worth writing down: *remember to run it* is precisely the failure
 this project has already had once. The pinned-version incident
-(`tasks/done/003-pinned-version-silently-withheld-the-fix.md`) happened because a release step lived
+(`tasks/done/00003-pinned-version-silently-withheld-the-fix.md`) happened because a release step lived
 only in someone's head, and the fix was to make CI fail on it.
 
 So the escalation, if a release does go untagged, is **not** CI-with-write. It is a **read-only

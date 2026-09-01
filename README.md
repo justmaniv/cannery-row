@@ -402,7 +402,7 @@ One rough edge, disclosed rather than discovered: if your repository *has* a rem
 pushes on every lane move, and there is currently no way to say you'd rather it didn't. For some
 projects that cadence is the point; for others it's chatty. A local-only repository is unaffected —
 the commit is the whole step there, by design. Tracked in
-[`tasks/blocked/019-user-cannot-opt-out-of-remote-operations.md`](tasks/blocked/019-user-cannot-opt-out-of-remote-operations.md).
+[`tasks/blocked/00019-user-cannot-opt-out-of-remote-operations.md`](tasks/blocked/00019-user-cannot-opt-out-of-remote-operations.md).
 
 ## Contributing
 

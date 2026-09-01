@@ -90,7 +90,7 @@ small," and separating a topology effect from ordinary run variance would take c
 
 So it stays an argument with one worked example behind it, and the README says so in those words.
 Recorded here so the omission reads as a decision rather than an oversight someone later tries to
-fix. Decided 2026-08-08; see `tasks/done/016-two-pass-claim-is-unmeasured.md` for the four options
+fix. Decided 2026-08-08; see `tasks/done/00016-two-pass-claim-is-unmeasured.md` for the four options
 weighed.
 
 ### No case for "where the check stops", and it is not 016's reason
@@ -106,7 +106,7 @@ inexpressible; this case is single-session and sits on the existing `with-withou
 harness objection does not transfer. 016 in fact **recommended** the neighbouring case — *"scaffold a
 spec with a deliberately false premise, grade whether the cold session catches it before building"* —
 and called it *"the sharpest single thing in this whole area."* That one is still live and belongs
-with the three in `tasks/new/014-*`, one of which (**Overtaken-by-events**) already covers the other
+with the three in `tasks/new/00014-*`, one of which (**Overtaken-by-events**) already covers the other
 half of this same section. Nothing here kills it.
 
 What is unwritable is a case over the *mechanism* half, because the graders would have to assert one
@@ -124,10 +124,10 @@ The falsification framing that shipped in the same version has the same problem 
 no grader here distinguishes *"read the code"* from *"tried to break the claim"* except by the
 finding it produces, which is the first bullet again.
 
-The behavior does have evidence, from use rather than from a run: `tasks/done/024-*`, where a fresh
+The behavior does have evidence, from use rather than from a run: `tasks/done/00024-*`, where a fresh
 reader falsified four claims in a task that had already passed the four-minute check, one of them
 already propagated into a sibling's acceptance criteria. Decided 2026-08-09 while executing
-`tasks/done/025-*`.
+`tasks/done/00025-*`.
 
 ## Grader semantics — read this before adding a case
 
@@ -186,7 +186,7 @@ used it to argue for skipping a run.
 ⚠️ **The `done-when-reconciliation` delta narrowed from +0.19 to +0.14 at 0.8.0, and that is the
 baseline moving, not the skill.** The plugin arm scored 1.00 on 3/3 in both measurements; the
 *without* arm improved from 0.81 to 0.86. A delta measured against an unpinned baseline drifts as
-the model does, which is what `tasks/new/015-eval-deltas-pin-no-model.md` is about — read a
+the model does, which is what `tasks/new/00015-eval-deltas-pin-no-model.md` is about — read a
 narrowing delta as "the baseline caught up on one assertion" until something shows the with-arm
 regressed.
 

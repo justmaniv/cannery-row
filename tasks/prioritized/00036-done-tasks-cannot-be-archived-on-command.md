@@ -10,8 +10,8 @@ links:
   - tasks/README.md
   - scripts/generate-task-board.py
   - scripts/check-skill-args.py
-  - tasks/new/013-adopters-copy-of-the-generator-drifts.md
-  - tasks/wip/035-task-numbers-are-capped-at-three-digits-and-gates-go-blind-past-999.md
+  - tasks/new/00013-adopters-copy-of-the-generator-drifts.md
+  - tasks/wip/00035-task-numbers-are-capped-at-three-digits-and-gates-go-blind-past-999.md
 ---
 
 # Completed tasks accumulate in `done/` forever, with no way to shelve the old ones on command
@@ -181,7 +181,7 @@ decision to take deliberately:
 
 - **A — script + a `SKILL.md` section that invokes it.** Deterministic, testable, and `scripts/` is
   inside the shipped boundary so adopters receive it. But it inherits
-  [[013-adopters-copy-of-the-generator-drifts]] — the open problem that an adopter's copy of a
+  [[00013-adopters-copy-of-the-generator-drifts]] — the open problem that an adopter's copy of a
   shipped script cannot be updated — and hard-codes a path into prose that is otherwise
   runtime-agnostic.
 - **B — procedure in `SKILL.md` only**, as every other operation here is written, with the date

@@ -8,7 +8,7 @@ blocked-by: ""
 links:
   - scripts/generate-task-board.py
   - skills/task-lifecycle/SKILL.md
-  - tasks/blocked/019-user-cannot-opt-out-of-remote-operations.md
+  - tasks/blocked/00019-user-cannot-opt-out-of-remote-operations.md
 ---
 
 # The task tree can only live at `<repo>/tasks/`, which some repos cannot offer

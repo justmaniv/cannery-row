@@ -7,7 +7,7 @@ owner: justmaniv
 blocked-by: ""
 links:
   - skills/task-lifecycle/SKILL.md
-  - tasks/new/021-numbering-scan-worktree-half-scans-nothing.md
+  - tasks/new/00021-numbering-scan-worktree-half-scans-nothing.md
 ---
 
 # The numbering scan is presented as the safeguard, and its worktree half is corrupted before Claude reads it

@@ -8,7 +8,7 @@ blocked-by: ""
 links:
   - CONTRIBUTING.md
   - .github/workflows/ci.yml
-  - tasks/done/007-task-body-contract-is-undocumented-and-unenforced.md
+  - tasks/done/00007-task-body-contract-is-undocumented-and-unenforced.md
 ---
 
 # The gates that enforce everything are themselves untested, and nothing floors coverage

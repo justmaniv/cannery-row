@@ -23,7 +23,7 @@ Two loops, and they are different. `CONTRIBUTING.md` is the authority; the short
 
 ⚠️ **The bump is load-bearing, not bookkeeping.** The version is pinned, so a fix merged without
 one reaches nobody while `plugin update` reports *"already at the latest version."* That happened
-(`tasks/done/003-*`). README- and docs-only changes are exempt; the boundary is
+(`tasks/done/00003-*`). README- and docs-only changes are exempt; the boundary is
 `skills/ scripts/ tasks/README.md .claude-plugin/`. A bump also needs a `CHANGELOG.md` heading for
 the new version — same script, same build break.
 
@@ -110,7 +110,7 @@ dated note saying what was wrong.
 
 **The fresh context is the whole mechanism.** A session that has just validated the task cannot do
 this to itself: by then it has read the argument and is checking whether the claims are *supported*
-rather than whether they are *true*. That failure is on record — `tasks/done/024-*`, where a
+rather than whether they are *true*. That failure is on record — `tasks/done/00024-*`, where a
 fabricated test mechanism passed pickup validation and had already reached three sibling tasks, one
 as a "Done when" criterion prescribing a change to something that does not exist.
 

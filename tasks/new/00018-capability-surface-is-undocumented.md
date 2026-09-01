@@ -6,8 +6,8 @@ status: new
 owner: justmaniv
 blocked-by: ""
 links:
-  - tasks/new/013-adopters-copy-of-the-generator-drifts.md
-  - tasks/done/017-skill-assumes-a-remote-exists.md
+  - tasks/new/00013-adopters-copy-of-the-generator-drifts.md
+  - tasks/done/00017-skill-assumes-a-remote-exists.md
   - README.md
   - scripts/check-portability.py
 ---
@@ -65,10 +65,10 @@ pair is confusing to explain, which is a symptom of there being no capability ma
 
 ## Scope — what this task is not
 
-- **Not how adopters obtain files.** `tasks/new/013-*` owns that, and its fork already weighs the
+- **Not how adopters obtain files.** `tasks/new/00013-*` owns that, and its fork already weighs the
   plugin-cache path against the `curl`. Do not re-decide it here; if the inventory changes the
   inputs to that decision, say so in 013 rather than answering it in this task.
-- **Not the skill's remote coupling.** `tasks/new/017-*` owns that.
+- **Not the skill's remote coupling.** `tasks/new/00017-*` owns that.
 - **Not "document everything."** The README just gained an opinions section and is long. Deciding
   what does *not* earn a mention is half the work.
 
@@ -77,7 +77,7 @@ the whole repository, not just `skills/` — so an adopter already has every scr
 `curl`. That was checked by listing the cache on one machine on 2026-08-09 and **it is an
 observation, not a documented contract**. Do not build an instruction on it without confirming it is
 intended behaviour; that path is version-pinned and internal, which is precisely why
-`tasks/done/009-*` rejected it as an acquisition route.
+`tasks/done/00009-*` rejected it as an acquisition route.
 
 ## The fork — where the inventory lives
 

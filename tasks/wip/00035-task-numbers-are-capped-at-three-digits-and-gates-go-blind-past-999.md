@@ -9,8 +9,8 @@ links:
   - skills/task-lifecycle/SKILL.md
   - tasks/README.md
   - scripts/generate-task-board.py
-  - tasks/new/021-numbering-scan-worktree-half-scans-nothing.md
-  - tasks/done/034-numbering-scan-is-best-effort-and-its-worktree-half-is-corrupted-at-render.md
+  - tasks/new/00021-numbering-scan-worktree-half-scans-nothing.md
+  - tasks/done/00034-numbering-scan-is-best-effort-and-its-worktree-half-is-corrupted-at-render.md
 ---
 
 # Task numbers are capped at three digits, and the numbering scan and five adopter gates fail silently past 999
@@ -58,8 +58,8 @@ $ printf '0999-a.md\n1000-b.md\n1001-c.md\n' | grep -oE '^[0-9]{3,}' | sort -n |
 
 The scan does not error, does not skip the file, and does not print a warning — it reports the max
 as 100 and the session takes 101, which is already in use. This is the same failure class as
-[[021-numbering-scan-worktree-half-scans-nothing]] and
-[[034-numbering-scan-is-best-effort-and-its-worktree-half-is-corrupted-at-render]]: a scan half that
+[[00021-numbering-scan-worktree-half-scans-nothing]] and
+[[00034-numbering-scan-is-best-effort-and-its-worktree-half-is-corrupted-at-render]]: a scan half that
 goes quiet and is trusted. The difference is that those two lose a race; this one hands back a
 number that is *guaranteed* to collide, on every run, forever after 999.
 
@@ -179,7 +179,7 @@ accepts both, so the tree is valid at every commit), then rename, then tighten i
 - `generate-task-board.py:211`'s lexical sort becomes correct on its own once widths are uniform;
   leave it, and record that as the reason it was not touched. ⚠️ The reason currently recorded at
   `generate_task_board_test.py:161` is a **phantom**: it cites `triage-criteria.md`, a document
-  that exists in no repository here — the same leaked upstream reference `tasks/done/001-*` removed
+  that exists in no repository here — the same leaked upstream reference `tasks/done/00001-*` removed
   from the generator's emitted output, which survived in this comment. Replace it with the real
   reason, do not preserve it.
 
@@ -278,7 +278,7 @@ Two claims were wrong as drafted:
 - **"The board generator needs no change" was over-broad.** `generate-task-board.py:211` sorts lane
   files lexically. As a `## Done when` criterion reading *"confirmed unchanged"* this would have
   been self-enforcing: a closer following it would have shipped a silently mis-ordered queue under
-  the recommended option. This is exactly the failure `tasks/done/024-*` records.
+  the recommended option. This is exactly the failure `tasks/done/00024-*` records.
 
 **2026-09-01 (second pass)** — the recommendation was reversed after the requester pushed back on
 filesystem ordering. The original draft recommended `{3,}`-only and called a five-digit pad
@@ -316,5 +316,5 @@ Also corrected: the three citation counts had drifted the same day (2909/2016/10
 
 Found while validating, and recorded here because nothing else did: `generate_task_board_test.py:161`
 justifies the lexical sort by citing `working-agreement/triage-criteria.md`, which exists in no
-repository here. `tasks/done/001-*` removed that exact phantom from the generator's *emitted output*;
+repository here. `tasks/done/00001-*` removed that exact phantom from the generator's *emitted output*;
 it survived in the test comment. Phase 2 must replace it, not preserve it.

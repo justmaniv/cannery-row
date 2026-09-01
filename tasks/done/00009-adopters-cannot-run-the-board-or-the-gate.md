@@ -8,7 +8,7 @@ blocked-by: ""
 links:
   - README.md
   - tasks/README.md
-  - tasks/done/007-task-body-contract-is-undocumented-and-unenforced.md
+  - tasks/done/00007-task-body-contract-is-undocumented-and-unenforced.md
 ---
 
 # An adopter following the README cannot run the board, or the gate that enforces the contract

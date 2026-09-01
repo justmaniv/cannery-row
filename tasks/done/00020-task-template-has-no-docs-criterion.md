@@ -8,8 +8,8 @@ blocked-by: ""
 links:
   - tasks/README.md
   - skills/task-lifecycle/SKILL.md
-  - tasks/done/007-task-body-contract-is-undocumented-and-unenforced.md
-  - tasks/blocked/019-user-cannot-opt-out-of-remote-operations.md
+  - tasks/done/00007-task-body-contract-is-undocumented-and-unenforced.md
+  - tasks/blocked/00019-user-cannot-opt-out-of-remote-operations.md
 ---
 
 # A closure's findings reach the docs and the open tasks they change, not just whoever remembers
@@ -103,7 +103,7 @@ after an independent read — the citation drift is itself the point.**
    it closes *"plenty of real use is local-only."* It is not evidence of a git-less claim and has
    been dropped from the quote.
 3. The entry claimed *"a docs criterion on 019 is what would have caught it."* **019 already has
-   one** — `tasks/prioritized/019-…:104-108` quotes the same fragment and names the
+   one** — `tasks/prioritized/00019-…:104-108` quotes the same fragment and names the
    *"A host is a bonus, not a dependency"* bullet. The drift persists because 019 is unstarted, not
    because it lacks the criterion. That sentence is struck.
 
@@ -261,7 +261,7 @@ at risk in prose about propagating work are the methodology class: `story`, `epi
       not clean:** `done-when-reconciliation`'s with-skill arm fell 1.00 → 0.94, and the failing
       grader is the weight-5 `dropped-criterion-not-claimed-met`, the one that case exists for.
       Three runs cannot separate that from variance. Routed to
-      `tasks/new/030-the-with-arm-regressed-on-the-grader-that-case-exists-for.md`
+      `tasks/new/00030-the-with-arm-regressed-on-the-grader-that-case-exists-for.md`
 - [x] Every doc and open task describing the changed behavior is updated in the same change — or
       the ones checked are named here, with why none needed it. **Dogfooding this task's own
       criterion, so the list is the deliverable, not a formality:**

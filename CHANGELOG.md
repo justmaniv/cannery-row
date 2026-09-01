@@ -415,7 +415,7 @@ is diffing them, and reconstructing entries for them now would be archaeology ra
 ⚠️ **`0.5.1` is untagged by accident, not by choice**, which is why `0.6.0` above compares against
 `0.5.0` and why `0.5.1` has no link line. Found 2026-08-11 during task 020's independent read.
 Tagging it retroactively is an outward-facing act on the remote, so it is routed rather than done
-in passing — `tasks/new/028-a-shipped-version-went-untagged-as-010-said-it-would.md`, which is the
+in passing — `tasks/new/00028-a-shipped-version-went-untagged-as-010-said-it-would.md`, which is the
 escalation task 010 pre-wrote for exactly this condition.
 
 [0.8.2]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.8.1...cannery-row--v0.8.2

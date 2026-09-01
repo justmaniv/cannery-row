@@ -6,9 +6,9 @@ status: done
 owner: justmaniv
 blocked-by: ""
 links:
-  - tasks/done/004-author-eval-suite-for-the-skill.md
-  - tasks/new/014-eval-suite-covers-two-transitions.md
-  - tasks/new/015-eval-deltas-pin-no-model.md
+  - tasks/done/00004-author-eval-suite-for-the-skill.md
+  - tasks/new/00014-eval-suite-covers-two-transitions.md
+  - tasks/new/00015-eval-deltas-pin-no-model.md
   - evals/README.md
   - README.md
 ---
@@ -38,7 +38,7 @@ evidence. It is also n=1, retrospective, and self-reported by the project making
 
 ## Why this is not just another case in 014
 
-`tasks/new/014-*` adds cases along the existing axis — three more transitions the skill teaches and
+`tasks/new/00014-*` adds cases along the existing axis — three more transitions the skill teaches and
 a model would not guess. This is a different independent variable, and the harness may not be able
 to express it. That question is the first piece of work here, not an implementation detail:
 
@@ -84,7 +84,7 @@ defensive footnote: it invites disagreement instead of implying a proof exists s
 
 The harness question this task opened first — whether `claude plugin eval` can chain two agents
 through a handoff — was never answered, and is now moot for this axis. If anyone needs it later,
-`tasks/new/014-*` has a related unknown about the eval sandbox that is worth answering in the same
+`tasks/new/00014-*` has a related unknown about the eval sandbox that is worth answering in the same
 sitting.
 
 ## Done when

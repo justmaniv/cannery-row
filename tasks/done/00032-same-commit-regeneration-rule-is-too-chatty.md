@@ -10,9 +10,9 @@ links:
   - README.md
   - tasks/README.md
   - scripts/generate-task-board.py
-  - tasks/done/005-worktree-removal-trap-and-no-regeneration-step.md
-  - tasks/done/009-adopters-cannot-run-the-board-or-the-gate.md
-  - tasks/new/013-adopters-copy-of-the-generator-drifts.md
+  - tasks/done/00005-worktree-removal-trap-and-no-regeneration-step.md
+  - tasks/done/00009-adopters-cannot-run-the-board-or-the-gate.md
+  - tasks/new/00013-adopters-copy-of-the-generator-drifts.md
 ---
 
 # Regenerating the board in the same commit is too chatty for a multi-session repo — make it on-demand
@@ -30,7 +30,7 @@ The generator stays. The **obligation to run it on every status move** goes.
 
 ## Where the rule came from, so this is a reversal and not a rediscovery
 
-[[005-worktree-removal-trap-and-no-regeneration-step]] added it on 2026-08-06, defect #2, reported
+[[00005-worktree-removal-trap-and-no-regeneration-step]] added it on 2026-08-06, defect #2, reported
 by the first outside session to use the skill. Its argument was real and is not being called wrong:
 
 > split commits mean every bisect between them lands on a tree where the tracker and its view
@@ -127,7 +127,7 @@ per its `tasks/README.md:72`), not the single gate-7 row named below.
 
 ## ⚠️ The consequence to decide, not to discover
 
-**The generator is also the structural gate.** Per [[009-adopters-cannot-run-the-board-or-the-gate]]
+**The generator is also the structural gate.** Per [[00009-adopters-cannot-run-the-board-or-the-gate]]
 and task 007, `generate-task-board.py` is what refuses to build from a task missing its H1 or its
 `## Done when` — that enforcement is the centerpiece of the README's argument, and *the same-commit
 rule is what made it fire continuously*. Take the rule away and:
@@ -149,7 +149,7 @@ turns out to need its own answer, file it rather than folding it in.
 
 - Changing `generate-task-board.py`. Its behaviour, its `--check` mode, and its structural refusal
   all stay exactly as they are. This is a docs-and-rule change.
-- The adopter-drift problem in [[013-adopters-copy-of-the-generator-drifts]] — related, separate.
+- The adopter-drift problem in [[00013-adopters-copy-of-the-generator-drifts]] — related, separate.
 - The downstream change in `everything-has-a-price` — but see the warning below; it is **not** a
   no-op, and it is that repo's own task to file.
 
@@ -209,7 +209,7 @@ benefit there.
       read caught that the deletion invalidated four published sites.)*
 - [x] Every document and open task this change made wrong is updated: `SKILL.md`'s propagation
       section no longer cites the deleted step as an active mechanism, and
-      `tasks/new/029-*` carries a dated note because its `git grep` argument rested on the removed
+      `tasks/new/00029-*` carries a dated note because its `git grep` argument rested on the removed
       snippet. `evals/README.md` also gained the general rule the miss exposed — a grader kept on
       *"the skill requires it"* has to be revisited when the skill changes, and nothing automated
       catches it. *(Added mid-task.)*
