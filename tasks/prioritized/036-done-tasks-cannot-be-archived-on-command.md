@@ -80,24 +80,38 @@ not have to guess which is current.
   `load_tasks` takes `lane` from the path. (Downstream is different — about six scripts in
   `everything-has-a-price` do read the field, and they are on the routing list anyway.)
 
-### ⚠️ The one hazard the name introduces: `LIVE_LANES = LANES[:-1]`
+### The one hazard the name introduces — caught by CI, fixed in one character
 
 `generate-task-board.py:34` derives the board columns by a **positional slice** that assumes `done`
-is last. Append `done-archived` to `LANES` and `LIVE_LANES` silently becomes
-`("new", "prioritized", "wip", "blocked", "done")` — **`done` is promoted to a live board column.**
-Nothing errors; the board just grows a fifth column of closed work.
+is last. Append `done-archived` to `LANES` and `LIVE_LANES` becomes
+`("new", "prioritized", "wip", "blocked", "done")` — `done` is promoted to a live board column.
+
+**The fix is `LIVE_LANES = LANES[:-2]`, and the existing suite already catches the mistake.**
+Measured 2026-09-01 by patching a scratch copy and running `generate_task_board_test.py`:
+
+| form | result |
+|---|---|
+| `LANES += ("done-archived",)`, slice left at `[:-1]` | `FAILED (failures=2, errors=14)` |
+| slice changed to `[:-2]` | `OK (70 tests)` |
+
+`test_header_columns_are_the_lanes_in_flow_order` (`:150-153`) feeds `gen.LIVE_LANES` in and asserts
+the header against a hardcoded `["new", "prioritized", "wip", "blocked"]`, so the promoted column
+reddens the build. This is runtime-silent but **not** CI-silent — do not carry it as a hidden
+hazard. The slice stays positional and will re-break when a seventh lane is appended; that test
+catches that too, which is the property worth having.
 
 Four more sites hard-code the string and need the same treatment:
 
-| line | code | effect if left |
+| line | code | status after `[:-2]` |
 |---|---|---|
-| 34 | `LIVE_LANES = LANES[:-1]` | `done` becomes a live column |
-| 315 | `if t.lane == "done": continue` | archived tasks enter the mermaid graph as dependents |
-| 327 | `known.lane == "done"` | an archived blocker never marks as satisfied |
-| 398 | `by_lane["done"]` | the done table silently excludes archived tasks (may be wanted — decide) |
+| 34 | `LIVE_LANES = LANES[:-1]` | **fixed** by `[:-2]`; pinned by an existing test |
+| 315 | `if t.lane == "done": continue` | ⚠️ **still wrong** — an archived task is not skipped, so it enters the mermaid graph as a dependent. No test covers it |
+| 327 | `known.lane == "done"` | fine — an archived blocker simply never marks satisfied; decide whether that is wanted |
+| 398 | `by_lane["done"]` | fine — `by_lane` is built over all of `LANES`, so archived tasks render nowhere. Probably correct; record the choice |
 
-Replace the slice with a terminal-lane set rather than a slice, so the next lane added cannot
-repeat this.
+⚠️ **A green suite does not mean the lane is done.** All 70 tests pass under `[:-2]` because nothing
+in the suite exercises a `done-archived` task at all. `:315` is wrong and untested — that gap is the
+work, not the slice.
 
 **Verified safe:** `TASK_REF_RE` does **not** falsely prefix-match — `tasks/done-archived/042-x.md`
 returns `None`, because the alternation requires `/` immediately after `done`. And no
@@ -208,10 +222,12 @@ inherits the obligation, and it is cheap to miss.
 - [ ] `SKILL.md` invariant 4 admits `done-archived/`; invariant 1 is confirmed to need **no**
       amendment, with that reasoning recorded. `done-archived` is added to the lane list and the
       transition is documented alongside the other transitions, with its 14-day default and override
-- [ ] `LIVE_LANES` no longer derives from a positional slice, and a test asserts `done` is absent
-      from the board columns after a sixth lane is added — the trap above, pinned so it cannot recur
-- [ ] The four hard-coded `"done"` sites (`:315`, `:327`, `:398`, plus the slice) each handle
-      `done-archived` deliberately, with a test per behavioral choice
+- [ ] `LIVE_LANES = LANES[:-2]`, and the suite is green — `test_header_columns_are_the_lanes_in_flow_order`
+      already pins this, so no new test is needed for the slice itself
+- [ ] `:315`'s graph skip handles `done-archived` — an archived task must not enter the mermaid graph
+      as a dependent — with a test, since nothing currently exercises the new lane
+- [ ] `:327` and `:398`'s behavior for archived tasks is decided and recorded (render nowhere is the
+      likely answer), with a test per behavioral choice
 - [ ] **If a script was chosen:** it is added to `check-skill-args.py`'s `SCANNED` list, with a test
       asserting the list covers it
 - [ ] `tasks/README.md:11`'s "archive here for history" is rewritten so `done/` and `archive/` are
@@ -265,3 +281,9 @@ that a new status breaks consumers of `status:` — does not hold here, since `g
 never reads the field. Verifying the new design turned up the `LIVE_LANES = LANES[:-1]` positional
 slice, which silently promotes `done` to a live board column the moment a sixth lane is appended;
 that is now a criterion rather than a discovery waiting to happen.
+
+**2026-09-01 (third pass)** — the `LIVE_LANES` hazard was overstated as *"nothing errors."* Measured
+by patching a scratch copy: the trap form fails the existing suite with 2 failures and 14 errors,
+and `LIVE_LANES = LANES[:-2]` passes 70/70. It is runtime-silent but CI-loud, and the fix is one
+character — not the structural rewrite this file first prescribed. The real remaining gap is `:315`,
+which the green suite does not cover because no test exercises a `done-archived` task.
