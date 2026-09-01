@@ -275,7 +275,8 @@ class Cli(unittest.TestCase):
     def test_days_flag_overrides_the_default(self):
         with tree() as root:
             write_task(root, "done", "00001-a.md", completed="2026-08-25")  # 7 days
-            arch.main(["--root", str(root), "--today", "2026-09-01", "--days", "3"])
+            with contextlib.redirect_stdout(io.StringIO()):
+                arch.main(["--root", str(root), "--today", "2026-09-01", "--days", "3"])
             self.assertEqual(moved_names(root), ["00001-a.md"])
 
     def test_exit_zero_when_nothing_to_do(self):
@@ -302,6 +303,29 @@ class Cli(unittest.TestCase):
             with contextlib.redirect_stdout(buf):
                 rc = arch.main(["--root", str(root), "--today", "2026-09-01"])
             self.assertEqual(rc, 1)
+
+    def test_no_completed_key_at_all_is_refused(self):
+        """Distinct from an empty value: the key is missing, not blank. Same refusal, and the
+        arm that reaches it is a different one."""
+        with tree() as root:
+            path = write_task(root, "done", "00001-nokey.md", completed="2026-01-01")
+            path.write_text(
+                path.read_text(encoding="utf-8").replace("completed: 2026-01-01\n", ""),
+                encoding="utf-8",
+            )
+            result = arch.archive(root, today=TODAY, days=14)
+            self.assertEqual([p.name for p in result.refused], ["00001-nokey.md"])
+            self.assertEqual(moved_names(root), [])
+
+    def test_a_file_with_no_frontmatter_is_refused_not_rewritten(self):
+        """`to_archive_lane` returns the text untouched when there is no block to rewrite. The
+        file never reaches it — it is refused first — but a caller that skipped the refusal must
+        not silently emit a task with no frontmatter."""
+        self.assertEqual(arch.to_archive_lane("# no frontmatter\n", TODAY), "# no frontmatter\n")
+        with tree() as root:
+            (root / "tasks" / "done" / "00001-bare.md").write_text("# bare\n", encoding="utf-8")
+            result = arch.archive(root, today=TODAY, days=14)
+            self.assertEqual([p.name for p in result.refused], ["00001-bare.md"])
 
     def test_today_defaults_to_the_clock(self):
         with tree() as root:
