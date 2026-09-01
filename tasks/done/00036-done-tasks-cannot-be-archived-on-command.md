@@ -1,8 +1,8 @@
 ---
 created: 2026-09-01
 updated: 2026-09-01
-completed:
-status: wip
+completed: 2026-09-01
+status: done
 owner: justmaniv
 blocked-by: ""
 links:
@@ -298,7 +298,15 @@ Two things 035 already handles, so this task does not have to:
       branch `task-743-archive-lane` in that repository and deliberately left **unpushed** for the
       owner to carry to merge there rather than from this session
 - [x] Every document and open task this change makes wrong is updated, and anything the work turned
-      up that nothing yet records is written down — or what was checked is named here, with why none
+      up that nothing yet records is written down. **Carried:** `tasks/README.md` (its own stance
+      reversed), `SKILL.md` (invariant 4 + the new transition), `marketplace.json` (a stale
+      description claiming shipped scripts are not shipped), `.coveragerc` (a shipped script was
+      exempt from the floor), both `SCANNED` lists, and `tasks/done/00035-*`'s stale
+      `prioritized/00036-*` path. **Routed:**
+      [[743-five-lane-tuples-go-blind-to-the-new-archive-lane]] downstream;
+      [[00037-the-numbering-scan-regresses-to-an-old-width-through-stale-refs]] and
+      [[00038-three-scripts-define-the-shipped-boundary-and-they-disagree]] here, both found by this
+      work and recorded nowhere before it — or what was checked is named here, with why none
       of it needed changing
 
 ---
@@ -360,3 +368,18 @@ read found nine wrong claims, all corrected above; the pattern is that *mechanis
   edit. And **one** downstream script reads a task's `status:`, not "about six".
 - **The shipped-boundary claim was wrong in both directions**, and there are **two** `SCANNED` lists,
   not one. See the Invocation section.
+
+**2026-09-01 (closure)** — two defects surfaced by doing the work, neither of them this task's
+subject, both now filed:
+
+- **The numbering scan returns the wrong width** ([[00037-the-numbering-scan-regresses-to-an-old-width-through-stale-refs]]).
+  Running it to number the follow-up task returned `037` on a repository that is uniformly five
+  digits. Old refs still carry pre-035 three-digit filenames, `sort -n` treats `036` and `00036` as
+  equal, and its tie-break deterministically picks the narrower form. Found by *running* the scan;
+  the falsification read had confirmed every scan line this file cites, correctly — the defect is in
+  what the correct lines do together.
+- **Three scripts define "shipped" three different ways** ([[00038-three-scripts-define-the-shipped-boundary-and-they-disagree]]).
+  The new script had to be hand-added to two `SCANNED` lists and one `.coveragerc` `source`, and no
+  gate would have caught its absence from any of them. This file's warning named one of the two
+  lists and cited it at the wrong lines; the falsification read found the second list only because
+  it went to check that wrong citation.
