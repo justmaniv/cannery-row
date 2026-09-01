@@ -25,6 +25,33 @@ release, with no docs-only commits mixed in.
 There is no `Unreleased` section, and that is deliberate: `check-release.py` requires an entry in
 the same change that moves the version, so an entry never exists before the version it names.
 
+## [0.8.2] — 2026-09-01
+
+### Fixed
+
+- **The task-numbering scan silently reported a truncated maximum past 999** (task 035). The
+  reduction ended `grep -oE '^[0-9]{3}'`, an *exact* quantifier, and `grep -o` matches a
+  **prefix** — so `1000-b.md` reduced to `100`. The scan did not error, did not skip the file and
+  printed no warning: it reported the maximum as `100` and handed the session `101`, a number
+  already in use. Deterministic, on every run, forever after 999. Now `{3,}`.
+
+  **This changes what happens in your repository** if your numbering is anywhere near four digits,
+  or if you pad your prefixes to a fixed width — under padding the failure is immediate and total,
+  because `00035-slug.md` reduced to `000` and every scan handed back `1`. It is the same class as
+  the worktree half 0.8.0 fixed: a scan half that goes quiet and is trusted. The difference is that
+  one loses a race, and this one is guaranteed to collide.
+
+  The reader-facing note now says the prefix may be wider than three digits, that `printf '%03d'`
+  is a *minimum* width, and — because this is the part that hid the bug — that an exact `{3}`
+  truncates rather than skipping.
+
+### Changed
+
+- **`tasks/README.md` no longer asserts a three-digit prefix**, and now says to pad every number in
+  a project to the same width. The directory *is* the tracker, read with `ls`, in an editor sidebar
+  and in `git status`, all of which sort lexically; only a uniform width makes lexical order equal
+  numeric order, and no code change can substitute for it.
+
 ## [0.8.1] — 2026-08-30
 
 ### Fixed
@@ -391,6 +418,7 @@ Tagging it retroactively is an outward-facing act on the remote, so it is routed
 in passing — `tasks/new/028-a-shipped-version-went-untagged-as-010-said-it-would.md`, which is the
 escalation task 010 pre-wrote for exactly this condition.
 
+[0.8.2]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.8.1...cannery-row--v0.8.2
 [0.8.1]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.8.0...cannery-row--v0.8.1
 [0.8.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.7.0...cannery-row--v0.8.0
 [0.7.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.6.0...cannery-row--v0.7.0

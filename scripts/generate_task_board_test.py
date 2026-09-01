@@ -121,6 +121,28 @@ class LanePlacement(unittest.TestCase):
                        "---\nowner: smiley\ncompleted: 2026-06-02\n---\n\n# Unification\n")
             self.assertEqual([t.number for t in gen.load_tasks(pathlib.Path(root))], [98, 165])
 
+    def test_a_prefix_wider_than_three_digits_is_a_task(self):
+        # Characterization, not test-first: NAME_RE has been `{3,}` all along. It is pinned here
+        # because task 035 pads every number to five digits, and an exact `{3}` would not merely
+        # mis-render a wide task -- it would drop it from the board, the counts and the graph with
+        # nothing reporting the omission.
+        with tempfile.TemporaryDirectory() as root:
+            write_task(root, "new", "01000-a.md", "---\nowner: smiley\n---\n\n# Wide\n")
+            write_task(root, "new", "00036-b.md", "---\nowner: smiley\n---\n\n# Padded\n")
+            self.assertEqual([t.number for t in gen.load_tasks(pathlib.Path(root))], [36, 1000])
+
+    def test_a_padded_prefix_keeps_its_slug_and_path(self):
+        with tempfile.TemporaryDirectory() as root:
+            write_task(root, "new", "00036-padded-slug.md", "---\nowner: smiley\n---\n\n# Padded\n")
+            t = gen.load_tasks(pathlib.Path(root))[0]
+            self.assertEqual((t.number, t.slug, t.path), (36, "padded-slug", "tasks/new/00036-padded-slug.md"))
+
+    def test_a_blocked_by_path_with_a_padded_prefix_resolves_to_its_number(self):
+        # TASK_REF_RE is the second `{3,}` site; a wide blocker that fails to resolve is silently
+        # reclassified as an external "condition" blocker and its graph edge disappears.
+        kind, value = gen.classify_blocker("tasks/done/01000-reconcile.md")
+        self.assertEqual((kind, value), ("task", 1000))
+
     def test_gitkeep_is_not_a_task(self):
         with tempfile.TemporaryDirectory() as root:
             write_task(root, "new", ".gitkeep", "")
