@@ -347,11 +347,16 @@ next=$( {
     | while read -r ref; do git ls-tree -r --name-only "$ref" -- tasks/ 2>/dev/null; done
   git worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p' \
     | while read -r wt; do find "$wt/tasks" -type f -name '*.md' 2>/dev/null; done
-} | sed -E 's#.*/##' | grep -oE '^[0-9]{3}' | sort -n | tail -1 )
+} | sed -E 's#.*/##' | grep -oE '^[0-9]{3,}' | sort -n | tail -1 )
 printf 'next task number: %03d\n' $(( 10#${next:-0} + 1 ))
 ```
 
 - Run it from anywhere in the repo — it scans **all** worktrees and refs, not the cwd.
+- **The prefix may be wider than three digits.** The reduction takes any run of three or more, so a
+  repository that has passed 999 scans correctly, and so does one that pads its numbers to a fixed
+  width for lexical ordering. `printf '%03d'` is a *minimum* width — it never truncates. An exact
+  `{3}` here does not error and does not skip the file: `grep -o` matches a **prefix**, so
+  `1000-b.md` reduces to `100` and the caller is handed `101`, a number already in use.
 - `git ls-tree` reads each ref's committed tree; the `sed` over `git worktree list`
   paths catches numbers created-but-not-yet-committed in a sibling worktree.
 - Creating several tasks at once? Increment locally from that base; don't re-scan between them.
