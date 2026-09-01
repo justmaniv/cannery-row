@@ -82,6 +82,7 @@ MERMAID_CLASSDEFS = (
 @dataclass
 class Task:
     number: int
+    prefix: str  # the number exactly as the filename spells it, padding and all
     slug: str
     lane: str  # = parent directory; the file's location IS its status
     title: str
@@ -219,6 +220,7 @@ def load_tasks(root: Path) -> list[Task]:
             tasks.append(
                 Task(
                     number=int(m.group(1)),
+                    prefix=m.group(1),
                     slug=m.group(2),
                     lane=lane,
                     title=title,
@@ -250,8 +252,8 @@ def card(t: Task) -> str:
         if classified is None:
             continue
         kind, value = classified
-        meta.append(f"⛔ {value:03d}" if kind == "task" else "⛔ condition")
-    return f"**[{t.number:03d}](../{t.path})** {title}<br><sub>{' · '.join(meta)}</sub>"
+        meta.append(f"⛔ {value:0{len(t.prefix)}d}" if kind == "task" else "⛔ condition")
+    return f"**[{t.prefix}](../{t.path})** {title}<br><sub>{' · '.join(meta)}</sub>"
 
 
 def render_board_columns(tasks: list[Task]) -> str:
@@ -287,7 +289,7 @@ def render_done(tasks: list[Task], recent: int = DONE_RECENT) -> str:
     )
     rows = ["| # | Task | Completed |", "|---|---|---|"]
     for t in window:
-        rows.append(f"| [{t.number:03d}](../{t.path}) | {cell(t.title)} | {t.completed or '—'} |")
+        rows.append(f"| [{t.prefix}](../{t.path}) | {cell(t.title)} | {t.completed or '—'} |")
     return f"{head}\n\n{note}\n\n" + "\n".join(rows) + "\n"
 
 
@@ -314,23 +316,25 @@ def render_blocked_graph(tasks: list[Task]) -> str:
     for t in tasks:
         if t.lane == "done":
             continue
-        dependent = f"T{t.number:03d}"
+        # Node ids carry no width: they only have to be unique and to agree between the two
+        # loops that emit them. Padding them would make the same task two nodes in a mixed tree.
+        dependent = f"T{t.number}"
         for raw in t.blockers:
             classified = classify_blocker(raw)
             if classified is None:
                 continue
             kind, value = classified
             if kind == "task":
-                blocker = f"T{value:03d}"
+                blocker = f"T{value}"
                 known = by_number.get(int(value))
-                labels[blocker] = f"{value:03d} · {known.slug if known else 'missing'}"
+                labels[blocker] = f"{known.prefix if known else value} · {known.slug if known else 'missing'}"
                 if known is not None and known.lane == "done" and blocker not in satisfied:
                     satisfied.append(blocker)
             else:
                 blocker = f"X{len(external) + 1}"
                 labels[blocker] = _mermaid_label(str(value))
                 external.append(blocker)
-            labels[dependent] = f"{t.number:03d} · {t.slug}"
+            labels[dependent] = f"{t.prefix} · {t.slug}"
             edges.append((blocker, dependent))
 
     head = "## Blocked-by graph"

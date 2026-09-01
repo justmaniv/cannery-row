@@ -31,6 +31,7 @@ def task(number=100, lane="new", title=None, owner="smiley", updated="2026-08-01
          completed="", blockers=(), done_when_items=1):
     return gen.Task(
         number=number,
+        prefix=f"{number:03d}",
         slug=f"task-{number}",
         lane=lane,
         title=title if title is not None else f"Task {number}",
@@ -230,7 +231,13 @@ class BoardColumns(unittest.TestCase):
         self.assertIn("wip (0)", md.splitlines()[0])
 
     def test_prioritized_column_keeps_file_order_top_to_bottom(self):
-        # prioritized/ ordering is meaningful (triage-criteria.md) — never re-sorted.
+        # The renderer imposes no order of its own — it lays out the list it is handed.
+        # `load_tasks` supplies lexical filename order (`sorted(lane_dir.iterdir())`), which equals
+        # numeric order only while every prefix is the same width. That is the property padding
+        # buys, and it is why the sort there is left alone rather than made numeric: uniform width
+        # makes it correct, and a numeric sort here would hide a tree that had gone mixed.
+        # (The citation that stood here named a working-agreement doc that exists in no repository
+        # this ships to — the leaked upstream reference tasks/done/001 removed from the output.)
         md = gen.render_board_columns(
             [task(number=n, lane="prioritized") for n in (300, 101, 205)]
         )
@@ -339,15 +346,17 @@ class BlockedByGraph(unittest.TestCase):
     def test_edge_points_from_blocker_to_dependent(self):
         tasks = [task(number=97), task(number=80, blockers=["tasks/new/097-confirm.md"])]
         mermaid = gen.render_blocked_graph(tasks)
-        self.assertIn("T097 --> T080", mermaid)
+        # Node ids are unpadded: they are identity, not display. The padded form is asserted on
+        # the label in NumbersRenderAtTheWidthTheirFilenameCarries.
+        self.assertIn("T97 --> T80", mermaid)
 
     def test_done_blockers_are_marked_satisfied(self):
         # A live task still pointing at a closed blocker is a stale-board signal worth seeing.
         tasks = [task(number=99, lane="done", completed="2026-07-01"),
                  task(number=80, blockers=["tasks/done/099-x.md"])]
         mermaid = gen.render_blocked_graph(tasks)
-        self.assertIn("T099 --> T080", mermaid)
-        self.assertIn("class T099 satisfied", mermaid)
+        self.assertIn("T99 --> T80", mermaid)
+        self.assertIn("class T99 satisfied", mermaid)
 
     def test_prose_blocker_becomes_an_external_node(self):
         tasks = [task(number=291, lane="blocked", blockers=["incorporation decision deferred 2026-07-29"])]
