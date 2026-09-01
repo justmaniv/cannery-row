@@ -292,7 +292,7 @@ task filed there; no criterion below is satisfied by editing that repo from here
       up that nothing yet records is written down. What was carried, and what was routed:
 
       **Corrected because this change made it wrong:**
-      - `tasks/prioritized/00036-*` — said the archive operation must emit `%05d`. Now wrong for
+      - `tasks/done/00036-*` (was `prioritized/`; closed 2026-09-01) — said the archive operation must emit `%05d`. Now wrong for
         this task's own reason; archiving renames nothing, so it must carry filenames across
         unchanged. Also recorded there that the numbering scan reaches a new lane for free (both
         halves recurse) while `generate-task-board.py`'s `LANES` tuple does not, and corrected its
@@ -321,6 +321,17 @@ task filed there; no criterion below is satisfied by editing that repo from here
       `tasks/new/00013-*`, `00021-*`, `00022-*` (cite the generator, the scan and `TASK_REF_RE`;
       all still accurate), and `evals/*/scaffold.sh` (deliberately unpadded — they stand in for
       adopters, and now exercise the width derivation).
+
+
+---
+
+## Follow-up found after closure
+
+**2026-09-01** — the width derivation this task shipped has a defect that only appears *after* a
+repository repads: old refs keep the pre-pad filenames, `sort -n` ties `036` with `00036`, and the
+tie-break picks the narrower form, so the scan returns three digits on a five-digit repository.
+Filed as [[00037-the-numbering-scan-regresses-to-an-old-width-through-stale-refs]] with a
+measurement. Nothing in this task was wrong; the case was not considered.
 
 ---
 
