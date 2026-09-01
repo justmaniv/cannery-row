@@ -1,0 +1,114 @@
+schema_version: "1.1"
+name: numbering-scan-and-width
+description: >
+  Creating a task is the transition where being wrong is invisible longest. A duplicate
+  number breaks nothing — it makes every `blocked-by:` path, every `links:` entry and every
+  bare "task NNN" resolve to whichever of the two files the reader opens first. Two things
+  have to go right here and neither is guessable from the working tree: the highest number
+  lives on a branch that is not checked out, and the tree is padded to four digits.
+
+tags: [transition, numbering, create]
+
+context:
+  scaffold_script: scaffold.sh
+
+execution:
+  # Says what happened, not what to do. Naming the scan would hand the procedure to the
+  # baseline arm; naming the width would give away the half this case exists to measure.
+  prompt: |
+    A customer sent a 2GB export through the upload endpoint this morning and the worker
+    process was OOM-killed mid-request. It took the queue down with it for about four
+    minutes. There's no size ceiling anywhere in that path.
+
+    Nobody's picking this up today — get it captured so it doesn't get lost.
+  max_turns: 25
+  timeout_seconds: 420
+  allowed_tools: [Bash, Read, Edit, Write, Glob, Grep, Skill]
+
+runs: 3
+
+graders:
+  # ---- THE ONE THAT MATTERS -------------------------------------------------------
+  # A `files` target reads the created-files list, so this matches the number and the
+  # width without pinning a slug the agent is free to choose. 0045 is correct only if
+  # both halves went right: 0044 is on `sibling-session` and invisible to `ls`, and the
+  # tree is four-wide.
+  - type: regex
+    name: number-continues-past-the-unchecked-out-branch
+    target: files
+    pattern: 'tasks/new/0045-[a-z0-9-]+\.md'
+    weight: 6
+
+  # Taking 0044 is the failure the scan exists to prevent: it is the number a working-tree
+  # `ls` reports, and it is already used on another branch. Paired with the positive above
+  # on the same target, so an empty created-files list fails something (trap 2).
+  - type: regex
+    name: did-not-take-the-number-a-sibling-branch-holds
+    target: files
+    pattern: 'tasks/[a-z]+/0044-'
+    match: not_contains
+    weight: 4
+
+  # `45-` or `045-` in a four-wide tree. Not cosmetic: `ls`, the editor sidebar and
+  # `git status` all sort lexically, so one short number puts the queue out of order and
+  # no code change fixes it.
+  - type: regex
+    name: matched-the-width-the-tree-uses
+    target: files
+    pattern: 'tasks/[a-z]+/0?45-'
+    match: not_contains
+    weight: 3
+
+  # ---- the file is a task, not a note ---------------------------------------------
+  # Invariant 8: an H1 and a `## Done when` with at least one criterion, from creation.
+  # Judged from the response rather than the file, because the slug is the agent's to
+  # choose and no free grader reads the contents of a path it cannot name.
+  - type: llm
+    name: file-carries-a-title-and-criteria
+    focus: last_message
+    criteria: |
+      The response describes creating a task file that has both a title and acceptance
+      criteria (a "Done when" checklist, or criteria under some heading).
+
+      PASS if it reports writing a task with a title and at least one checkable criterion,
+      or shows/quotes such a file.
+
+      FAIL if it only reports creating a file with no mention of criteria, if it says it
+      wrote a bare note or stub, or if it never created a task at all.
+
+      Do not judge the wording of the criteria. Do not judge the task number here.
+    weight: 2
+
+  # ---- committed, per the skill's commit rule -------------------------------------
+  - type: tool_used
+    name: committed-the-new-task
+    tool: Bash
+    input_match: git commit
+    min: 1
+    weight: 2
+
+  # ---- did the scan actually run? -------------------------------------------------
+  # Reaching 0045 without this is possible but unlikely; scoring it separately says
+  # whether the number was scanned for or guessed. `with-only`: the baseline has no scan
+  # to run, and scoring it there would depress the baseline for the wrong reason.
+  - type: tool_used
+    name: scanned-across-refs
+    tool: Bash
+    input_match: for-each-ref
+    min: 1
+    arm: with-only
+    weight: 1
+
+  - type: tool_used
+    name: invoked-the-skill
+    tool: Skill
+    input_match: task-lifecycle
+    min: 1
+    arm: with-only
+    weight: 1
+
+expected_outcome: >
+  A new task file is created at tasks/new/0045-<slug>.md — 0045 rather than 0044, because
+  0044 is committed on a branch that is not checked out, and four digits rather than three,
+  because that is the width the tree already uses. It carries an H1 and a "Done when"
+  checklist, and the creation is committed.

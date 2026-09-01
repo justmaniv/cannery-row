@@ -162,7 +162,14 @@ strike carry a *reason*; was the unblocked task *surfaced*).
 
 ## Cases
 
-3 runs per arm, skill 0.8.0. Whole suite: **$5.41, 14m00s**.
+3 runs per arm. Two cases at skill 0.8.0 measured **$5.41, 14m00s**; a third case was added in
+0.9.0, so expect roughly half again.
+
+`numbering-scan-and-width` is the only case that exercises a *creation*, and the only one whose
+scaffold puts the answer somewhere the working tree cannot see it: the highest number sits on a
+branch that is not checked out, so an `ls` reads 0043 and takes 0044, which is taken. Its second
+half is width — the tree is padded to four digits, deliberately not this repository's five, so a
+generator or a skill that hardcoded five would fail it rather than pass by coincidence.
 
 **That dollar figure is a measurement, not a price list, and this is the only place it appears.**
 It is what one run's tokens priced out to at API rates, under the CLI and skill versions named

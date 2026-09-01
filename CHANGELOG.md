@@ -25,6 +25,36 @@ release, with no docs-only commits mixed in.
 There is no `Unreleased` section, and that is deliberate: `check-release.py` requires an entry in
 the same change that moves the version, so an entry never exists before the version it names.
 
+## [0.9.0] — 2026-09-01
+
+### Changed
+
+- **The next task number now carries the width your repository already uses** (task 035). The scan
+  returns the maximum with its padding intact, so `${#next}` is that width and
+  `printf '%0*d'` matches it: a tree of `00738-…` yields `00739`, a tree of `738-…` yields `739`.
+  Three is the floor when there is nothing to read, and the format is still a *minimum* width, so
+  999 is followed by 1000 whatever the padding said.
+
+  **This changes what happens in your repository** only if you pad — if your numbers are plain three
+  digits you get plain three digits, exactly as before. What it removes is the reason you could not
+  pad: `printf '%03d'` was hardcoded, so a padded repository was handed an unpadded number and went
+  mixed-width one task at a time.
+
+  ⚠️ **Padding is worth doing before you approach 999.** `tasks/<status>/NNN-slug.md` *is* the
+  tracker, and it is read with `ls`, in an editor sidebar and in `git status` — all of which sort
+  lexically. `1000-x.md` sorts before `999-x.md`; only a uniform width makes lexical order equal
+  numeric order, and no code change substitutes for it. `tasks/README.md` now says so.
+
+- **The generated board prints the number the filename carries**, instead of reformatting it to
+  three digits. In a padded repository the old behavior rendered `[036]` linking to
+  `00036-slug.md` — link text disagreeing with its own link, and the freshness check stayed green
+  because it regenerated the same mismatch. Mermaid node ids are now unpadded (`T36`): they are
+  identity rather than display, and padding them made one task two nodes in a mixed tree.
+
+  Neither file hardcodes a width any more, and that is the point: both install into repositories
+  that have chosen different ones, so a fixed width manufactures the mixed-width state the padding
+  rule exists to prevent.
+
 ## [0.8.2] — 2026-09-01
 
 ### Fixed
@@ -418,6 +448,7 @@ Tagging it retroactively is an outward-facing act on the remote, so it is routed
 in passing — `tasks/new/00028-a-shipped-version-went-untagged-as-010-said-it-would.md`, which is the
 escalation task 010 pre-wrote for exactly this condition.
 
+[0.9.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.8.2...cannery-row--v0.9.0
 [0.8.2]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.8.1...cannery-row--v0.8.2
 [0.8.1]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.8.0...cannery-row--v0.8.1
 [0.8.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.7.0...cannery-row--v0.8.0
