@@ -659,5 +659,28 @@ class ArchivedBlockers(unittest.TestCase):
         self.assertNotIn("missing", md)
 
 
+class ArchiveBoundsTheValidationSurface(unittest.TestCase):
+    """The reason this lane exists. `structural_problems` runs over the whole tracker on every
+    generation and hard-fails the build on any violation, so its cost grows monotonically with
+    the number of closed tasks. If archived files stayed in that sweep, archiving would buy
+    nothing for the one thing that actually scales badly."""
+
+    def test_archived_files_are_not_structurally_validated(self):
+        self.assertEqual(structural_problems_for(lane="done-archived"), [])
+
+    def test_done_files_are_still_structurally_validated(self):
+        """The `done/` arm of the same sweep. Narrowing the scope must not narrow it twice —
+        `done/` is the live record of what just shipped, and it stays checked."""
+        self.assertEqual(len(structural_problems_for(lane="done")), 2)
+
+    def test_live_lanes_are_still_structurally_validated(self):
+        self.assertEqual(len(structural_problems_for(lane="wip")), 2)
+
+
+def structural_problems_for(lane):
+    """One task in `lane` breaching both properties: no H1, and no "Done when"."""
+    return gen.structural_problems([task(number=1, lane=lane, title="", done_when_items=None)])
+
+
 if __name__ == "__main__":
     unittest.main()
