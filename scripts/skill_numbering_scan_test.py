@@ -44,7 +44,12 @@ def run(script: str) -> str:
 def next_number(maximum: str) -> int:
     """The number the successor line hands back, read independently of its print width so these
     cases survive a change to the padding without being rewritten to match it."""
-    return int(run(f"next={maximum}; {successor()}").split()[-1], 10)
+    return int(next_token(maximum), 10)
+
+
+def next_token(maximum: str) -> str:
+    """The successor exactly as printed, padding included."""
+    return run(f"next={maximum}; {successor()}").split()[-1]
 
 
 def scan(*names: str) -> str:
@@ -88,6 +93,30 @@ class TheSuccessorSurvivesLeadingZeros(unittest.TestCase):
 
     def test_an_empty_scan_starts_at_one(self):
         self.assertEqual(next_number(""), 1)
+
+
+class TheSuccessorKeepsTheWidthTheRepositoryAlreadyUses(unittest.TestCase):
+    """The skill ships to repositories this one has never seen, and they have not all chosen the
+    same width. A hardcoded width mints a number of the wrong shape in every repository that chose
+    a different one -- which is the mixed-width state the padding rule exists to prevent, shipped
+    by the thing meant to prevent it. The scan already returns the maximum with its padding intact,
+    so the width is free."""
+
+    def test_a_five_digit_repository_gets_a_five_digit_number(self):
+        self.assertEqual(next_token("00739"), "00740")
+
+    def test_a_three_digit_repository_still_gets_three(self):
+        self.assertEqual(next_token("739"), "740")
+
+    def test_a_four_digit_repository_gets_four(self):
+        self.assertEqual(next_token("0035"), "0036")
+
+    def test_padding_is_never_truncated_when_the_number_outgrows_it(self):
+        self.assertEqual(next_token("999"), "1000")
+
+    def test_an_empty_repository_starts_at_the_three_digit_floor(self):
+        # No files, so no width to read. Three is the floor every earlier version of this line used.
+        self.assertEqual(next_token(""), "001")
 
 
 if __name__ == "__main__":
