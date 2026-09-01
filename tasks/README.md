@@ -13,7 +13,7 @@ tasks/
 
 ## Conventions
 
-- **Filename:** `NNN-short-kebab-slug.md` — the numeric prefix orders the queue within a directory. Pad every number in a project to the same width: the directory *is* the tracker, read with `ls`, in an editor sidebar and in `git status`, all of which sort lexically, and only a uniform width makes lexical order equal numeric order. Numbering restarts per project; the numbers carry no meaning beyond ordering, so yielding one is free.
+- **Filename:** `NNN-short-kebab-slug.md` — the numeric prefix orders the queue within a directory. Pad every number in a project to the same width: the directory *is* the tracker, read with `ls`, in an editor sidebar and in `git status`, all of which sort lexically, and only a uniform width makes lexical order equal numeric order. Pick the width once and keep it — the skill reads it off the highest number already in the tree rather than imposing one, so nothing here has to agree with any other project. Numbering restarts per project; the numbers carry no meaning beyond ordering, so yielding one is free.
 - **Move, don't copy.** Status changes are `git mv` — git history preserves the journey. A task's whole life is `git log --follow` on one file, not a line that changed in a big shared file.
 - **One task per file.** If a task spawns sub-tasks, link them; don't nest.
 - **`prioritized/` ordering:** put at the top whatever unblocks the most other work, then whatever reduces the most risk, then the smallest useful batch. Order is expressed by position in the directory listing (hence the numeric prefix), not by a priority field — there is nothing to keep in sync.

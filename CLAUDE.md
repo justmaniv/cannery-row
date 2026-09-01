@@ -80,6 +80,11 @@ coverage run -m unittest discover -s scripts -p '*_test.py' && coverage report  
   test-first; say so rather than dressing it up.
 - **Tests assert behavior, never coverage.** A test that runs code without asserting its result is
   a hole with a green check over it.
+- **Task numbers here are five digits** (`tasks/wip/00035-slug.md`). Nothing in the shipped files
+  says five — the skill derives the width from the highest number already in the tree, so an
+  adopter at three digits stays at three. This is a local choice, recorded here because the only
+  other place it exists is the filenames. Padding is what makes `ls` order equal numeric order, so
+  a new task written at the wrong width breaks the thing the padding bought.
 - **Task hygiene** is governed by the skill this repo ships — use `cannery-row:task-lifecycle` for
   every create/start/block/close. `tasks/README.md` documents layout for humans; the skill governs
   operations.

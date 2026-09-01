@@ -168,14 +168,18 @@ accepts both, so the tree is valid at every commit), then rename, then tighten i
 
 - Scripted `git mv` over this repo's `tasks/*/` to `%05d` (36 files), and rewrite this repo's own
   internal `tasks/<lane>/NNN-slug.md` and `[[NNN-slug]]` citations
-- `SKILL.md:351` `printf '%03d'` → `%05d`; `generate-task-board.py` `:03d` → `:05d` (7 sites) so
-  link text matches the filename
+- ~~`SKILL.md:351` `printf '%03d'` → `%05d`; `generate-task-board.py` `:03d` → `:05d` (7 sites)~~
+  — **rejected during phase 2, see "Why no width is hardcoded" below.** Both files ship, so a
+  hardcoded five mints a mismatched number in every adopter that chose three. The width is read
+  off the tree instead.
 - ⚠️ **`generate_task_board_test.py` is an eighth `03d` site and holds ~9 hardcoded three-digit
   assertions** — `:41` builds paths at `{number:03d}`, and `:166, 191, 223, 270, 277, 278, 283,
   432, 433` assert `"300"`, `"354"`, `"097"`, `"T097 --> T080"`, `"T099"`, `"T291"`, `"007"`,
   `"008"`. The original draft's "7 sites" counted only the generator. Every one of these fails the
   moment `card()` becomes `:05d`.
-- `tasks/README.md:16` here — state the five-digit width
+- ~~`tasks/README.md:16` here — state the five-digit width~~ — it ships, so it must stay
+  width-agnostic. Phase 1 made it say *pad to a uniform width*, which is the durable rule; this
+  repo's own choice of five is recorded in `CLAUDE.md` instead.
 - `generate-task-board.py:211`'s lexical sort becomes correct on its own once widths are uniform;
   leave it, and record that as the reason it was not touched. ⚠️ The reason currently recorded at
   `generate_task_board_test.py:161` is a **phantom**: it cites `triage-criteria.md`, a document
@@ -200,6 +204,29 @@ worth carrying back here:
 - **`generate-task-board.py`'s width problem is not confined to this repo.** That repo ships its own
   copy with seven `:03d` render sites, and its regexes are already `{3,}` — so after a rename it
   does not go blind, it prints a number that no longer matches its filename, and no gate notices.
+
+### Why no width is hardcoded (decided during phase 2, 2026-09-01)
+
+The plan above said `%03d → %05d` in `SKILL.md` and `:03d → :05d` in the board generator. Both are
+wrong, and for the reason this whole task exists.
+
+**`skills/` and `scripts/` are both inside the shipped boundary.** They install into repositories
+that have chosen different widths. `everything-has-a-price` is the live case: 739 tasks at three
+digits, its rename filed as task 740 and not prioritized. A five-digit skill would hand it
+`00740-…` beside `739-…` — mixed width, shipped by the fix meant to prevent mixed width. A
+five-digit board generator would print `00740` beside a file named `740-…` in every such repo.
+
+**The width is not either file's to choose, and neither has to guess.**
+
+- The scan already returns the maximum *with its padding intact*, so `${#next}` is the width in use:
+  `width=${#next}; [ "$width" -lt 3 ] && width=3` then `printf '%0*d'`. Three is the floor when the
+  tree is empty. `%0*d` is still a minimum, so 999 → 1000 whatever the padding said.
+- `NAME_RE` already captures the prefix string; `Task` now carries it as `prefix`, and every display
+  site renders that instead of reformatting the int. Mermaid node ids drop padding entirely — they
+  are identity, not display, and padding them would make one task two nodes in a mixed tree.
+
+This is strictly better than the planned change: every adopter keeps the width it already uses, and
+this repo's rename works without the shipped files knowing about it.
 
 ### The test is cheap, not new scaffolding
 
@@ -232,25 +259,31 @@ fails the build. Without it the fix merges and reaches nobody while `plugin upda
 Scope decision, 2026-09-01: **this repo only.** Every `everything-has-a-price` change is routed to a
 task filed there; no criterion below is satisfied by editing that repo from here.
 
-- [ ] **Phase 1 merged:** no shipped file in this repo (`skills/`, `scripts/`, `tasks/README.md`,
+- [x] **Phase 1 merged:** no shipped file in this repo (`skills/`, `scripts/`, `tasks/README.md`,
       `.claude-plugin/`) asserts an exact three-digit prefix, and the numbering scan returns `1001`
-      for the `0999/1000/1001` input above, not `100`
-- [ ] A test in `scripts/` executes the `SKILL.md` numbering-scan pipeline and asserts it returns
+      for the `0999/1000/1001` input above, not `100`. `0.8.2`, PR #48
+- [x] A test in `scripts/` executes the `SKILL.md` numbering-scan pipeline and asserts it returns
       `1001`, failing if the pattern regresses to exact width — asserting the returned value, not
-      merely running the code
-- [ ] A test in `scripts/` asserts the board generator loads and renders a five-digit task file,
-      failing if it regresses to an exact-width assumption. State plainly whether this is test-first
-      or characterization: `NAME_RE` is *already* `{3,}`, so a test written now passes on arrival
-      and is characterization
-- [ ] **Phase 2 merged:** every task file in **this** repo is `%05d`-padded, this repo's own path
-      and wiki-link citations are rewritten, and `ls tasks/prioritized/` lists in numeric order
-- [ ] `generate_task_board_test.py`'s three-digit assertions (`:41` and ~9 sites) are updated in the
-      same change as `:03d → :05d`, and `:161`'s phantom `triage-criteria.md` justification is
-      replaced with the real reason rather than carried forward
-- [ ] `generate-task-board.py:211`'s lexical sort is left in place with the reason recorded — under
-      uniform width it is correct, and changing it is a signal the task was widened past its scope
+      merely running the code. `scripts/skill_numbering_scan_test.py`, 13 cases; it extracts the
+      pipeline from the shipped file and runs it
+- [x] A test in `scripts/` asserts the board generator loads and renders a five-digit task file,
+      failing if it regresses to an exact-width assumption. Two kinds, and they are labelled as
+      such: the three *loading* tests are **characterization** — `NAME_RE` was already `{3,}`, so
+      they passed on arrival — while the five *rendering* tests were **test-first**, RED in
+      `c03ca46` and green in `d0a8a07`
+- [x] **Phase 2:** every task file in **this** repo is `%05d`-padded, this repo's own path and
+      wiki-link citations are rewritten, and `ls tasks/done/` lists in numeric order. 36 files via
+      `git mv`; 29 board links resolve with link text matching every filename
+- [x] `generate_task_board_test.py`'s three-digit assertions are updated. Fewer moved than the
+      table predicted, because rendering the captured prefix leaves three-digit fixtures rendering
+      three digits — only the two mermaid node-id assertions changed (`T097` → `T97`). `:161`'s
+      phantom `triage-criteria.md` justification is replaced, and the reason it gave was also wrong:
+      the renderer imposes no order at all
+- [x] `generate-task-board.py:211`'s lexical sort is left in place with the reason recorded at
+      `generate_task_board_test.py`'s lane-order test — under uniform width it is correct, and a
+      numeric sort would *hide* a tree that had gone mixed
 - [ ] `version` bumped in both `.claude-plugin/*.json` with a matching `CHANGELOG.md` heading, once
-      per phase (both phases touch shipped files)
+      per phase (both phases touch shipped files). Phase 1 shipped `0.8.2`
 - [x] The `everything-has-a-price` half is **routed, not applied from here** — task 740 exists in
       that repo covering its **five** gate patches (11, 19, 20, 21, 24), its `upstream-watch-run.py`
       generator fix, its 721-file rename, its `tasks/README.md:16`, and its ~3027 citations; linked
