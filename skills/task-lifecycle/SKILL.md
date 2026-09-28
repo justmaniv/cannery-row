@@ -206,10 +206,11 @@ jobs                       # background polls/servers you started → stop them
 
 🔴 **Running this checklist is not reading it.** The commands print state; a report is a claim about
 that state, and the two part company silently. Quote the reading beside each line — *worktrees: mine
-removed, `../x` left (sibling)*; *branches: mine deleted, 3 `: gone` not mine*; *status: clean, up to
-date with origin*; *jobs: none* — and only then write "clean". In particular **`git status -sb`
-reading `[behind N]` is not clean**: fast-forward first. A campsite claim with no readings under it
-was not checked.
+removed, `../x` left (sibling)*; *branches: mine deleted, 3 `: gone` not mine*; *status: clean, level
+with its upstream*; *jobs: none* — and only then write "clean". In particular **`git status -sb`
+reading `[behind N]` is not clean**: fast-forward first. (A branch with no upstream simply has no
+such reading — there is nothing to be behind.) A campsite claim with no readings under it was not
+checked.
 
 ⚠️ **No line in this gate may end "no action needed."** One did, for scratch files, and it was not
 a rule anyone gave — an agent wrote an exemption into the checklist, for agents, and a session then
