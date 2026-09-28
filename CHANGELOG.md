@@ -25,6 +25,30 @@ release, with no docs-only commits mixed in.
 There is no `Unreleased` section, and that is deliberate: `check-release.py` requires an entry in
 the same change that moves the version, so an entry never exists before the version it names.
 
+## [0.11.0] — 2026-09-28
+
+### Changed
+
+- **The Clean-campsite gate no longer excuses temp files.** Its scratch-files bullet read
+  *"session-scoped and auto-cleaned — no action needed"*. That was not a rule anyone gave — an
+  exemption written into a checklist, for the agent following it — and it behaved like one: a
+  session put artifact downloads and a script in `/tmp`, read *"temp files: handled"*, and reported
+  a clean campsite over five surviving directories it had created. The bullet now states ownership
+  with no carve-out: **you delete every temp file you created, wherever you put it**, and a scratch
+  directory the host reclaims is *reported as reclaimed-not-checked* rather than dropped silently.
+- The same gate says *"its upstream"* rather than naming a remote, so it reads correctly in a
+  repository that has none.
+
+### Added
+
+- **"Running this checklist is not reading it."** The gate now requires the reading to be quoted
+  beside each line before the word "clean" is written — the commands print state, the report is a
+  claim about that state, and they part company silently. It calls out `git status -sb` showing
+  `[behind N]` as **not clean** (the session that prompted this had that string in its own output
+  and wrote "campsite clean" under it, twice).
+- **A standing prohibition on the gate itself: no line in it may end "no action needed."** An
+  exemption the follower grants itself is the one failure a checklist cannot contain.
+
 ## [0.10.0] — 2026-09-01
 
 ### Added
@@ -493,6 +517,8 @@ Tagging it retroactively is an outward-facing act on the remote, so it is routed
 in passing — `tasks/new/00028-a-shipped-version-went-untagged-as-010-said-it-would.md`, which is the
 escalation task 010 pre-wrote for exactly this condition.
 
+[0.11.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.10.0...cannery-row--v0.11.0
+[0.10.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.9.0...cannery-row--v0.10.0
 [0.9.0]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.8.2...cannery-row--v0.9.0
 [0.8.2]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.8.1...cannery-row--v0.8.2
 [0.8.1]: https://github.com/justmaniv/cannery-row/compare/cannery-row--v0.8.0...cannery-row--v0.8.1
