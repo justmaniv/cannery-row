@@ -199,8 +199,23 @@ jobs                       # background polls/servers you started → stop them
   **Leave** branches still under review or carrying an active sibling task — say which you left and why.
 - **Remote branches / anything outward-facing:** do not delete without asking — surface it instead.
 - **Background jobs:** stop any poll/watch/server you spawned for the task.
-- **Scratchpad temp files** are session-scoped and auto-cleaned — no action needed; never put task
-  deliverables there.
+- **Temp files you created:** delete them, wherever you put them. A scratch directory the host says
+  it reclaims still has to be named in the report as reclaimed-not-checked, and anything you wrote
+  *outside* it — `/tmp`, the repo, a home directory — is ordinary litter you own. Never put task
+  deliverables in scratch.
+
+🔴 **Running this checklist is not reading it.** The commands print state; a report is a claim about
+that state, and the two part company silently. Quote the reading beside each line — *worktrees: mine
+removed, `../x` left (sibling)*; *branches: mine deleted, 3 `: gone` not mine*; *status: clean, level
+with its upstream*; *jobs: none* — and only then write "clean". In particular **`git status -sb`
+reading `[behind N]` is not clean**: fast-forward first. (A branch with no upstream simply has no
+such reading — there is nothing to be behind.) A campsite claim with no readings under it was not
+checked.
+
+⚠️ **No line in this gate may end "no action needed."** One did, for scratch files, and it was not
+a rule anyone gave — an agent wrote an exemption into the checklist, for agents, and a session then
+read *"temp files: handled"* and reported a clean campsite over five surviving directories it had
+made. An exemption you grant yourself is the one thing this gate cannot contain.
 
 Then, in the done report, state the campsite is clean and note anything deliberately left standing.
 

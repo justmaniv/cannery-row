@@ -11,7 +11,7 @@
       "name": "cannery-row",
       "source": "./",
       "description": "Task state as files, where the location is the status. Ships the task-lifecycle skill and the archive operation it invokes; the board generator and the gates live in the repository.",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "license": "Apache-2.0",
       "homepage": "https://github.com/justmaniv/cannery-row",
       "author": {
